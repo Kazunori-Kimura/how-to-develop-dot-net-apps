@@ -88,8 +88,8 @@ CSVファイルを取り込み、SQL Serverに取り込むアプリケーショ�
 
 * 参考
   - [連載：Windowsフォーム開発入門【Visual Studio 2010対応】](http://www.atmarkit.co.jp/fdotnet/chushin/introwinform_index/index.html)
-  - [NetOffice - MS Office in .NET ](http://netoffice.codeplex.com/)
-  - [C#でExcelファイルを作成・グラフを挿入する　NetOfficeによる方法](http://whoopsidaisies.hatenablog.com/entry/2014/06/19/101032)
+  - [EPPlus](http://epplus.codeplex.com/)
+  - [EPPlusの基本的な使い方メモ (xlsx形式, Excelのインストール必要ない, COM使わない)](http://devlights.hatenablog.com/entry/2015/04/02/062545)
   - [方法: プログラムによって文書を印刷する](https://msdn.microsoft.com/ja-jp/library/b9f0ke7y.aspx)
   - [EXCEL印刷(Worksheet.PrintOut)のサンプル(C#.NET)](http://homepage2.nifty.com/nonnon/SoftSample/CS.NET/SampleExcelPrint.html)
 
