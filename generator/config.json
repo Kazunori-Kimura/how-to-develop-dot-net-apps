@@ -1,0 +1,9 @@
+{
+  "template": "../template",
+  "src": "../docs",
+  "dst": "../../gh-pages",
+  "base_url": "http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/",
+  "title": "how-to-develop-dot-net-apps",
+  "copyright": "2015 Kazunori Kimura",
+  "project": ".NET Framework アプリケーション開発入門"
+}
