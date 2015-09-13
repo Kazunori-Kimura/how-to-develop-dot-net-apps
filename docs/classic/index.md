@@ -4,15 +4,6 @@
 
 <br>
 
-## 環境について
-
-* OS: Windows 10
-* IDE: Visual Studio 2015
-* DB: SQL Server LocalDB (Visual Studio2015インストール時に合わせてインストールしてください)
-* その他: Office 2010
-
-<br>
-
 ## サンプル・アプリケーションのイメージ図
 
 薬局内のPCにインストールされる「薬品情報管理システム」を題材とします。
@@ -45,25 +36,13 @@ CSVに登録されていないがその薬局で取り扱っている薬品情�
 <br>
 <br>
 
-## 1. .NET Frameworkの概要と簡単なコンソールアプリケーションの開発
+## 1. 簡単なコンソールアプリケーションの開発
+
+### Entity Frameworkによるデータベース操作
 
 GUIのないコンソールアプリケーションの作成を通して、Entity Frameworkを使用したデータベースのデータ登録、参照、更新、削除の操作について解説します。
 
-------
 <br>
-
-### (1) .NET Frameworkの概要
-
-* 参考: [第1回　Visual Studio 2015って何ができるの？ (1/6)](http://www.atmarkit.co.jp/ait/articles/1508/07/news031.html)
-
-- .NET Frameworkの概要
-- Visual Studio 2015の機能
-- 開発できるアプリケーションの種類
-
-------
-<br>
-
-### (2) Entity Frameworkによるデータベース操作
 
 * 参考
   - [Entity Framework](https://msdn.microsoft.com/ja-jp/data/ef)
@@ -122,8 +101,8 @@ SQL Serverの検索、登録、更新、削除を行うアプリケーション�
 * 更新処理の実装
   - フォームの追加
   - Entity Frameworkでのデータ更新、削除
-* Officeファイルの扱い
-  - NetOffceによるExcelファイルの作成
+* Officeファイルの操作
+  - EPPlusによるExcelファイルの作成
   - Excelファイルの更新
 * 印刷処理
 * 動作確認
