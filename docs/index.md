@@ -21,29 +21,31 @@
 
 ## 勉強会アジェンダ
 
-### [.NET Framework 概要](./001.html)
+### [.NET Framework 概要](./about-001.html)
 
 * .NET Framework とは
 * Visual Studio について
 
 <br>
 
-### [.NET Framework アプリケーション開発入門](./classic/index.html)
+### [.NET Framework アプリケーション開発入門](./classic-index.html)
 
 * 簡単なコンソールアプリケーションの開発
   - Entity Frameworkによるデータベース操作
 * Windowsフォームアプリケーションの開発
   - LINQ
   - Officeファイルの操作
+* マルチスレッド対応
+  - BackgroundWorker コンポーネントでのマルチスレッド
 
 <br>
 
-### [ASP.NET MVC開発入門](./aspnet/index.html)
+### [ASP.NET MVC開発入門](./asp-index.html)
 
-* [ASP.NET MVC の概要と基礎](./aspnet/001.html)
+* [ASP.NET MVC の概要と基礎](./asp-001.html)
   - ASP.NET MVC とは
   - ASP.NET MVC の基礎
-* EntityFramework によるコードファースト開発
+* [EntityFramework によるコードファースト開発](./asp-002.html)
 * EntityFramework によるデータベースファースト開発
 * メンバーシップ フレームワークによる認証機能の実装
 

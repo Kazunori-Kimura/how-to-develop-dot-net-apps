@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%- @title %></title>
   <!-- Bootstrap -->
-  <link href="lib/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/base.css" rel="stylesheet">
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
   <!-- highlightjs -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8/styles/default.min.css">
   <!-- font-awesome -->
@@ -21,9 +21,9 @@
 </head>
 <body>
   <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
+    <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="<%= @base_url %>"><%= @title %></a>
+        <a class="navbar-brand" href="<%= @base_url %>"><i class="fa fa-code"></i> <%= @title %></a>
       </div>
       <p class="navbar-text navbar-right">
         <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
@@ -34,15 +34,24 @@
     </div>
   </nav>
 
-  <div class="container contents">
-    <!-- contents -->
-    <%- @content %>
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <%- @content %>
+      </div>
+      <div class="col-md-3">
+        <% include 'nav' %>
+      </div>
+    </div>
   </div>
 
   <br>
   <br>
 
   <div class="container">
+
     <div class="center-block ad-block">
       <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <!-- aaa-768x90 -->
