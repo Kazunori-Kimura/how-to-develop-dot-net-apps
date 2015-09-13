@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>.NET アプリケーション開発入門</title>
+  <!-- Bootstrap -->
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
+  <!-- highlightjs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8/styles/default.min.css">
+  <!-- font-awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/"><i class="fa fa-code"></i> .NET アプリケーション開発入門</a>
+      </div>
+      <p class="navbar-text navbar-right">
+        <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
+          <i class="fa fa-github"></i>
+          View on GitHub
+        </a>
+      </p>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <h1 id="-net-framework-">.NET Framework アプリケーション開発入門</h1>
+<p>.NET Frameworkを使用したクライアント アプリケーションの開発方法について解説します。</p>
+<p><br></p>
+<h2 id="-">サンプル・アプリケーションのイメージ図</h2>
+<p>薬局内のPCにインストールされる「薬品情報管理システム」を題材とします。</p>
+<p><img src="images/image1.png" alt="イメージ図"></p>
+<p><br></p>
+<p>各薬局には一般に流通している薬品情報がCSV形式で定期的 (1日1回) に配信されるものとします。</p>
+<p>薬局内のPCでは、「薬品情報登録アプリ」が定期的に実行され、
+配信されたCSVをそのPC内で稼働しているSQL Serverの特定テーブルに取り込みます。</p>
+<p><br></p>
+<p>薬剤師は「薬品情報検索アプリ」を使用して、取り込まれたデータを検索します。</p>
+<p>CSVに登録されていないがその薬局で取り扱っている薬品情報は、薬剤師が「薬品情報検索アプリ」を使用して登録します。
+また、登録したデータは変更、削除が可能です。
+(CSVから登録された薬品は編集不可とします)</p>
+<p><br></p>
+<p>「薬品情報検索アプリ」は、薬局に来られたお客様にお渡しする「薬品説明書」を印刷する機能を持つものとします。</p>
+<p><br></p>
+<hr>
+<p><br>
+<br></p>
+<h2 id="1-">1. 簡単なコンソールアプリケーションの開発</h2>
+<h3 id="entity-framework-">Entity Frameworkによるデータベース操作</h3>
+<p>GUIのないコンソールアプリケーションの作成を通して、Entity Frameworkを使用したデータベースのデータ登録、参照、更新、削除の操作について解説します。</p>
+<p><br></p>
+<ul>
+<li>参考<ul>
+<li><a href="https://msdn.microsoft.com/ja-jp/data/ef">Entity Framework</a></li>
+<li><a href="https://msdn.microsoft.com/en-us/data/jj206878">Data Developer Center &gt; Learn &gt; Entity Framework &gt; Get Started &gt; Database First</a></li>
+<li><a href="http://www.atmarkit.co.jp/fdotnet/ef4basic/index/index.html">連載:ADO.NET Entity Framework入門</a></li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<p><img src="images/image2.png" alt="イメージ図"></p>
+<p>CSVファイルを取り込み、SQL Serverに取り込むアプリケーションを作成します。</p>
+<p><br></p>
+<ul>
+<li>データの準備<ul>
+<li>CSVファイル</li>
+<li>データベース</li>
+</ul>
+</li>
+<li>コンソールアプリケーション プロジェクトの作成</li>
+<li>Entity Frameworkの概要<ul>
+<li>ORマッパーとは</li>
+<li>Entity Frameworkのインストール</li>
+<li>EDMの作成</li>
+<li>POCOの作成</li>
+<li>Entity Frameworkでのデータ保存、取得</li>
+</ul>
+</li>
+<li>CSVファイルの読み込み</li>
+<li>DB登録</li>
+<li>動作確認</li>
+</ul>
+<hr>
+<p><br></p>
+<h2 id="2-windows-">2. Windowsフォームアプリケーションの開発</h2>
+<ul>
+<li>参考<ul>
+<li><a href="http://www.atmarkit.co.jp/fdotnet/chushin/introwinform_index/index.html">連載：Windowsフォーム開発入門【Visual Studio 2010対応】</a></li>
+<li><a href="http://epplus.codeplex.com/">EPPlus</a></li>
+<li><a href="http://devlights.hatenablog.com/entry/2015/04/02/062545">EPPlusの基本的な使い方メモ (xlsx形式, Excelのインストール必要ない, COM使わない)</a></li>
+<li><a href="https://msdn.microsoft.com/ja-jp/library/b9f0ke7y.aspx">方法: プログラムによって文書を印刷する</a></li>
+<li><a href="http://homepage2.nifty.com/nonnon/SoftSample/CS.NET/SampleExcelPrint.html">EXCEL印刷(Worksheet.PrintOut)のサンプル(C#.NET)</a></li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<p><img src="images/image3.png" alt="イメージ図"></p>
+<p>SQL Serverの検索、登録、更新、削除を行うアプリケーションを作成します。</p>
+<p><br></p>
+<ul>
+<li>Windowsフォームアプリケーション プロジェクトの作成<ul>
+<li>Entity Frameworkのインストール</li>
+<li>EDMの作成</li>
+<li>POCOの作成</li>
+</ul>
+</li>
+<li>検索処理の実装<ul>
+<li>イベント処理の実装</li>
+<li>LINQによるデータ操作</li>
+</ul>
+</li>
+<li>更新処理の実装<ul>
+<li>フォームの追加</li>
+<li>Entity Frameworkでのデータ更新、削除</li>
+</ul>
+</li>
+<li>Officeファイルの操作<ul>
+<li>EPPlusによるExcelファイルの作成</li>
+<li>Excelファイルの更新</li>
+</ul>
+</li>
+<li>印刷処理</li>
+<li>動作確認</li>
+</ul>
+<p><br>
+<br></p>
+<hr>
+<p><br></p>
+<h2 id="3-">3. マルチスレッド対応</h2>
+<ul>
+<li>参考<ul>
+<li><a href="https://msdn.microsoft.com/ja-jp/library/ck8bc5c6.aspx">マルチスレッド アプリケーション</a></li>
+<li><a href="https://msdn.microsoft.com/ja-jp/library/ywkkz4s1.aspx">チュートリアル: BackgroundWorker コンポーネントでのマルチスレッド</a></li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<p><img src="images/image4.png" alt="イメージ図"></p>
+<p>CSV取り込み時に進捗状況を表示するインターフェースを用意します。</p>
+<p>取り込み処理中もアプリケーションが固まらないように、CSV読み込み・データ登録処理をバックグラウンドのスレッドで実行します。</p>
+<p><br></p>
+<ul>
+<li>Windowsフォームアプリケーション プロジェクトの作成<ul>
+<li>コントロールの配置、イベント処理の実装</li>
+</ul>
+</li>
+<li>CSVファイルの読み込み<ul>
+<li>フォルダ内のファイル一覧を取得</li>
+<li>ファイルの操作</li>
+<li>CSVファイルの読み込み処理の実装</li>
+</ul>
+</li>
+<li>DB更新処理の実装<ul>
+<li>Entity Frameworkのインストール</li>
+<li>EDMの作成</li>
+<li>POCOの作成</li>
+<li>DB登録</li>
+</ul>
+</li>
+<li>マルチスレッド対応 - BackgroundWorker コンポーネントでのマルチスレッド</li>
+<li>動作確認</li>
+</ul>
+      </div>
+      <div class="col-md-3">
+        <div class="list-group">
+  <a href="./index.html" class="list-group-item active">TOP</a>
+  <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
+  <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
+  <a href="#" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
+  <a href="#" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="#" class="list-group-item">3. マルチスレッド対応</a>
+  <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
+  <a href="./asp-002.html" class="list-group-item">2. EntityFramework によるコードファースト開発</a>
+  <a href="#" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
+  <a href="#" class="list-group-item">4. メンバーシップ フレームワークによる認証機能の実装</a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+
+    <div class="center-block ad-block">
+      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- aaa-768x90 -->
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:728px;height:90px"
+           data-ad-client="ca-pub-5886049398949171"
+           data-ad-slot="8568248344"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">.NET アプリケーション開発入門 , &copy; 2015 Kazunori Kimura</p>
+    </div>
+  </footer>
+
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8/highlight.min.js"></script>
+  <script>
+  $(function(){
+    $(".contents table").addClass("table");
+  });
+  </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-29149079-3', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>

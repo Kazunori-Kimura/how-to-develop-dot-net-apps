@@ -39,63 +39,75 @@
       <div class="col-md-2"></div>
       <div class="col-md-7">
         <!-- contents -->
-        <h1 id="-net-framework-">.NET Framework 開発入門</h1>
-<p><br></p>
-<h2 id="-">勉強会の環境について</h2>
+        <h1 id="1-asp-net-mvc-">1. ASP.NET MVCの概要</h1>
+<h2 id="asp-net-">ASP.NET概要</h2>
 <ul>
-<li>Windows 10<ul>
-<li>Windows 7, 8 でも基本的に変わりません</li>
+<li>参考: <a href="http://www.asp.net/get-started">ASP.NET-Get Started with ASP.NET</a></li>
 </ul>
-</li>
-<li>Visual Studio 2015<ul>
-<li>エディションや設定によって、画面の構成が異なる場合があります。</li>
-</ul>
-</li>
-<li>SQL Server LocalDB<ul>
-<li>Visual Studioをセットアップする際に合わせてインストールしてください。</li>
-</ul>
-</li>
+<p><code>ASP.NET</code>のコアを土台に、サイト作成用の技術とサービス作成用の技術が構築されています。</p>
+<p><img src="./images/asp-net-architecture.png" alt="ASP.NET Architecture image"></p>
+<p><br></p>
+<h3 id="sites">Sites</h3>
+<p>サーバーからHTMLなどを返すアプリケーションを作成する技術です。</p>
+<p>後ほど各要素について詳しく説明します。</p>
+<p><br></p>
+<h3 id="services">Services</h3>
+<p>サーバーからXMLやJSONなどを返すアプリケーションを作成する技術です。</p>
+<p>多くの場合はエンドユーザーから直接呼び出されることはなく、
+クライアントとなるプログラムから呼び出されます。</p>
+<p>クライアント側は受け取ったデータを処理した上で画面に表示します。</p>
+<ul>
+<li><code>ASP.NET Web API</code> は RESTスタイルのAPI開発に使用します。</li>
+<li><code>ASP.NET SignalR</code> は <code>WebSocket</code>のようなサーバー-ブラウザ間の双方向リアルタイム通信を実現するためのライブラリです。</li>
 </ul>
 <p><br>
 <br></p>
-<hr>
+<h2 id="building-web-sites-in-asp-net">Building Web Sites in ASP.NET</h2>
+<p>ASP.NETでは、Webアプリケーションを作成するため、以下の3つのフレームワークを提供しています。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>開発スタイル</th>
+<th>If you have experience in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ASP.NET Web Forms</td>
+<td>HTMLとコードを同じファイルに記載</td>
+<td>Windows Form, WPF, .NET</td>
+</tr>
+<tr>
+<td>ASP.NET Web Pages</td>
+<td>豊富なHTMLをカプセル化したコントロールのライブラリを使用した高速開発</td>
+<td>Classic ASP, PHP</td>
+</tr>
+<tr>
+<td>ASP.NET MVC</td>
+<td>MVC(Model, View, Controller)スタイルの開発</td>
+<td>Ruby on Rails, .NET</td>
+</tr>
+</tbody>
+</table>
+<p>上記の図にある <code>Single Page Application</code> は <code>ASP.NET MVC</code> の発展型です。</p>
 <p><br>
 <br></p>
-<h2 id="-">勉強会アジェンダ</h2>
-<h3 id="-net-framework-about-001-html-"><a href="./about-001.html">.NET Framework 概要</a></h3>
-<ul>
-<li>.NET Framework とは</li>
-<li>Visual Studio について</li>
-</ul>
+<h2 id="mvc-">MVC とは？</h2>
+<blockquote>
+<p><a href="http://ja.wikipedia.org/wiki/Model_View_Controller">Model View Controller</a></p>
+<p>MVC（Model View Controller モデル・ビュー・コントローラ）は、ユーザーインタフェースをもつアプリケーションソフトウェアを実装するためのデザインパターンである。
+アプリケーションソフトウェアの内部データを、ユーザーが直接参照・編集する情報から分離する。そのためにアプリケーションソフトウェアを以下の3つの部分に分割する。</p>
+<ol>
+<li>model: アプリケーションデータ、ビジネスルール、ロジック、関数</li>
+<li>view: グラフや図などの任意の情報表現</li>
+<li>controller: 入力を受け取りmodelとviewへの命令に変換する</li>
+</ol>
+</blockquote>
+<p><em>MVC</em> は Smalltalk における ウィンドウプログラム開発の設計指針として生まれたものです。</p>
 <p><br></p>
-<h3 id="-net-framework-classic-index-html-"><a href="./classic-index.html">.NET Framework アプリケーション開発入門</a></h3>
-<ul>
-<li>簡単なコンソールアプリケーションの開発<ul>
-<li>Entity Frameworkによるデータベース操作</li>
-</ul>
-</li>
-<li>Windowsフォームアプリケーションの開発<ul>
-<li>LINQ</li>
-<li>Officeファイルの操作</li>
-</ul>
-</li>
-<li>マルチスレッド対応<ul>
-<li>BackgroundWorker コンポーネントでのマルチスレッド</li>
-</ul>
-</li>
-</ul>
-<p><br></p>
-<h3 id="-asp-net-mvc-asp-index-html-"><a href="./asp-index.html">ASP.NET MVC開発入門</a></h3>
-<ul>
-<li><a href="./asp-001.html">ASP.NET MVC の概要と基礎</a><ul>
-<li>ASP.NET MVC とは</li>
-<li>ASP.NET MVC の基礎</li>
-</ul>
-</li>
-<li><a href="./asp-002.html">EntityFramework によるコードファースト開発</a></li>
-<li>EntityFramework によるデータベースファースト開発</li>
-<li>メンバーシップ フレームワークによる認証機能の実装</li>
-</ul>
+<p><em>ASP.NET MVC</em> は MVC のデザインパターンで ASP.NET Webアプリケーション を開発するにあたって
+必須であったり、便利な機能を提供するフレームワークです。</p>
 <p><br>
 <br></p>
       </div>
