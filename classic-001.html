@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>.NET アプリケーション開発入門</title>
+  <!-- Bootstrap -->
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
+  <!-- highlightjs -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  <!-- font-awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/"><i class="fa fa-code"></i> .NET アプリケーション開発入門</a>
+      </div>
+      <p class="navbar-text navbar-right">
+        <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
+          <i class="fa fa-github"></i>
+          View on GitHub
+        </a>
+        &nbsp;
+      </p>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <h1 id="1-">1. 簡単なコンソールアプリケーションの開発</h1>
+<p>GUIのないコンソールアプリケーションの作成を通して、 <em>Entity Framework</em> を使用した
+データベースのデータ登録、参照、更新、削除の操作 (Create, Read, Update, Delete <em>CRUD</em>) について解説します。</p>
+<p><br></p>
+<h3 id="-entity-framework">用語解説: Entity Framework</h3>
+<p><em>Entity Framework</em> は、.NET 開発者がオブジェクトを使用して
+リレーショナル データを処理できるようにする <em>オブジェクト リレーショナル マッパー</em> (O/Rマッパー) です。</p>
+<ul>
+<li>参考: <a href="https://msdn.microsoft.com/ja-jp/data/ef.aspx">Entity Framework</a></li>
+</ul>
+<p><br></p>
+<h3 id="-o-r-">用語解説: O/Rマッパー</h3>
+<ul>
+<li>O/Rマッピング ... オブジェクトの各プロパティを、RDBのテーブルの各フィールドに関連付けること。</li>
+<li>O/Rマッパー ... O/Rマッピングを行うライブラリのこと。</li>
+</ul>
+<p>O/Rマッパーによって オブジェクト と テーブル を紐付け、オブジェクトに対する操作を行うと
+背後でO/RマッパーがSQL文を発行して処理を行ってくれるため、SQLを直接扱う場面が減り、
+プログラムの見通しがよくなります。</p>
+<p><br>
+<br></p>
+<h2 id="-">アプリケーション仕様</h2>
+<p><img src="images/image2.png" alt="イメージ図"></p>
+<p><br></p>
+<p>CSVファイルを取り込み、SQL Serverに取り込むアプリケーションを作成します。</p>
+<p><br><br></p>
+<h2 id="-">データの準備</h2>
+<h3 id="csv-">CSVファイル</h3>
+<p>以下の項目がカンマ区切りで記載されているCSVファイルを作成します。</p>
+<ul>
+<li>薬品コード</li>
+<li>医薬分類コード</li>
+<li>医薬分類群 (医薬分類コードに対応した名称)</li>
+<li>医薬品名</li>
+<li>会社名</li>
+</ul>
+<p><br></p>
+<p>話を簡単にするために、世の中には以下の 3つの医薬分類コードのみ存在するとします。</p>
+<table>
+<thead>
+<tr>
+<th>医薬分類コード</th>
+<th>医薬分類群</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>医薬分類A</td>
+</tr>
+<tr>
+<td>200</td>
+<td>医薬分類B</td>
+</tr>
+<tr>
+<td>300</td>
+<td>医薬分類C</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<pre><code class="lang-csv">Y1001,<span class="hljs-number">100</span>,医薬分類A,薬品A-<span class="hljs-number">1</span>,○○製薬
+Y1002,<span class="hljs-number">100</span>,医薬分類A,薬品A-<span class="hljs-number">2</span>,☓☓薬品工業
+Y1003,<span class="hljs-number">100</span>,医薬分類A,薬品A-<span class="hljs-number">3</span>,○○製薬
+Y2001,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">1</span>,☓☓薬品工業
+Y2002,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">2</span>,○○製薬
+Y2003,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">3</span>,○○製薬
+Y2004,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">4</span>,○○製薬
+Y3001,<span class="hljs-number">300</span>,医薬分類C,薬品C-<span class="hljs-number">1</span>,☓☓薬品工業
+Y3002,<span class="hljs-number">300</span>,医薬分類C,薬品C-<span class="hljs-number">2</span>,☓☓薬品工業
+Y3003,<span class="hljs-number">300</span>,医薬分類C,薬品C-<span class="hljs-number">3</span>,☓☓薬品工業
+</code></pre>
+<p><code>C:¥CSV¥in</code> に <code>yakuhin.csv</code> として保存します。
+文字コードは <em>UTF-8</em> としてください。</p>
+<p><br><br></p>
+<h3 id="-">データベース</h3>
+<p>薬品情報を格納するテーブルを準備します。</p>
+<p>医薬分類を管理する <em>Classifications</em> テーブルと、薬品情報を管理する <em>Drugs</em> テーブルを用意します。</p>
+<p><img src="./images/classic-001-er.png" alt="ER図"></p>
+<p><br></p>
+<h4 id="sql-server-localdb-">SQL Server LocalDB のサーバー名を確認する</h4>
+<p>Visual Studio 2012 以降の場合、 <em>SQL Server LocalDB</em> がインストールされています。
+(VS2015では明示的に選択する必要があるかもしれません。)</p>
+<p>バージョンによってサーバー名が異なりますので、以下の手順で確認します。<br>(SQL Server Express を使用している場合は <code>.\SQLEXPRESS</code> 固定です。)</p>
+<p><br></p>
+<p>(1) コマンドプロンプトを実行します。</p>
+<p>(2) <code>sqllocaldb i</code> と入力し、Enterキーを押します。</p>
+<p>以下のように、サーバー名が表示されます。</p>
+<pre><code><span class="hljs-keyword">C</span>:¥Users¥<span class="hljs-list">{UserName}</span>&gt;sqllocaldb i
+MSSQLLocalDB
+</code></pre><p><br></p>
+<p>コマンドが存在しない場合、<em>SQL Server LocalDB</em> がインストールされていません。<br>Visual Studio のインストーラーを再実行して、<em>Microsoft SQL Server Data Tools</em> にチェックが入っている事を確認してください。</p>
+<p><img src="./images/c1-0.JPG" alt="機能の選択"></p>
+<p><br>
+<br></p>
+<h4 id="sql-server-">SQL Server にデータベースを作成する</h4>
+<p>(1) Visual Studio を起動します。</p>
+<p>(2) <em>サーバー エクスプローラー</em> を表示します。</p>
+<p><img src="./images/c1-1.JPG" alt="スタートページ">
+<br></p>
+<p>(3) <em>データ接続</em> を右クリックし、 <em>接続の追加</em> を選択します。</p>
+<p><img src="./images/c1-2.JPG" alt="接続の追加">
+<br></p>
+<p>(4) <em>サーバー名</em> にデータベースのサーバー名を入力します。</p>
+<ul>
+<li><em>SQL Server Express</em> の場合: <code>.\SQLEXPRESS</code></li>
+<li><em>SQL Server LocalDB</em> の場合: <code>(localdb)¥{ServerName}</code><br>{ServerName} には 上の手順で確認したサーバー名を設定</li>
+</ul>
+<p>(5) <em>データベース名の選択または入力</em> にデータベース名を入力します。<br>今回は <code>ClassicApps.DrugInfo</code> とします。</p>
+<p><br></p>
+<p>(6) <em>データ接続</em> の下にデータベースが登録されます。<br>右クリックし、<em>新しいクエリ</em> を選択します。</p>
+<p>(7) 以下のSQLを入力します。</p>
+<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[Classifications] (
+  [ClassificationId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [ClassificationCode] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">3</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-literal">NULL</span>,
+  <span class="hljs-keyword">CONSTRAINT</span> [PK_dbo.Classifications] PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([ClassificationId] <span class="hljs-keyword">ASC</span>)
+);</span>
+
+<span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[Drugs] (
+  [DrugId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [DrugCode] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">10</span>) <span class="hljs-literal">NULL</span>,
+  [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-literal">NULL</span>,
+  [Company] NTEXT <span class="hljs-literal">NULL</span>,
+  [ClassificationId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  <span class="hljs-keyword">CONSTRAINT</span> [PK_dbo.Drugs] PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([DrugId] <span class="hljs-keyword">ASC</span>),
+  <span class="hljs-keyword">CONSTRAINT</span> [FK_dbo.Drugs_dbo.Classifications_ClassificationId] FOREIGN <span class="hljs-keyword">KEY</span> ([ClassificationId]) <span class="hljs-keyword">REFERENCES</span> [dbo].[Classifications] ([ClassificationId]) <span class="hljs-keyword">ON</span> <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">CASCADE</span>
+);</span>
+</code></pre>
+<p><br></p>
+<p><img src="./images/c1-3.JPG" alt="データベース登録">
+<br></p>
+<p>(8) <em>実行</em> をクリックします。<br><code>Classifications</code>, <code>Drugs</code> というテーブルが作成されていることを確認します。</p>
+<p><img src="./images/c1-4.JPG" alt="テーブル確認"></p>
+<p><br><br></p>
+<hr>
+<p><br><br></p>
+<h2 id="-">コンソールアプリケーション プロジェクトの作成</h2>
+<p>(1) 「スタート ページ」で <em>新しいプロジェクト</em> をクリックします。</p>
+<p><img src="./images/c1-5.JPG" alt="画像"></p>
+<p>スタートページを閉じてしまった場合は、「ファイル」メニューから新しいプロジェクトを選択します。</p>
+<p>(2) 「新しいプロジェクト」のウィンドウで、左のツリーから <em>Visual C#</em> -&gt; <em>Windows</em> の順にたどります。</p>
+<p>(3) 右側で <em>コンソール アプリケーション</em> を選択します。</p>
+<p>(4) 名前を <em>CsvImportTool</em> とし、<em>OK</em> をクリックします。</p>
+<p>(任意の名前でも構いませんが、以降のソースコードで <code>namespace</code> の箇所をプロジェクト名に合わせる必要が出てきます。)</p>
+<p><img src="./images/c1-6.JPG" alt="画像"></p>
+<p><br></p>
+<h3 id="hello-world-">Hello, World!</h3>
+<p>まずは、簡単なコードを書いて実行してみます。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">CsvImportTool</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-title">Program</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Main</span>(<span class="hljs-params"><span class="hljs-keyword">string</span>[] args</span>)
+        </span>{
+            <span class="hljs-comment">// コンソールに出力</span>
+            System.Console.WriteLine(<span class="hljs-string">"Hello, World!"</span>);
+
+            <span class="hljs-comment">/*
+              出力ウィンドウに出力
+             */</span>
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"Hello, World!"</span>);
+        }
+    }
+}
+</code></pre>
+<p><br><br></p>
+<p>コードを書いたら、<em>F5</em> キーを押すか、 <em>開始</em> (緑の三角形アイコン)をクリックします。</p>
+<p>ビルドが完了すると、一瞬コマンド プロンプトが表示され、すぐに閉じられます。</p>
+<p>Visual Studio の下部にある <em>出力ウィンドウ</em> を開くと、&quot;Hello, World!&quot; と出力されていることを確認してください。</p>
+<p><br><br></p>
+<pre><code class="lang-cs"><span class="hljs-tag">System</span><span class="hljs-class">.Console</span><span class="hljs-class">.WriteLine</span>("<span class="hljs-tag">Hello</span>, <span class="hljs-tag">World</span>!");
+</code></pre>
+<p>この行は、コンソール (コマンド プロンプト) に &quot;Hello, World!&quot; という文字列を出力する命令です。</p>
+<p><code>System</code> は名前空間(Namespace) です。<br>上記のソースコードでは <a href="https://msdn.microsoft.com/ja-jp/library/sf0df423.aspx">using ディレクティブ</a> に
+<code>using System;</code> の記載があるので省略可能ですが、説明のために あえて記述しています。</p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/system.console.aspx">Console クラス</a> は コンソール アプリケーションが標準入力・標準出力・標準エラーを使用するのに使用します。</p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/xf2k8ftb.aspx">WriteLine メソッド</a> は
+指定された文字列を標準出力に書き込み、続けて改行を書き込みます。</p>
+<p><br><br></p>
+<pre><code class="lang-cs"><span class="hljs-tag">System</span><span class="hljs-class">.Diagnostics</span><span class="hljs-class">.Debug</span><span class="hljs-class">.WriteLine</span>("<span class="hljs-tag">Hello</span>, <span class="hljs-tag">World</span>!");
+</code></pre>
+<p>この行は、Visual Studio の出力ウィンドウに文字列を出力します。</p>
+<p>Debugクラスの出力は、 <em>Debug</em> のビルド時にのみ有効です。<br><em>Release</em> を指定した場合は無視されます。</p>
+<p>参考: <a href="https://support.microsoft.com/ja-jp/kb/815788">Visual C# でトレースとデバッグを実行する方法</a></p>
+<p><br><br></p>
+<hr>
+<h3 id="-namespace-">用語解説: 名前空間 (Namespace)</h3>
+<blockquote>
+<p><a href="http://d.hatena.ne.jp/keyword/%CC%BE%C1%B0%B6%F5%B4%D6">名前空間とは</a></p>
+<p>シンボル名 (変数名やメソッド名，クラス名等) が使用している複数のライブラリ等でぶつかってしまい支障があるような状況、
+所謂 &quot;名前の衝突&quot; と呼ばれる状況を避ける目的で良く使われる。</p>
+<p>名前空間というのは、一般的には、中に同じ名前のものが複数存在しないように分けたもののことである。<br>ある名前空間の中では、名前から特定のものを一意に決定できる。
+別の名前空間内にあるものは、名前空間と名前を組み合わせることで一意に特定できる。</p>
+</blockquote>
+<p>参考: <a href="https://msdn.microsoft.com/ja-jp/library/ms229026.aspx">名前空間の名前</a></p>
+<hr>
+<p><br>
+<br></p>
+<h2 id="csv-">CSVの読み込み処理</h2>
+<p>CSVの内容を文字列として取り出すコードを書いていきます。</p>
+<p>今回は、CSVの読み込みに <em>CsvHelper</em> というオープンソースのライブラリを使用します。</p>
+<ul>
+<li><a href="http://joshclose.github.io/CsvHelper/">CsvHelper</a></li>
+</ul>
+<p><br>
+<br></p>
+<hr>
+<h3 id="-nuget">用語解説: NuGet</h3>
+<p>Visual Studio用のパッケージ管理システムです。<br>rubyのgemやpythonのpipのようなツールになります。</p>
+<p>インターネット上で公開されている NuGet のレポジトリに登録されたライブラリなどをダウンロードし、
+自分のプロジェクト内で利用できるようインストールしたり、不要なものをアンインストールするといった事ができます。</p>
+<p>コマンドラインやPowerShellからも利用可能ですが、今回は Visual Studio が用意している GUI で操作します。</p>
+<hr>
+<p><br><br></p>
+<p>(1) <em>ソリューション エクスプローラー</em> をクリックします。</p>
+<p>(2) プロジェクト名 <em>CsvImportTool</em> を右クリックし、 <em>NuGetパッケージの管理</em> をクリックします。</p>
+<p><img src="./images/c1-7.JPG" alt="画像">
+<br></p>
+<p>(3) <em>CsvHelper</em> を検索し、 <em>インストール</em> をクリックします。</p>
+<p><img src="./images/c1-8.JPG" alt="画像">
+<br>
+注意: この画面は Visual Studio のバージョンによって大きく異なります。</p>
+<p><br></p>
+<p>(4) 続けて <em>変更の確認</em> ウィンドウが表示されるので、 <em>OK</em> をクリックします。</p>
+<p><img src="./images/c1-9.JPG" alt="画像">
+<br></p>
+<p>必要なモジュールがダウンロードされ、プロジェクトに組み込まれます。</p>
+<p><br><br></p>
+<h3 id="csv-">CSV読み込み処理</h3>
+<p>それでは、冒頭に作成したCSVファイルを読み込み、出力ウィンドウに内容を表示してみます。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">CsvImportTool</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-title">Program</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 取り込み対象のCSVファイル</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">const</span> <span class="hljs-keyword">string</span> FILE_PATH = <span class="hljs-string">@"C:\CSV\in\yakuhin.csv"</span>;
+
+        <span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Main</span>(<span class="hljs-params"><span class="hljs-keyword">string</span>[] args</span>)
+        </span>{
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"Start"</span>);
+
+            <span class="hljs-keyword">var</span> enc = <span class="hljs-keyword">new</span> System.Text.UTF8Encoding(<span class="hljs-keyword">false</span>);
+
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> reader = <span class="hljs-keyword">new</span> System.IO.StreamReader(FILE_PATH, enc))
+            {
+                <span class="hljs-keyword">var</span> csv = <span class="hljs-keyword">new</span> CsvHelper.CsvReader(reader);
+                <span class="hljs-keyword">while</span> (csv.Read())
+                {
+                    <span class="hljs-keyword">string</span> drugCode = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">0</span>);
+                    <span class="hljs-keyword">string</span> clsCode = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">1</span>);
+                    <span class="hljs-keyword">string</span> clsName = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">2</span>);
+                    <span class="hljs-keyword">string</span> drugName = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">3</span>);
+                    <span class="hljs-keyword">string</span> company = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">4</span>);
+
+                    <span class="hljs-keyword">string</span> msg = <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">"{0}, {1}, {2}, {3}, {4}"</span>,
+                        drugCode, clsCode, clsName, drugName, company);
+
+                    System.Diagnostics.Debug.WriteLine(msg);
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"End"</span>);
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>コードを記載したら、「開始」をクリックしてデバッグ実行してください。</p>
+<p>出力ウィンドウにCSVの中身が表示されることを確認します。</p>
+<p><br></p>
+<ul>
+<li>ドキュメント コメント</li>
+</ul>
+<p>コード ブロックの直前の特別なコメント フィールド (<code>///</code>) に XML要素を配置することで、コードのドキュメントを作成できます。</p>
+<p>ドキュメント コメントを設定しておくと、Visual Studioで該当のメソッドなどにマウスオーバーした際にコメントが表示されるので
+多人数で開発する際は非常に便利です。</p>
+<p>定数やクラス、メソッドには必ず記載するようにしましょう。</p>
+<ul>
+<li><a href="https://msdn.microsoft.com/ja-jp/library/b2s063f7.aspx">XML ドキュメント コメント (C# プログラミング ガイド)</a></li>
+</ul>
+<p><br></p>
+<ul>
+<li>定数</li>
+</ul>
+<p>定数は <code>const</code> を付けて定義します。<br>慣習的に、すべて大文字とし、単語の区切りはアンダースコア <code>_</code> とします。</p>
+<p><br></p>
+<ul>
+<li>ファイルの読み込み</li>
+</ul>
+<pre><code class="lang-cs"><span class="hljs-tag">var</span> reader = new System<span class="hljs-class">.IO</span><span class="hljs-class">.StreamReader</span>(FILE_PATH, enc)
+</code></pre>
+<p>ファイルを読み取り専用で開きます。</p>
+<p>第2引数には文字コードを指定します。</p>
+<p><code>var enc = new System.Text.UTF8Encoding(false);</code> は BOM無しUTF-8 を意味しています。</p>
+<p>参考: <a href="http://dobon.net/vb/dotnet/file/readfile.html">readfile</a></p>
+<p><br></p>
+<ul>
+<li>usingステートメント</li>
+</ul>
+<p>CSVファイルの読み込み箇所は、 <em>usingステートメント</em> で囲っています。</p>
+<blockquote>
+<p><a href="http://dobon.net/vb/dotnet/beginner/calldispose.html">Dispose、Closeが確実に呼び出されるようにする</a></p>
+<p>usingステートメントでは、IDisposeインターフェイスが実装されているクラスのDisposeメソッドが呼び出されることを保障します。</p>
+</blockquote>
+<p>ここでは、読み取り専用で開いたCSVファイルが確実に Close されるように usingステートメントを使用しています。</p>
+<p>参考: <a href="https://msdn.microsoft.com/ja-jp/library/yh598w02.aspx">using ステートメント (C# リファレンス)</a></p>
+<p><br></p>
+<p>using の内側は、NuGetでインストールした <em>CsvHelper</em> を使用してCSVファイルを読み込んでいます。</p>
+<pre><code class="lang-cs"><span class="hljs-built_in">string</span> drugCode = csv.GetField&lt;<span class="hljs-built_in">string</span>&gt;(<span class="hljs-number">0</span>);
+</code></pre>
+<p><code>GetField&lt;string&gt;</code> は <em>ジェネリック メソッド</em> と呼ばれ、型をメソッドの引数として指定します。</p>
+<p>ここでは、<code>string</code> 型で値を取得しています。</p>
+<p>参考: <a href="https://msdn.microsoft.com/ja-jp/library/512aeb7t.aspx">ジェネリック (C# プログラミング ガイド)</a></p>
+<p><br></p>
+<ul>
+<li>文字列の定義</li>
+</ul>
+<p>文字列の定義には <code>@&quot;...&quot;</code> と頭に <code>@</code> を付ける方法と、付けない方法の2つがあります。</p>
+<p><code>@</code> を付けた場合、その中身は <code>¥</code> や改行なども含めてそのまま文字列として扱われます。</p>
+<p>付けなかった場合は <code>¥</code> はエスケープシーケンスとなるので、<code>¥</code> は <code>¥¥</code>、改行は <code>¥n</code> とする必要があります。</p>
+<p>ファイルパスを表す場合やSQL文を記述する場合は <code>@</code>を付けて定義するようにし、通常の文字列は付けないで定義します。</p>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="-">データベースの書き込み処理</h2>
+<p>データベースへの登録処理を実装していきます。</p>
+<p>今回はテーブルを先に作成済みなので、 <em>データベース・ファースト</em> と呼ばれる手法で開発していきます。</p>
+<p><br><br></p>
+<h3 id="-entity-data-model-edmx-">用語解説: Entity Data Model (edmxファイル)</h3>
+<p>データ構造を定義するファイル。</p>
+<p><em>CSDL (概念スキーマ定義言語)</em> , <em>SSDL (ストア・スキーマ定義言語)</em> , <em>MSL (マッピング・スキーマ言語)</em> という
+3つのXMLファイルで構成されています。</p>
+<p>実際にXMLを記述する必要はなく、データベースから自動生成する (データベース・ファースト) か、
+<em>Entity Data Model Designer</em> を使用して作成 (モデル・ファースト) します。</p>
+<p><br><br></p>
+<h3 id="-entity-framework-">最新の Entity Framework の入手</h3>
+<p><em>CsvHelper</em> をインストールしたのと同じ手順で、 <em>Entity Framework</em> をインストールします。</p>
+<p>(1) <em>ソリューション エクスプローラー</em> をクリックします。</p>
+<p>(2) プロジェクト名 <em>CsvImportTool</em> を右クリックし、 <em>NuGetパッケージの管理</em> をクリックします。</p>
+<p>(3) <em>Entity Framework</em> を検索し、 <em>インストール</em> をクリックします。</p>
+<p>(4) 続けて <em>変更の確認</em> ウィンドウが表示されるので、 <em>OK</em> をクリックします。</p>
+<p><br><br></p>
+<h3 id="ado-net-entity-data-model-">ADO.NET Entity Data Model の作成</h3>
+<p>(1) <em>ソリューション エクスプローラー</em> をクリックします。</p>
+<p>(2) プロジェクト名 (CsvImportTool) を右クリックし、<em>追加</em> -&gt; <em>新しい項目</em> をクリックします。</p>
+<p><img src="./images/c1-10.JPG" alt="画像">
+<br></p>
+<p>(3) <em>データ</em> から <em>ADO.NET Entity Data Model</em> を選択し、名前を <code>DrugInfoModel</code> とします。</p>
+<p><img src="./images/c1-11.JPG" alt="画像">
+<br></p>
+<p>(4) <em>データベースから EF Designer</em> を選択し、 <em>次へ</em> をクリックします。</p>
+<p><img src="./images/c1-12.JPG" alt="画像">
+<br></p>
+<p>(5) 作成したサーバーが選択されていることを確認します。</p>
+<p>(6) <em>接続設定に名前を付けて App.Config に保存</em> にチェックをし、 <code>DrugInfoContext</code> と入力して <em>次へ</em> をクリックします。</p>
+<p><img src="./images/c1-13.JPG" alt="画像">
+<br></p>
+<p>(7) バージョンの選択ウィンドウが表示される場合は、 <em>Entity Framework 6.x</em> を選択して <em>次へ</em> をクリックします。</p>
+<p><img src="./images/c1-14.JPG" alt="画像">
+<br></p>
+<p>(8) <em>テーブル</em> にチェックを入れて <em>完了</em> をクリックします。</p>
+<p><img src="./images/c1-15.JPG" alt="画像">
+<br></p>
+<p>(9) <em>セキュリティ警告</em> が表示される場合は、 <em>今後このメッセージを表示しない</em> にチェックし、 <em>OK</em> をクリックします。</p>
+<p><img src="./images/c1-16.JPG" alt="画像">
+<br></p>
+<p>(10) edmxファイルが生成され、デザイナーに取り込まれたテーブルの情報が表示されます。</p>
+<p><img src="./images/c1-17.JPG" alt="画像">
+<br>
+<br></p>
+<p>edmxファイルの動作確認も兼ねて、プログラムからデータベースにデータを登録してみます。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">CsvImportTool</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-title">Program</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Main</span>(<span class="hljs-params"><span class="hljs-keyword">string</span>[] args</span>)
+        </span>{
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"Start"</span>);
+
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+            {
+                <span class="hljs-keyword">var</span> classification = <span class="hljs-keyword">new</span> Classifications
+                {
+                    ClassificationCode = <span class="hljs-string">"100"</span>,
+                    Name = <span class="hljs-string">"医薬分類A"</span>
+                };
+                db.Classifications.Add(classification);
+
+                <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">new</span> Drugs
+                {
+                    DrugCode = <span class="hljs-string">"Y1001"</span>,
+                    Name = <span class="hljs-string">"薬品A-1"</span>,
+                    Company = <span class="hljs-string">"○○製薬"</span>,
+                    ClassificationId = classification.ClassificationId
+                };
+                db.Drugs.Add(drug);
+
+                db.SaveChanges();
+            }
+
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"End"</span>);
+        }
+    }
+}
+</code></pre>
+<p>CSVの1行目に記載したデータをデータベースに登録するコードです。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-tag">var</span> db = new <span class="hljs-function"><span class="hljs-title">DrugInfoContext</span><span class="hljs-params">()</span></span>
+</code></pre>
+<p><em>Contextクラス</em> はデータベースへの接続を管理します。</p>
+<p>データベースへのデータの登録や読み込みはすべて Contextクラスを通して行います。</p>
+<p><br></p>
+<p>まずは医薬分類を登録します。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">var</span> classification = <span class="hljs-keyword">new</span> Classifications
+{
+    ClassificationCode = <span class="hljs-string">"100"</span>,
+    Name = <span class="hljs-string">"医薬分類A"</span>
+};
+db.Classifications.Add(classification);
+</code></pre>
+<p><code>db.Classifications</code> は データベースの <code>Classifications</code> テーブルにひも付きます。</p>
+<p><code>Add</code> メソッドで、新しい医薬分類を登録します。<br>特にコーディングしていませんが、このタイミングで <code>ClassificationId</code> が採番され、 <code>classification.ClassificationId</code> にセットされます。</p>
+<p><br></p>
+<p><code>new</code> の後に <code>{}</code> で初期値を設定しています。<br>これは以下とほぼ同じ意味です。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">var</span> classification = <span class="hljs-keyword">new</span> Classifications();
+classification.ClassificationCode = <span class="hljs-string">"100"</span>;
+classification.Name = <span class="hljs-string">"医薬分類A"</span>;
+</code></pre>
+<p><br></p>
+<p>続いて薬品情報を登録します。</p>
+<pre><code class="lang-cs">var drug = new Drugs
+{
+<span class="hljs-constant">    DrugCode</span> = <span class="hljs-string">"Y1001"</span>,
+<span class="hljs-constant">    Name</span> = <span class="hljs-string">"薬品A-1"</span>,
+<span class="hljs-constant">    Company</span> = <span class="hljs-string">"○○製薬"</span>,
+<span class="hljs-constant">    ClassificationId</span> = classification.ClassificationId
+};
+db.Drugs.Add(drug);
+</code></pre>
+<p><code>ClassificationId = classification.ClassificationId</code> で医薬分類と薬品情報をひも付けています。</p>
+<p><br></p>
+<p>最後に、データベースに変更を反映させます。</p>
+<pre><code class="lang-cs"><span class="hljs-tag">db</span><span class="hljs-class">.SaveChanges</span>();
+</code></pre>
+<p><br><br></p>
+<p>コードを記載したら、「開始」をクリックしてデバッグ実行します。</p>
+<p>プログラムが終了したら、 <em>サーバー エクスプローラー</em> でデータを確認してみてください。</p>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="-">プログラムを完成させる</h2>
+<p>これまでの内容を組み合わせて、プログラムを完成させます。</p>
+<p>少し詳細な仕様について、検討してみましょう。</p>
+<ul>
+<li>CSVを読み込み、リストに格納する</li>
+<li>読み込んだデータを元に、データベースに医薬分類、薬品情報を登録する<ul>
+<li>すでに登録済みの内容についてはスキップする</li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<h3 id="poco-">POCOの作成</h3>
+<p>CSVから読み込んだデータを格納する <code>Yakuhin</code> クラスを作成します。</p>
+<p><br></p>
+<p>(1) <em>ソリューション エクスプローラー</em> をクリックします。</p>
+<p>(2) プロジェクト名 (CsvImportTool) を右クリックし、<em>追加</em> -&gt; <em>クラス</em> をクリックします。</p>
+<p><img src="./images/c1-18.JPG" alt="画像">
+<br></p>
+<p>(3) 名前に <code>Yakuhin</code> と入力し、<em>追加</em> をクリックします。</p>
+<p><img src="./images/c1-19.JPG" alt="画像">
+<br></p>
+<p>(4) <code>Yakuhin.cs</code> に以下のように記載します。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">namespace</span> <span class="hljs-title">CsvImportTool</span>
+{
+    <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+    <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> CSVから読み込んだ薬品情報を格納する</span>
+    <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Yakuhin</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品コード</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> DrugCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 医薬分類コード</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 医薬分類群</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 医薬品名</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> DrugName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 会社名</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Company { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
+<p>このような、データを格納するためのプレーンなオブジェクトのことを <em>POCO (Plain Old CLR Object)</em> といいます。</p>
+<p><br><br></p>
+<h3 id="csv-poco-">CSVを読み込み、POCOのリストを作成する</h3>
+<p><code>List&lt;Yakuhin&gt;</code> に読み込んだデータを格納します。</p>
+<p><code>List</code> は動的にサイズが変更できる配列をイメージいただけると理解しやすいと思います。</p>
+<p><code>&lt;Yakuhin&gt;</code> はそのリストに<code>Yakuhin</code>クラスのみが登録されることを意味します。<br>詳細は <a href="https://msdn.microsoft.com/ja-jp/library/512aeb7t.aspx">ジェネリック (C# プログラミング ガイド)</a> を参照してください。</p>
+<p><br></p>
+<p>冒頭でCSVファイルの読み込み確認を行ったコードを少し改変し、CSVの読み込みメソッドを作成します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> CSVを読み込み、薬品情報のリストを返す</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="path"&gt;</span>CSVファイルの絶対パス<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span>薬品情報のリスト<span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">static</span> List&lt;Yakuhin&gt; <span class="hljs-title">ReadCsv</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> path</span>)
+</span>{
+    List&lt;Yakuhin&gt; list = <span class="hljs-keyword">new</span> List&lt;Yakuhin&gt;();
+    <span class="hljs-keyword">var</span> enc = <span class="hljs-keyword">new</span> System.Text.UTF8Encoding(<span class="hljs-keyword">false</span>);
+
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> reader = <span class="hljs-keyword">new</span> System.IO.StreamReader(path, enc))
+    {
+        <span class="hljs-keyword">var</span> csv = <span class="hljs-keyword">new</span> CsvHelper.CsvReader(reader);
+        <span class="hljs-keyword">while</span> (csv.Read())
+        {
+            <span class="hljs-keyword">string</span> drugCode = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">0</span>);
+            <span class="hljs-keyword">string</span> clsCode = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">1</span>);
+            <span class="hljs-keyword">string</span> clsName = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">2</span>);
+            <span class="hljs-keyword">string</span> drugName = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">3</span>);
+            <span class="hljs-keyword">string</span> company = csv.GetField&lt;<span class="hljs-keyword">string</span>&gt;(<span class="hljs-number">4</span>);
+
+            <span class="hljs-keyword">var</span> yakuhin = <span class="hljs-keyword">new</span> Yakuhin
+            {
+                DrugCode = drugCode,
+                ClassificationCode = clsCode,
+                ClassificationName = clsName,
+                DrugName = drugName,
+                Company = company
+            };
+
+            list.Add(yakuhin);
+        }
+    }
+
+    <span class="hljs-keyword">return</span> list;
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-">データの存在確認と登録処理</h3>
+<p>CSVから取得したリストを元に、データベースに情報を登録します。</p>
+<p>まず、同じ医薬分類や薬品情報が登録されないように <em>LINQ (Language Integrated Query)</em> を使用して
+データの存在確認を行います。</p>
+<p>データベースに未登録のデータについてはCSVの内容を登録します。</p>
+<p><br><br></p>
+<h3 id="-linq">用語解説: LINQ</h3>
+<blockquote>
+<p><a href="http://ufcpp.net/study/csharp/sp3_linq.html#linq">LINQとは</a></p>
+<p>LINQ とは、 Language Integrated Query の略称で、 C# や VB などの .NET Framework 対応言語に、 リレーショナルデータや XML に対するデータ操作構文を組み込む （＋ データベースや XML 操作用のライブラリ） というものです。</p>
+</blockquote>
+<p><br><br></p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報のリストをデータベースに登録する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="list"&gt;</span>薬品情報リスト<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span>薬品情報の登録件数<span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">RegistDrugInfo</span>(<span class="hljs-params">List&lt;Yakuhin&gt; list</span>)
+</span>{
+    <span class="hljs-keyword">int</span> count = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">foreach</span>(<span class="hljs-keyword">var</span> yakuhin <span class="hljs-keyword">in</span> list)
+        {
+            <span class="hljs-comment">// 医薬分類</span>
+            <span class="hljs-keyword">var</span> classification = db.Classifications.FirstOrDefault(
+                item =&gt; item.ClassificationCode == yakuhin.ClassificationCode);
+
+            <span class="hljs-keyword">if</span> (classification == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-comment">// 医薬分類を登録する</span>
+                classification = <span class="hljs-keyword">new</span> Classifications
+                {
+                    ClassificationCode = yakuhin.ClassificationCode,
+                    Name = yakuhin.ClassificationName
+                };
+                db.Classifications.Add(classification);
+            }
+
+            <span class="hljs-comment">// 薬品情報</span>
+            <span class="hljs-keyword">var</span> drug = db.Drugs.FirstOrDefault(
+                item =&gt; item.DrugCode == yakuhin.DrugCode);
+
+            <span class="hljs-keyword">if</span> (drug == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-comment">// 薬品情報を登録する</span>
+                drug = <span class="hljs-keyword">new</span> Drugs
+                {
+                    DrugCode = yakuhin.DrugCode,
+                    Name = yakuhin.DrugName,
+                    Company = yakuhin.Company,
+                    ClassificationId = classification.ClassificationId
+                };
+                db.Drugs.Add(drug);
+
+                <span class="hljs-comment">// 登録件数をインクリメント</span>
+                count++;
+            }
+            <span class="hljs-comment">// DB更新</span>
+            db.SaveChanges();
+        }
+    }
+
+    <span class="hljs-keyword">return</span> count;
+}
+</code></pre>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-label">var</span> classification = db.Classifications.FirstOrDefault(
+    <span class="hljs-keyword">item </span>=&gt; <span class="hljs-keyword">item.ClassificationCode </span>== yakuhin.ClassificationCode)<span class="hljs-comment">;</span>
+</code></pre>
+<p><code>FirstOrDefault</code> は <code>LINQ</code> のメソッドで、条件に一致するデータを 1つ取り出します。<br>もし合致するデータが無ければ、 <code>null</code> が返ってきます。</p>
+<p><code>item =&gt;</code> は <code>Classifications</code> からひとつデータを取り出すことを意味します。</p>
+<p><br><br></p>
+<h3 id="main-">Mainメソッドの修正</h3>
+<p>CSVファイルを読み込む <code>ReadCsv</code> メソッドと DBへの登録を行う <code>RegistDrugInfo</code> メソッドを組み合わせて
+プログラムを完成させます。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">CsvImportTool</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-title">Program</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 取り込み対象のCSVファイル</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">const</span> <span class="hljs-keyword">string</span> FILE_PATH = <span class="hljs-string">@"C:\CSV\in\yakuhin.csv"</span>;
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> CSVを読み込み、薬品情報のリストを返す</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="path"&gt;</span>CSVファイルの絶対パス<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span>薬品情報のリスト<span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">static</span> List&lt;Yakuhin&gt; <span class="hljs-title">ReadCsv</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> path</span>)
+        </span>{
+            <span class="hljs-comment">// 省略</span>
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報のリストをデータベースに登録する</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="list"&gt;</span>薬品情報リスト<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span>薬品情報の登録件数<span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">RegistDrugInfo</span>(<span class="hljs-params">List&lt;Yakuhin&gt; list</span>)
+        </span>{
+            <span class="hljs-comment">// 省略</span>
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Main</span>(<span class="hljs-params"><span class="hljs-keyword">string</span>[] args</span>)
+        </span>{
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"Start"</span>);
+
+            <span class="hljs-comment">// CSV読み込み</span>
+            <span class="hljs-keyword">var</span> list = ReadCsv(FILE_PATH);
+
+            <span class="hljs-comment">// DB登録</span>
+            <span class="hljs-keyword">int</span> count = RegistDrugInfo(list);
+
+            System.Diagnostics.Debug.WriteLine(
+                <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">"{0}件 登録しました。"</span>, count));
+
+            System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"End"</span>);
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>「開始」をクリックしてデバッグ実行してみましょう。</p>
+<p>出力ウィンドウに「9件 登録しました。」と表示されることを確認します。</p>
+<p><br><br></p>
+<h3 id="-">データベース内容の確認</h3>
+<p>CSVの内容が正しくデータベースに登録されていることを確認します。</p>
+<p>(1) <em>サーバー エクスプローラー</em> にて、内容を確認したいテーブルを右クリックし、<em>テーブル データの表示</em> をクリックします。</p>
+<p><img src="./images/c1-20.JPG" alt="画像">
+<br></p>
+<p>(2) テーブルの内容が表示されます。</p>
+<p><img src="./images/c1-21.JPG" alt="画像">
+<br>
+<br></p>
+<hr>
+<p><br></p>
+<p>コンソール アプリケーションの開発手順について解説しました。</p>
+<p><em>Entity Frameworkのデータベース・ファースト開発</em> はコンソール アプリケーションだけでなく
+デスクトップ アプリ、Webアプリでも同様の手順になりますので、しっかり抑えておいてください。</p>
+<p><br><br></p>
+      </div>
+      <div class="col-md-3">
+        <div class="list-group">
+  <a href="./index.html" class="list-group-item active">TOP</a>
+  <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
+  <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
+  <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
+  <a href="#" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="#" class="list-group-item">3. マルチスレッド対応</a>
+  <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
+  <a href="./asp-002.html" class="list-group-item">2. EntityFramework によるコードファースト開発</a>
+  <a href="#" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
+  <a href="#" class="list-group-item">4. メンバーシップ フレームワークによる認証機能の実装</a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+
+    <div class="center-block ad-block">
+      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- aaa-768x90 -->
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:728px;height:90px"
+           data-ad-client="ca-pub-5886049398949171"
+           data-ad-slot="8568248344"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">.NET アプリケーション開発入門 , &copy; 2015 Kazunori Kimura</p>
+    </div>
+  </footer>
+
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>
+  $(function(){
+    $(".contents table").addClass("table");
+  });
+  </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-29149079-3', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>
