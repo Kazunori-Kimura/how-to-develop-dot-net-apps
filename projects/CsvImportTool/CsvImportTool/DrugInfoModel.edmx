@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="ClassicApps.DrugInfoModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Classifications">
+          <Key>
+            <PropertyRef Name="ClassificationId" />
+          </Key>
+          <Property Name="ClassificationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ClassificationCode" Type="nvarchar" MaxLength="3" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="Drugs">
+          <Key>
+            <PropertyRef Name="DrugId" />
+          </Key>
+          <Property Name="DrugId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DrugCode" Type="nvarchar" MaxLength="10" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" />
+          <Property Name="Company" Type="ntext" />
+          <Property Name="ClassificationId" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_dbo_Drugs_dbo_Classifications_ClassificationId">
+          <End Role="Classifications" Type="Self.Classifications" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Drugs" Type="Self.Drugs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Classifications">
+              <PropertyRef Name="ClassificationId" />
+            </Principal>
+            <Dependent Role="Drugs">
+              <PropertyRef Name="ClassificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ClassicAppsDrugInfoModelStoreContainer">
+          <EntitySet Name="Classifications" EntityType="Self.Classifications" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Drugs" EntityType="Self.Drugs" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_dbo_Drugs_dbo_Classifications_ClassificationId" Association="Self.FK_dbo_Drugs_dbo_Classifications_ClassificationId">
+            <End Role="Classifications" EntitySet="Classifications" />
+            <End Role="Drugs" EntitySet="Drugs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ClassicApps.DrugInfoModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Classifications">
+          <Key>
+            <PropertyRef Name="ClassificationId" />
+          </Key>
+          <Property Name="ClassificationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ClassificationCode" Type="String" MaxLength="3" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Drugs" Relationship="Self.FK_dbo_Drugs_dbo_Classifications_ClassificationId" FromRole="Classifications" ToRole="Drugs" />
+        </EntityType>
+        <EntityType Name="Drugs">
+          <Key>
+            <PropertyRef Name="DrugId" />
+          </Key>
+          <Property Name="DrugId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DrugCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Company" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ClassificationId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Classifications" Relationship="Self.FK_dbo_Drugs_dbo_Classifications_ClassificationId" FromRole="Drugs" ToRole="Classifications" />
+        </EntityType>
+        <Association Name="FK_dbo_Drugs_dbo_Classifications_ClassificationId">
+          <End Role="Classifications" Type="Self.Classifications" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Drugs" Type="Self.Drugs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Classifications">
+              <PropertyRef Name="ClassificationId" />
+            </Principal>
+            <Dependent Role="Drugs">
+              <PropertyRef Name="ClassificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="DrugInfoContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Classifications" EntityType="Self.Classifications" />
+          <EntitySet Name="Drugs" EntityType="Self.Drugs" />
+          <AssociationSet Name="FK_dbo_Drugs_dbo_Classifications_ClassificationId" Association="Self.FK_dbo_Drugs_dbo_Classifications_ClassificationId">
+            <End Role="Classifications" EntitySet="Classifications" />
+            <End Role="Drugs" EntitySet="Drugs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ClassicAppsDrugInfoModelStoreContainer" CdmEntityContainer="DrugInfoContext">
+          <EntitySetMapping Name="Classifications">
+            <EntityTypeMapping TypeName="ClassicApps.DrugInfoModel.Classifications">
+              <MappingFragment StoreEntitySet="Classifications">
+                <ScalarProperty Name="ClassificationId" ColumnName="ClassificationId" />
+                <ScalarProperty Name="ClassificationCode" ColumnName="ClassificationCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Drugs">
+            <EntityTypeMapping TypeName="ClassicApps.DrugInfoModel.Drugs">
+              <MappingFragment StoreEntitySet="Drugs">
+                <ScalarProperty Name="DrugId" ColumnName="DrugId" />
+                <ScalarProperty Name="DrugCode" ColumnName="DrugCode" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Company" ColumnName="Company" />
+                <ScalarProperty Name="ClassificationId" ColumnName="ClassificationId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="なし" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
