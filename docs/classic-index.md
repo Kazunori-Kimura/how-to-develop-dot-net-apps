@@ -36,11 +36,12 @@ CSVに登録されていないがその薬局で取り扱っている薬品情�
 <br>
 <br>
 
-## 1. 簡単なコンソールアプリケーションの開発
+## [1. 簡単なコンソールアプリケーションの開発](./classic-001.html)
 
-### Entity Frameworkによるデータベース操作
+GUIのないコンソールアプリケーションの作成を通して、Entity Frameworkを使用した
+データベースへのデータ登録、参照、更新、削除の操作について解説します。
 
-GUIのないコンソールアプリケーションの作成を通して、Entity Frameworkを使用したデータベースのデータ登録、参照、更新、削除の操作について解説します。
+![イメージ図](images/image2.png)
 
 <br>
 
@@ -50,31 +51,16 @@ GUIのないコンソールアプリケーションの作成を通して、Entit
   - [連載:ADO.NET Entity Framework入門](http://www.atmarkit.co.jp/fdotnet/ef4basic/index/index.html)
 
 <br>
-
-![イメージ図](images/image2.png)
-
-CSVファイルを取り込み、SQL Serverに取り込むアプリケーションを作成します。
-
 <br>
-
-* データの準備
-  - CSVファイル
-  - データベース
-* コンソールアプリケーション プロジェクトの作成
-* Entity Frameworkの概要
-  - ORマッパーとは
-  - Entity Frameworkのインストール
-  - EDMの作成
-  - POCOの作成
-  - Entity Frameworkでのデータ保存、取得
-* CSVファイルの読み込み
-* DB登録
-* 動作確認
 
 ------
 <br>
 
 ## 2. Windowsフォームアプリケーションの開発
+
+SQL Serverの検索、登録、更新、削除を行うアプリケーションを作成します。
+
+![イメージ図](images/image3.png)
 
 * 参考
   - [連載：Windowsフォーム開発入門【Visual Studio 2010対応】](http://www.atmarkit.co.jp/fdotnet/chushin/introwinform_index/index.html)
@@ -84,11 +70,6 @@ CSVファイルを取り込み、SQL Serverに取り込むアプリケーショ�
   - [EXCEL印刷(Worksheet.PrintOut)のサンプル(C#.NET)](http://homepage2.nifty.com/nonnon/SoftSample/CS.NET/SampleExcelPrint.html)
 
 <br>
-
-![イメージ図](images/image3.png)
-
-SQL Serverの検索、登録、更新、削除を行うアプリケーションを作成します。
-
 <br>
 
 * Windowsフォームアプリケーション プロジェクトの作成

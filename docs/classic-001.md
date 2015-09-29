@@ -43,38 +43,17 @@ CSVファイルを取り込み、SQL Serverに取り込むアプリケーショ�
 以下の項目がカンマ区切りで記載されているCSVファイルを作成します。
 
 * 薬品コード
-* 医薬分類コード
-* 医薬分類群 (医薬分類コードに対応した名称)
+* 薬効分類コード
+* 薬効名 (薬効分類コードに対応した名称)
 * 医薬品名
 * 会社名
 
 <br>
 
-話を簡単にするために、世の中には以下の 3つの医薬分類コードのみ存在するとします。
-
-| 医薬分類コード | 医薬分類群 |
-|--------------|-----------|
-| 100 | 医薬分類A |
-| 200 | 医薬分類B |
-| 300 | 医薬分類C |
-
-<br>
-
-```csv
-Y1001,100,医薬分類A,薬品A-1,○○製薬
-Y1002,100,医薬分類A,薬品A-2,☓☓薬品工業
-Y1003,100,医薬分類A,薬品A-3,○○製薬
-Y2001,200,医薬分類B,薬品B-1,☓☓薬品工業
-Y2002,200,医薬分類B,薬品B-2,○○製薬
-Y2003,200,医薬分類B,薬品B-3,○○製薬
-Y2004,200,医薬分類B,薬品B-4,○○製薬
-Y3001,300,医薬分類C,薬品C-1,☓☓薬品工業
-Y3002,300,医薬分類C,薬品C-2,☓☓薬品工業
-Y3003,300,医薬分類C,薬品C-3,☓☓薬品工業
-```
+サンプルデータを用意していますので、[こちら <i class="fa fa-file"></i>](./yakuhin.csv) をダウンロードしてください。
 
 `C:¥CSV¥in` に `yakuhin.csv` として保存します。
-文字コードは *UTF-8* としてください。
+文字コードは *Shift_JIS* としてください。
 
 <br><br>
 
@@ -82,7 +61,7 @@ Y3003,300,医薬分類C,薬品C-3,☓☓薬品工業
 
 薬品情報を格納するテーブルを準備します。
 
-医薬分類を管理する *Classifications* テーブルと、薬品情報を管理する *Drugs* テーブルを用意します。
+薬効分類を管理する *Classifications* テーブルと、薬品情報を管理する *Drugs* テーブルを用意します。
 
 ![ER図](./images/classic-001-er.png)
 
@@ -159,7 +138,7 @@ CREATE TABLE [dbo].[Classifications] (
 
 CREATE TABLE [dbo].[Drugs] (
   [DrugId] INT IDENTITY (1, 1) NOT NULL,
-  [DrugCode] NVARCHAR (10) NULL,
+  [DrugCode] NVARCHAR (12) NULL,
   [Name] NVARCHAR (200) NULL,
   [Company] NTEXT NULL,
   [ClassificationId] INT NOT NULL,
@@ -241,7 +220,7 @@ namespace CsvImportTool
 
 Visual Studio の下部にある *出力ウィンドウ* を開くと、"Hello, World!" と出力されていることを確認してください。
 
-<br><br>
+<br>
 
 ```cs
 System.Console.WriteLine("Hello, World!");
@@ -258,7 +237,7 @@ System.Console.WriteLine("Hello, World!");
 [WriteLine メソッド](https://msdn.microsoft.com/ja-jp/library/xf2k8ftb.aspx) は
 指定された文字列を標準出力に書き込み、続けて改行を書き込みます。
 
-<br><br>
+<br>
 
 ```cs
 System.Diagnostics.Debug.WriteLine("Hello, World!");
@@ -270,6 +249,11 @@ Debugクラスの出力は、 *Debug* のビルド時にのみ有効です。
 *Release* を指定した場合は無視されます。
 
 参考: [Visual C# でトレースとデバッグを実行する方法](https://support.microsoft.com/ja-jp/kb/815788)
+
+<br>
+
+デバッグ目的でのメッセージ出力には `Debug` クラスを、
+ユーザーに何か通知したい場合は `Console` クラスを使用します。
 
 <br><br>
 
@@ -287,6 +271,8 @@ Debugクラスの出力は、 *Debug* のビルド時にのみ有効です。
 > 別の名前空間内にあるものは、名前空間と名前を組み合わせることで一意に特定できる。
 
 参考: [名前空間の名前](https://msdn.microsoft.com/ja-jp/library/ms229026.aspx)
+
+<br>
 
 ------
 
@@ -370,7 +356,8 @@ namespace CsvImportTool
         {
             System.Diagnostics.Debug.WriteLine("Start");
 
-            var enc = new System.Text.UTF8Encoding(false);
+            // var enc = new System.Text.UTF8Encoding(false); // UTF-8(BOM無し)の場合
+            var enc = System.Text.Encoding.GetEncoding("shift_jis"); // Shift_JISの場合
 
             using (var reader = new System.IO.StreamReader(FILE_PATH, enc))
             {
@@ -404,7 +391,7 @@ namespace CsvImportTool
 
 <br>
 
-* ドキュメント コメント
+#### ドキュメント コメント
 
 コード ブロックの直前の特別なコメント フィールド (`///`) に XML要素を配置することで、コードのドキュメントを作成できます。
 
@@ -417,14 +404,14 @@ namespace CsvImportTool
 
 <br>
 
-* 定数
+#### <i class="fa fa-hand-o-right"></i> 定数
 
 定数は `const` を付けて定義します。  
 慣習的に、すべて大文字とし、単語の区切りはアンダースコア `_` とします。
 
 <br>
 
-* ファイルの読み込み
+#### <i class="fa fa-hand-o-right"></i> ファイルの読み込み
 
 ```cs
 var reader = new System.IO.StreamReader(FILE_PATH, enc)
@@ -432,15 +419,22 @@ var reader = new System.IO.StreamReader(FILE_PATH, enc)
 
 ファイルを読み取り専用で開きます。
 
-第2引数には文字コードを指定します。
+第2引数には文字コードを指定します。  
+例えば Shift_JIS の場合は、以下のように指定します。
 
-`var enc = new System.Text.UTF8Encoding(false);` は BOM無しUTF-8 を意味しています。
+```cs
+var enc = System.Text.Encoding.GetEncoding("shift_jis");
+```
 
-参考: [readfile](http://dobon.net/vb/dotnet/file/readfile.html)
+他の文字コードを使用する場合は、参考サイトを御覧ください。
+
+* 参考
+  - [目的の文字コードに合ったEncodingオブジェクトを取得する](http://dobon.net/vb/dotnet/string/getencodingobject.html)
+  - [readfile](http://dobon.net/vb/dotnet/file/readfile.html)
 
 <br>
 
-* usingステートメント
+#### <i class="fa fa-hand-o-right"></i> usingステートメント
 
 CSVファイルの読み込み箇所は、 *usingステートメント* で囲っています。
 
@@ -468,7 +462,7 @@ string drugCode = csv.GetField<string>(0);
 
 <br>
 
-* 文字列の定義
+#### <i class="fa fa-hand-o-right"></i> 文字列の定義
 
 文字列の定義には `@"..."` と頭に `@` を付ける方法と、付けない方法の2つがあります。
 
@@ -584,20 +578,22 @@ namespace CsvImportTool
         {
             System.Diagnostics.Debug.WriteLine("Start");
 
+            // テスト用データ
+            // 1112700X1038,111,全身麻酔剤,フローセン,武田薬品工業
             using (var db = new DrugInfoContext())
             {
                 var classification = new Classifications
                 {
-                    ClassificationCode = "100",
-                    Name = "医薬分類A"
+                    ClassificationCode = "111",
+                    Name = "全身麻酔剤"
                 };
                 db.Classifications.Add(classification);
 
                 var drug = new Drugs
                 {
-                    DrugCode = "Y1001",
-                    Name = "薬品A-1",
-                    Company = "○○製薬",
+                    DrugCode = "1112700X1038",
+                    Name = "フローセン",
+                    Company = "武田薬品工業",
                     ClassificationId = classification.ClassificationId
                 };
                 db.Drugs.Add(drug);
@@ -625,20 +621,20 @@ var db = new DrugInfoContext()
 
 <br>
 
-まずは医薬分類を登録します。
+まずは薬効分類を登録します。
 
 ```cs
 var classification = new Classifications
 {
-    ClassificationCode = "100",
-    Name = "医薬分類A"
+    ClassificationCode = "111",
+    Name = "全身麻酔剤"
 };
 db.Classifications.Add(classification);
 ```
 
 `db.Classifications` は データベースの `Classifications` テーブルにひも付きます。
 
-`Add` メソッドで、新しい医薬分類を登録します。  
+`Add` メソッドで、新しい薬効分類を登録します。  
 特にコーディングしていませんが、このタイミングで `ClassificationId` が採番され、 `classification.ClassificationId` にセットされます。
 
 <br>
@@ -648,8 +644,8 @@ db.Classifications.Add(classification);
 
 ```cs
 var classification = new Classifications();
-classification.ClassificationCode = "100";
-classification.Name = "医薬分類A";
+classification.ClassificationCode = "111";
+classification.Name = "全身麻酔剤";
 ```
 
 <br>
@@ -659,15 +655,15 @@ classification.Name = "医薬分類A";
 ```cs
 var drug = new Drugs
 {
-    DrugCode = "Y1001",
-    Name = "薬品A-1",
-    Company = "○○製薬",
+    DrugCode = "1112700X1038",
+    Name = "フローセン",
+    Company = "武田薬品工業",
     ClassificationId = classification.ClassificationId
 };
 db.Drugs.Add(drug);
 ```
 
-`ClassificationId = classification.ClassificationId` で医薬分類と薬品情報をひも付けています。
+`ClassificationId = classification.ClassificationId` で薬効分類と薬品情報をひも付けています。
 
 <br>
 
@@ -696,7 +692,7 @@ db.SaveChanges();
 少し詳細な仕様について、検討してみましょう。
 
 * CSVを読み込み、リストに格納する
-* 読み込んだデータを元に、データベースに医薬分類、薬品情報を登録する
+* 読み込んだデータを元に、データベースに薬効分類、薬品情報を登録する
   - すでに登録済みの内容についてはスキップする
 
 <br><br>
@@ -734,11 +730,11 @@ namespace CsvImportTool
         /// </summary>
         public string DrugCode { get; set; }
         /// <summary>
-        /// 医薬分類コード
+        /// 薬効分類コード
         /// </summary>
         public string ClassificationCode { get; set; }
         /// <summary>
-        /// 医薬分類群
+        /// 薬効分類群
         /// </summary>
         public string ClassificationName { get; set; }
         /// <summary>
@@ -815,18 +811,22 @@ static List<Yakuhin> ReadCsv(string path)
 
 CSVから取得したリストを元に、データベースに情報を登録します。
 
-まず、同じ医薬分類や薬品情報が登録されないように *LINQ (Language Integrated Query)* を使用して
+まず、同じ薬効分類や薬品情報が登録されないように *LINQ (Language Integrated Query)* を使用して
 データの存在確認を行います。
 
 データベースに未登録のデータについてはCSVの内容を登録します。
 
 <br><br>
 
+------
+
 ### 用語解説: LINQ
 
 > [LINQとは](http://ufcpp.net/study/csharp/sp3_linq.html#linq)
 >
 > LINQ とは、 Language Integrated Query の略称で、 C# や VB などの .NET Framework 対応言語に、 リレーショナルデータや XML に対するデータ操作構文を組み込む （＋ データベースや XML 操作用のライブラリ） というものです。
+
+------
 
 <br><br>
 
@@ -844,13 +844,13 @@ static int RegistDrugInfo(List<Yakuhin> list)
     {
         foreach(var yakuhin in list)
         {
-            // 医薬分類
+            // 薬効分類
             var classification = db.Classifications.FirstOrDefault(
                 item => item.ClassificationCode == yakuhin.ClassificationCode);
 
             if (classification == null)
             {
-                // 医薬分類を登録する
+                // 薬効分類を登録する
                 classification = new Classifications
                 {
                     ClassificationCode = yakuhin.ClassificationCode,
@@ -964,7 +964,7 @@ namespace CsvImportTool
 
 「開始」をクリックしてデバッグ実行してみましょう。
 
-出力ウィンドウに「9件 登録しました。」と表示されることを確認します。
+出力ウィンドウに「299件 登録しました。」と表示されることを確認します。
 
 <br><br>
 
