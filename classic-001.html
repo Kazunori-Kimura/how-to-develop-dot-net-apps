@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
   <title>.NET アプリケーション開発入門</title>
   <!-- Bootstrap -->
   <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
@@ -71,53 +73,19 @@
 <p>以下の項目がカンマ区切りで記載されているCSVファイルを作成します。</p>
 <ul>
 <li>薬品コード</li>
-<li>医薬分類コード</li>
-<li>医薬分類群 (医薬分類コードに対応した名称)</li>
+<li>薬効分類コード</li>
+<li>薬効名 (薬効分類コードに対応した名称)</li>
 <li>医薬品名</li>
 <li>会社名</li>
 </ul>
 <p><br></p>
-<p>話を簡単にするために、世の中には以下の 3つの医薬分類コードのみ存在するとします。</p>
-<table>
-<thead>
-<tr>
-<th>医薬分類コード</th>
-<th>医薬分類群</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>100</td>
-<td>医薬分類A</td>
-</tr>
-<tr>
-<td>200</td>
-<td>医薬分類B</td>
-</tr>
-<tr>
-<td>300</td>
-<td>医薬分類C</td>
-</tr>
-</tbody>
-</table>
-<p><br></p>
-<pre><code class="lang-csv">Y1001,<span class="hljs-number">100</span>,医薬分類A,薬品A-<span class="hljs-number">1</span>,○○製薬
-Y1002,<span class="hljs-number">100</span>,医薬分類A,薬品A-<span class="hljs-number">2</span>,☓☓薬品工業
-Y1003,<span class="hljs-number">100</span>,医薬分類A,薬品A-<span class="hljs-number">3</span>,○○製薬
-Y2001,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">1</span>,☓☓薬品工業
-Y2002,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">2</span>,○○製薬
-Y2003,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">3</span>,○○製薬
-Y2004,<span class="hljs-number">200</span>,医薬分類B,薬品B-<span class="hljs-number">4</span>,○○製薬
-Y3001,<span class="hljs-number">300</span>,医薬分類C,薬品C-<span class="hljs-number">1</span>,☓☓薬品工業
-Y3002,<span class="hljs-number">300</span>,医薬分類C,薬品C-<span class="hljs-number">2</span>,☓☓薬品工業
-Y3003,<span class="hljs-number">300</span>,医薬分類C,薬品C-<span class="hljs-number">3</span>,☓☓薬品工業
-</code></pre>
+<p>サンプルデータを用意していますので、<a href="./yakuhin.csv">こちら <i class="fa fa-file"></i></a> をダウンロードしてください。</p>
 <p><code>C:¥CSV¥in</code> に <code>yakuhin.csv</code> として保存します。
-文字コードは <em>UTF-8</em> としてください。</p>
+文字コードは <em>Shift_JIS</em> としてください。</p>
 <p><br><br></p>
 <h3 id="-">データベース</h3>
 <p>薬品情報を格納するテーブルを準備します。</p>
-<p>医薬分類を管理する <em>Classifications</em> テーブルと、薬品情報を管理する <em>Drugs</em> テーブルを用意します。</p>
+<p>薬効分類を管理する <em>Classifications</em> テーブルと、薬品情報を管理する <em>Drugs</em> テーブルを用意します。</p>
 <p><img src="./images/classic-001-er.png" alt="ER図"></p>
 <p><br></p>
 <h4 id="sql-server-localdb-">SQL Server LocalDB のサーバー名を確認する</h4>
@@ -161,7 +129,7 @@ MSSQLLocalDB
 
 <span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[Drugs] (
   [DrugId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
-  [DrugCode] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">10</span>) <span class="hljs-literal">NULL</span>,
+  [DrugCode] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">12</span>) <span class="hljs-literal">NULL</span>,
   [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-literal">NULL</span>,
   [Company] NTEXT <span class="hljs-literal">NULL</span>,
   [ClassificationId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
@@ -216,7 +184,7 @@ MSSQLLocalDB
 <p>コードを書いたら、<em>F5</em> キーを押すか、 <em>開始</em> (緑の三角形アイコン)をクリックします。</p>
 <p>ビルドが完了すると、一瞬コマンド プロンプトが表示され、すぐに閉じられます。</p>
 <p>Visual Studio の下部にある <em>出力ウィンドウ</em> を開くと、&quot;Hello, World!&quot; と出力されていることを確認してください。</p>
-<p><br><br></p>
+<p><br></p>
 <pre><code class="lang-cs"><span class="hljs-tag">System</span><span class="hljs-class">.Console</span><span class="hljs-class">.WriteLine</span>("<span class="hljs-tag">Hello</span>, <span class="hljs-tag">World</span>!");
 </code></pre>
 <p>この行は、コンソール (コマンド プロンプト) に &quot;Hello, World!&quot; という文字列を出力する命令です。</p>
@@ -225,12 +193,15 @@ MSSQLLocalDB
 <p><a href="https://msdn.microsoft.com/ja-jp/library/system.console.aspx">Console クラス</a> は コンソール アプリケーションが標準入力・標準出力・標準エラーを使用するのに使用します。</p>
 <p><a href="https://msdn.microsoft.com/ja-jp/library/xf2k8ftb.aspx">WriteLine メソッド</a> は
 指定された文字列を標準出力に書き込み、続けて改行を書き込みます。</p>
-<p><br><br></p>
+<p><br></p>
 <pre><code class="lang-cs"><span class="hljs-tag">System</span><span class="hljs-class">.Diagnostics</span><span class="hljs-class">.Debug</span><span class="hljs-class">.WriteLine</span>("<span class="hljs-tag">Hello</span>, <span class="hljs-tag">World</span>!");
 </code></pre>
 <p>この行は、Visual Studio の出力ウィンドウに文字列を出力します。</p>
 <p>Debugクラスの出力は、 <em>Debug</em> のビルド時にのみ有効です。<br><em>Release</em> を指定した場合は無視されます。</p>
 <p>参考: <a href="https://support.microsoft.com/ja-jp/kb/815788">Visual C# でトレースとデバッグを実行する方法</a></p>
+<p><br></p>
+<p>デバッグ目的でのメッセージ出力には <code>Debug</code> クラスを、
+ユーザーに何か通知したい場合は <code>Console</code> クラスを使用します。</p>
 <p><br><br></p>
 <hr>
 <h3 id="-namespace-">用語解説: 名前空間 (Namespace)</h3>
@@ -242,6 +213,7 @@ MSSQLLocalDB
 別の名前空間内にあるものは、名前空間と名前を組み合わせることで一意に特定できる。</p>
 </blockquote>
 <p>参考: <a href="https://msdn.microsoft.com/ja-jp/library/ms229026.aspx">名前空間の名前</a></p>
+<p><br></p>
 <hr>
 <p><br>
 <br></p>
@@ -297,7 +269,8 @@ MSSQLLocalDB
         </span>{
             System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"Start"</span>);
 
-            <span class="hljs-keyword">var</span> enc = <span class="hljs-keyword">new</span> System.Text.UTF8Encoding(<span class="hljs-keyword">false</span>);
+            <span class="hljs-comment">// var enc = new System.Text.UTF8Encoding(false); // UTF-8(BOM無し)の場合</span>
+            <span class="hljs-keyword">var</span> enc = System.Text.Encoding.GetEncoding(<span class="hljs-string">"shift_jis"</span>); <span class="hljs-comment">// Shift_JISの場合</span>
 
             <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> reader = <span class="hljs-keyword">new</span> System.IO.StreamReader(FILE_PATH, enc))
             {
@@ -326,9 +299,7 @@ MSSQLLocalDB
 <p>コードを記載したら、「開始」をクリックしてデバッグ実行してください。</p>
 <p>出力ウィンドウにCSVの中身が表示されることを確認します。</p>
 <p><br></p>
-<ul>
-<li>ドキュメント コメント</li>
-</ul>
+<h4 id="-">ドキュメント コメント</h4>
 <p>コード ブロックの直前の特別なコメント フィールド (<code>///</code>) に XML要素を配置することで、コードのドキュメントを作成できます。</p>
 <p>ドキュメント コメントを設定しておくと、Visual Studioで該当のメソッドなどにマウスオーバーした際にコメントが表示されるので
 多人数で開発する際は非常に便利です。</p>
@@ -337,24 +308,26 @@ MSSQLLocalDB
 <li><a href="https://msdn.microsoft.com/ja-jp/library/b2s063f7.aspx">XML ドキュメント コメント (C# プログラミング ガイド)</a></li>
 </ul>
 <p><br></p>
-<ul>
-<li>定数</li>
-</ul>
+<h4 id="-i-class-fa-fa-hand-o-right-i-"><i class="fa fa-hand-o-right"></i> 定数</h4>
 <p>定数は <code>const</code> を付けて定義します。<br>慣習的に、すべて大文字とし、単語の区切りはアンダースコア <code>_</code> とします。</p>
 <p><br></p>
-<ul>
-<li>ファイルの読み込み</li>
-</ul>
+<h4 id="-i-class-fa-fa-hand-o-right-i-"><i class="fa fa-hand-o-right"></i> ファイルの読み込み</h4>
 <pre><code class="lang-cs"><span class="hljs-tag">var</span> reader = new System<span class="hljs-class">.IO</span><span class="hljs-class">.StreamReader</span>(FILE_PATH, enc)
 </code></pre>
 <p>ファイルを読み取り専用で開きます。</p>
-<p>第2引数には文字コードを指定します。</p>
-<p><code>var enc = new System.Text.UTF8Encoding(false);</code> は BOM無しUTF-8 を意味しています。</p>
-<p>参考: <a href="http://dobon.net/vb/dotnet/file/readfile.html">readfile</a></p>
-<p><br></p>
+<p>第2引数には文字コードを指定します。<br>例えば Shift_JIS の場合は、以下のように指定します。</p>
+<pre><code class="lang-cs"><span class="hljs-variable"><span class="hljs-keyword">var</span> enc</span> = System.Text.Encoding.GetEncoding(<span class="hljs-string">"shift_jis"</span>);
+</code></pre>
+<p>他の文字コードを使用する場合は、参考サイトを御覧ください。</p>
 <ul>
-<li>usingステートメント</li>
+<li>参考<ul>
+<li><a href="http://dobon.net/vb/dotnet/string/getencodingobject.html">目的の文字コードに合ったEncodingオブジェクトを取得する</a></li>
+<li><a href="http://dobon.net/vb/dotnet/file/readfile.html">readfile</a></li>
 </ul>
+</li>
+</ul>
+<p><br></p>
+<h4 id="-i-class-fa-fa-hand-o-right-i-using-"><i class="fa fa-hand-o-right"></i> usingステートメント</h4>
 <p>CSVファイルの読み込み箇所は、 <em>usingステートメント</em> で囲っています。</p>
 <blockquote>
 <p><a href="http://dobon.net/vb/dotnet/beginner/calldispose.html">Dispose、Closeが確実に呼び出されるようにする</a></p>
@@ -370,9 +343,7 @@ MSSQLLocalDB
 <p>ここでは、<code>string</code> 型で値を取得しています。</p>
 <p>参考: <a href="https://msdn.microsoft.com/ja-jp/library/512aeb7t.aspx">ジェネリック (C# プログラミング ガイド)</a></p>
 <p><br></p>
-<ul>
-<li>文字列の定義</li>
-</ul>
+<h4 id="-i-class-fa-fa-hand-o-right-i-"><i class="fa fa-hand-o-right"></i> 文字列の定義</h4>
 <p>文字列の定義には <code>@&quot;...&quot;</code> と頭に <code>@</code> を付ける方法と、付けない方法の2つがあります。</p>
 <p><code>@</code> を付けた場合、その中身は <code>¥</code> や改行なども含めてそのまま文字列として扱われます。</p>
 <p>付けなかった場合は <code>¥</code> はエスケープシーケンスとなるので、<code>¥</code> は <code>¥¥</code>、改行は <code>¥n</code> とする必要があります。</p>
@@ -442,20 +413,22 @@ MSSQLLocalDB
         </span>{
             System.Diagnostics.Debug.WriteLine(<span class="hljs-string">"Start"</span>);
 
+            <span class="hljs-comment">// テスト用データ</span>
+            <span class="hljs-comment">// 1112700X1038,111,全身麻酔剤,フローセン,武田薬品工業</span>
             <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
             {
                 <span class="hljs-keyword">var</span> classification = <span class="hljs-keyword">new</span> Classifications
                 {
-                    ClassificationCode = <span class="hljs-string">"100"</span>,
-                    Name = <span class="hljs-string">"医薬分類A"</span>
+                    ClassificationCode = <span class="hljs-string">"111"</span>,
+                    Name = <span class="hljs-string">"全身麻酔剤"</span>
                 };
                 db.Classifications.Add(classification);
 
                 <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">new</span> Drugs
                 {
-                    DrugCode = <span class="hljs-string">"Y1001"</span>,
-                    Name = <span class="hljs-string">"薬品A-1"</span>,
-                    Company = <span class="hljs-string">"○○製薬"</span>,
+                    DrugCode = <span class="hljs-string">"1112700X1038"</span>,
+                    Name = <span class="hljs-string">"フローセン"</span>,
+                    Company = <span class="hljs-string">"武田薬品工業"</span>,
                     ClassificationId = classification.ClassificationId
                 };
                 db.Drugs.Add(drug);
@@ -475,34 +448,34 @@ MSSQLLocalDB
 <p><em>Contextクラス</em> はデータベースへの接続を管理します。</p>
 <p>データベースへのデータの登録や読み込みはすべて Contextクラスを通して行います。</p>
 <p><br></p>
-<p>まずは医薬分類を登録します。</p>
+<p>まずは薬効分類を登録します。</p>
 <pre><code class="lang-cs"><span class="hljs-keyword">var</span> classification = <span class="hljs-keyword">new</span> Classifications
 {
-    ClassificationCode = <span class="hljs-string">"100"</span>,
-    Name = <span class="hljs-string">"医薬分類A"</span>
+    ClassificationCode = <span class="hljs-string">"111"</span>,
+    Name = <span class="hljs-string">"全身麻酔剤"</span>
 };
 db.Classifications.Add(classification);
 </code></pre>
 <p><code>db.Classifications</code> は データベースの <code>Classifications</code> テーブルにひも付きます。</p>
-<p><code>Add</code> メソッドで、新しい医薬分類を登録します。<br>特にコーディングしていませんが、このタイミングで <code>ClassificationId</code> が採番され、 <code>classification.ClassificationId</code> にセットされます。</p>
+<p><code>Add</code> メソッドで、新しい薬効分類を登録します。<br>特にコーディングしていませんが、このタイミングで <code>ClassificationId</code> が採番され、 <code>classification.ClassificationId</code> にセットされます。</p>
 <p><br></p>
 <p><code>new</code> の後に <code>{}</code> で初期値を設定しています。<br>これは以下とほぼ同じ意味です。</p>
 <pre><code class="lang-cs"><span class="hljs-keyword">var</span> classification = <span class="hljs-keyword">new</span> Classifications();
-classification.ClassificationCode = <span class="hljs-string">"100"</span>;
-classification.Name = <span class="hljs-string">"医薬分類A"</span>;
+classification.ClassificationCode = <span class="hljs-string">"111"</span>;
+classification.Name = <span class="hljs-string">"全身麻酔剤"</span>;
 </code></pre>
 <p><br></p>
 <p>続いて薬品情報を登録します。</p>
 <pre><code class="lang-cs">var drug = new Drugs
 {
-<span class="hljs-constant">    DrugCode</span> = <span class="hljs-string">"Y1001"</span>,
-<span class="hljs-constant">    Name</span> = <span class="hljs-string">"薬品A-1"</span>,
-<span class="hljs-constant">    Company</span> = <span class="hljs-string">"○○製薬"</span>,
+<span class="hljs-constant">    DrugCode</span> = <span class="hljs-string">"1112700X1038"</span>,
+<span class="hljs-constant">    Name</span> = <span class="hljs-string">"フローセン"</span>,
+<span class="hljs-constant">    Company</span> = <span class="hljs-string">"武田薬品工業"</span>,
 <span class="hljs-constant">    ClassificationId</span> = classification.ClassificationId
 };
 db.Drugs.Add(drug);
 </code></pre>
-<p><code>ClassificationId = classification.ClassificationId</code> で医薬分類と薬品情報をひも付けています。</p>
+<p><code>ClassificationId = classification.ClassificationId</code> で薬効分類と薬品情報をひも付けています。</p>
 <p><br></p>
 <p>最後に、データベースに変更を反映させます。</p>
 <pre><code class="lang-cs"><span class="hljs-tag">db</span><span class="hljs-class">.SaveChanges</span>();
@@ -518,7 +491,7 @@ db.Drugs.Add(drug);
 <p>少し詳細な仕様について、検討してみましょう。</p>
 <ul>
 <li>CSVを読み込み、リストに格納する</li>
-<li>読み込んだデータを元に、データベースに医薬分類、薬品情報を登録する<ul>
+<li>読み込んだデータを元に、データベースに薬効分類、薬品情報を登録する<ul>
 <li>すでに登録済みの内容についてはスキップする</li>
 </ul>
 </li>
@@ -547,11 +520,11 @@ db.Drugs.Add(drug);
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> DrugCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 医薬分類コード</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬効分類コード</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 医薬分類群</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬効分類群</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
@@ -613,15 +586,17 @@ db.Drugs.Add(drug);
 <p><br><br></p>
 <h3 id="-">データの存在確認と登録処理</h3>
 <p>CSVから取得したリストを元に、データベースに情報を登録します。</p>
-<p>まず、同じ医薬分類や薬品情報が登録されないように <em>LINQ (Language Integrated Query)</em> を使用して
+<p>まず、同じ薬効分類や薬品情報が登録されないように <em>LINQ (Language Integrated Query)</em> を使用して
 データの存在確認を行います。</p>
 <p>データベースに未登録のデータについてはCSVの内容を登録します。</p>
 <p><br><br></p>
+<hr>
 <h3 id="-linq">用語解説: LINQ</h3>
 <blockquote>
 <p><a href="http://ufcpp.net/study/csharp/sp3_linq.html#linq">LINQとは</a></p>
 <p>LINQ とは、 Language Integrated Query の略称で、 C# や VB などの .NET Framework 対応言語に、 リレーショナルデータや XML に対するデータ操作構文を組み込む （＋ データベースや XML 操作用のライブラリ） というものです。</p>
 </blockquote>
+<hr>
 <p><br><br></p>
 <pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
 <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報のリストをデータベースに登録する</span>
@@ -636,13 +611,13 @@ db.Drugs.Add(drug);
     {
         <span class="hljs-keyword">foreach</span>(<span class="hljs-keyword">var</span> yakuhin <span class="hljs-keyword">in</span> list)
         {
-            <span class="hljs-comment">// 医薬分類</span>
+            <span class="hljs-comment">// 薬効分類</span>
             <span class="hljs-keyword">var</span> classification = db.Classifications.FirstOrDefault(
                 item =&gt; item.ClassificationCode == yakuhin.ClassificationCode);
 
             <span class="hljs-keyword">if</span> (classification == <span class="hljs-keyword">null</span>)
             {
-                <span class="hljs-comment">// 医薬分類を登録する</span>
+                <span class="hljs-comment">// 薬効分類を登録する</span>
                 classification = <span class="hljs-keyword">new</span> Classifications
                 {
                     ClassificationCode = yakuhin.ClassificationCode,
@@ -741,7 +716,7 @@ db.Drugs.Add(drug);
 </code></pre>
 <p><br></p>
 <p>「開始」をクリックしてデバッグ実行してみましょう。</p>
-<p>出力ウィンドウに「9件 登録しました。」と表示されることを確認します。</p>
+<p>出力ウィンドウに「299件 登録しました。」と表示されることを確認します。</p>
 <p><br><br></p>
 <h3 id="-">データベース内容の確認</h3>
 <p>CSVの内容が正しくデータベースに登録されていることを確認します。</p>
