@@ -775,7 +775,7 @@ namespace CsvImportTool
 static List<Yakuhin> ReadCsv(string path)
 {
     List<Yakuhin> list = new List<Yakuhin>();
-    var enc = new System.Text.UTF8Encoding(false);
+    var enc = System.Text.Encoding.GetEncoding("shift_jis");
 
     using (var reader = new System.IO.StreamReader(path, enc))
     {
