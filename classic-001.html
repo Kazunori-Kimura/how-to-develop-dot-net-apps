@@ -554,7 +554,7 @@ db.Drugs.Add(drug);
 <span class="hljs-function"><span class="hljs-keyword">static</span> List&lt;Yakuhin&gt; <span class="hljs-title">ReadCsv</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> path</span>)
 </span>{
     List&lt;Yakuhin&gt; list = <span class="hljs-keyword">new</span> List&lt;Yakuhin&gt;();
-    <span class="hljs-keyword">var</span> enc = <span class="hljs-keyword">new</span> System.Text.UTF8Encoding(<span class="hljs-keyword">false</span>);
+    <span class="hljs-keyword">var</span> enc = System.Text.Encoding.GetEncoding(<span class="hljs-string">"shift_jis"</span>);
 
     <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> reader = <span class="hljs-keyword">new</span> System.IO.StreamReader(path, enc))
     {
