@@ -43,11 +43,181 @@
       <div class="col-md-7">
         <!-- contents -->
         <h1 id="2-windows-3">2. Windowsフォームアプリケーションの開発 - 3</h1>
+<h2 id="-">薬品情報の出力処理</h2>
+<p>選択された行の薬品情報をExcelファイルに出力します。</p>
+<p><br><br></p>
+<h3 id="-">フォームの修正</h3>
+<p>フォームに「出力」ボタンを追加します。</p>
+<p><img src="./images/c2-25.JPG" alt="画像"></p>
+<p><br><br></p>
+<h3 id="-">選択された薬品の取得</h3>
+<p><code>dataGridView</code> の選択行を取得するには、<code>SelectedRows</code> を使用します。</p>
+<p>とりあえず、テストとして以下のように実装してみます。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 出力ボタンのクリック</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button3_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// 選択されている行を取得</span>
+    <span class="hljs-keyword">foreach</span>(DataGridViewRow row <span class="hljs-keyword">in</span> dataGridView1.SelectedRows)
+    {
+        System.Diagnostics.Debug.WriteLine(row.Cells[<span class="hljs-string">"Id"</span>].Value);
+    }
+}
+</code></pre>
+<p>実際に動かしてみると、<code>SelectedRows</code> にはクリックした順に格納されるので <code>foreach</code> で順に取り出すとId順になりません。</p>
+<p>一旦 List に選択されたIdを格納し Sort した後、
+Idに該当する薬品情報をデータベースから取得するよう実装します。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 選択されている薬品IDを取得する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> List&lt;<span class="hljs-keyword">int</span>&gt; <span class="hljs-title">GetSelectedIds</span>(<span class="hljs-params"></span>)
+</span>{
+    List&lt;<span class="hljs-keyword">int</span>&gt; list = <span class="hljs-keyword">new</span> List&lt;<span class="hljs-keyword">int</span>&gt;();
+
+    <span class="hljs-comment">// 選択されている行を取得</span>
+    <span class="hljs-keyword">foreach</span> (DataGridViewRow row <span class="hljs-keyword">in</span> dataGridView1.SelectedRows)
+    {
+        list.Add((<span class="hljs-keyword">int</span>)row.Cells[<span class="hljs-string">"Id"</span>].Value);
+    }
+
+    <span class="hljs-comment">// 昇順に並び替え</span>
+    list.Sort();
+
+    <span class="hljs-keyword">return</span> list;
+}
+
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> IDのリストをもとに薬品情報を取得する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="selectedIdList"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-keyword">private</span> List&lt;List&lt;<span class="hljs-keyword">string</span>&gt;&gt; GetDrugInfo(List&lt;<span class="hljs-keyword">int</span>&gt; selectedIdList)
+{
+    List&lt;List&lt;<span class="hljs-keyword">string</span>&gt;&gt; data = <span class="hljs-keyword">new</span> List&lt;List&lt;<span class="hljs-keyword">string</span>&gt;&gt;();
+
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">foreach</span> (<span class="hljs-keyword">int</span> id <span class="hljs-keyword">in</span> selectedIdList)
+        {
+            <span class="hljs-comment">// 薬品情報を取得</span>
+            <span class="hljs-keyword">var</span> drug = db.Drugs
+                .Where(item =&gt; item.DrugId == id)
+                .FirstOrDefault();
+
+            <span class="hljs-keyword">if</span> (drug != <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-comment">// リストに格納</span>
+                List&lt;<span class="hljs-keyword">string</span>&gt; row = <span class="hljs-keyword">new</span> List&lt;<span class="hljs-keyword">string</span>&gt;();
+
+                row.Add(drug.Classifications.ClassificationCode); <span class="hljs-comment">// 薬効分類コード</span>
+                row.Add(drug.Classifications.Name); <span class="hljs-comment">// 薬効分類</span>
+                row.Add(drug.DrugCode); <span class="hljs-comment">// 薬品コード</span>
+                row.Add(drug.Name); <span class="hljs-comment">// 薬品名</span>
+                row.Add(drug.Company); <span class="hljs-comment">// 会社名</span>
+
+                data.Add(row);
+            }
+        }
+    }
+
+    <span class="hljs-keyword">return</span> data;
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="excel-">Excelファイルの出力</h3>
+<p>今回、Excelファイルの出力に <a href="http://epplus.codeplex.com/">EPPlus</a> を使用します。<br>NuGetで <em>EPPlus</em> をインストールします。</p>
+<p><img src="./images/c2-26.JPG" alt="画像"></p>
+<p><br></p>
+<p><em>EPPlus</em> を使用して、Excelファイルを生成します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> Excelファイルを出力する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="data"&gt;</span>薬品データ<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="fileName"&gt;</span>ファイル名<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span>ファイルパス<span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">string</span> <span class="hljs-title">OutputExcel</span>(<span class="hljs-params">List&lt;List&lt;<span class="hljs-keyword">string</span>&gt;&gt; data, <span class="hljs-keyword">string</span> fileName</span>)
+</span>{
+    <span class="hljs-comment">// 出力ファイル</span>
+    <span class="hljs-keyword">var</span> file = <span class="hljs-keyword">new</span> System.IO.FileInfo(fileName);
+    <span class="hljs-comment">// すでにファイルが存在する場合は削除</span>
+    <span class="hljs-keyword">if</span> (file.Exists)
+    {
+        file.Delete();
+    }
+
+    <span class="hljs-comment">// Excelファイルの作成</span>
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> excel = <span class="hljs-keyword">new</span> ExcelPackage(file))
+    {
+        <span class="hljs-comment">// シート追加</span>
+        <span class="hljs-keyword">var</span> sheet = excel.Workbook.Worksheets.Add(<span class="hljs-string">"薬品情報"</span>);
+
+        <span class="hljs-keyword">int</span> rowIndex = <span class="hljs-number">1</span>; <span class="hljs-comment">// 行番号</span>
+        <span class="hljs-keyword">int</span> colIndex = <span class="hljs-number">1</span>; <span class="hljs-comment">// 列番号</span>
+
+        <span class="hljs-keyword">foreach</span> (<span class="hljs-keyword">var</span> row <span class="hljs-keyword">in</span> data)
+        {
+            colIndex = <span class="hljs-number">1</span>;
+
+            <span class="hljs-keyword">foreach</span> (<span class="hljs-keyword">var</span> col <span class="hljs-keyword">in</span> row)
+            {
+                <span class="hljs-keyword">var</span> cell = sheet.Cells[rowIndex, colIndex];
+                cell.Value = col;
+
+                colIndex++;
+            }
+            rowIndex++;
+        }
+        <span class="hljs-comment">// excel保存</span>
+        excel.Save();
+    }
+
+    <span class="hljs-keyword">return</span> file.FullName;
+}
+</code></pre>
 <ul>
-<li>Officeファイルの操作</li>
-<li>EPPlusによるExcelファイルの作成</li>
-<li>Excelファイルの更新</li>
+<li>参考: <a href="https://msdn.microsoft.com/ja-jp/library/system.io.fileinfo.aspx">FileInfo クラス</a></li>
 </ul>
+<p><br><br></p>
+<h3 id="-">出力ボタンの実装</h3>
+<p><em>DataGridView</em> の選択行の取得、データベースからの薬品情報取得、<em>EPPlus</em> によるExcelファイル出力を
+組み立てて、出力ボタンの処理を実装します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 出力ボタンのクリック</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button3_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// 選択行の取得</span>
+    <span class="hljs-keyword">var</span> list = <span class="hljs-keyword">this</span>.GetSelectedIds();
+
+    <span class="hljs-keyword">if</span> (list.Count == <span class="hljs-number">0</span>)
+    {
+        <span class="hljs-comment">// 選択行がなければ終了</span>
+        MessageBox.Show(<span class="hljs-string">"薬品を選択してください。"</span>);
+        <span class="hljs-keyword">return</span>;
+    }
+
+    <span class="hljs-comment">// データの取得</span>
+    <span class="hljs-keyword">var</span> data = <span class="hljs-keyword">this</span>.GetDrugInfo(list);
+
+    <span class="hljs-comment">// Excel出力</span>
+    <span class="hljs-keyword">var</span> filePath = <span class="hljs-keyword">this</span>.OutputExcel(data, <span class="hljs-string">"output.xlsx"</span>);
+
+    MessageBox.Show(<span class="hljs-keyword">string</span>.Format(<span class="hljs-string">"Excelファイルを出力しました。\n{0}"</span>, filePath));
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-">動作確認</h3>
+<p><img src="./images/c2-27.JPG" alt="画像"></p>
+<p><em>DataGridView</em> で適当な行を選択し、「出力」ボタンをクリックしてください。</p>
+<p>実行ファイルと同じフォルダに <code>output.xlsx</code> というファイルが生成されています。</p>
+<p><br><br></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">
