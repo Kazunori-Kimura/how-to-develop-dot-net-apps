@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>.NET アプリケーション開発入門</title>
+  <!-- Bootstrap -->
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
+  <!-- highlightjs -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  <!-- font-awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/"><i class="fa fa-code"></i> .NET アプリケーション開発入門</a>
+      </div>
+      <p class="navbar-text navbar-right">
+        <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
+          <i class="fa fa-github"></i>
+          View on GitHub
+        </a>
+        &nbsp;
+      </p>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <h1 id="2-windows-2">2. Windowsフォームアプリケーションの開発 - 2</h1>
+<h2 id="-">アプリケーション仕様</h2>
+<p>薬品情報の検索及び、薬品情報の登録・編集ができるアプリケーションを開発します。</p>
+<p><img src="images/image3.png" alt="イメージ図"></p>
+<p>最終的な画面イメージは以下のようになります。</p>
+<p><img src="images/c2-image.png" alt="イメージ図"></p>
+<p>以降の手順では、<a href="./classic-001.html">前回</a> のアプリでCSVの内容がローカルのデータベースに登録されている前提で進めていきます。</p>
+<p>テーブルが無いと開発が進められませんので、少なくとも前回の内容の「SQL Server にデータベースを作成する」までは実施しておいてください。</p>
+<p><br><br></p>
+<h2 id="windows-">Windowsフォームアプリケーション プロジェクトの作成</h2>
+<p>新しいプロジェクトを作成します。</p>
+<p>名前は <em>DrugInfoViewer</em> とします。</p>
+<p><img src="images/c2-6.png" alt="イメージ図"></p>
+<p><br><br></p>
+<h3 id="entity-framework-">Entity Frameworkのインストール</h3>
+<p><em>NuGet</em> を使用して、<em>EntityFramework</em> をインストールします。</p>
+<p><em>ソリューション エクスプローラー</em> で プロジェクト名を右クリックし、<em>NuGetパッケージの管理</em> をクリックします。</p>
+<p><em>EntityFramework</em> を検索し、<em>インストール</em> をクリックします。</p>
+<p><img src="images/c2-7.png" alt="イメージ図"></p>
+<p>ライセンスの確認、変更の確認ウインドウが表示された場合は <em>OK</em> をクリックしてインストールを進めてください。</p>
+<p><br><br></p>
+<h3 id="edm-">EDMの作成</h3>
+<p><a href="./classic-001.html">前回</a> と同様、 <em>データベース・ファースト</em> で開発していきます。</p>
+<p>(1) <em>ソリューション エクスプローラー</em> をクリックします。</p>
+<p>(2) プロジェクト名を右クリックし、<em>追加</em> -&gt; <em>新しい項目</em> をクリックします。</p>
+<p>(3) <em>データ</em> から <em>ADO.NET Entity Data Model</em> を選択し、名前を <code>DrugInfoModel</code> とします。</p>
+<p><img src="./images/c1-11.JPG" alt="画像">
+<br></p>
+<p>(4) <em>データベースから EF Designer</em> を選択し、 <em>次へ</em> をクリックします。</p>
+<p><img src="./images/c1-12.JPG" alt="画像">
+<br></p>
+<p>(5) 作成したサーバーが選択されていることを確認します。</p>
+<p>(6) <em>接続設定に名前を付けて App.Config に保存</em> にチェックをし、 <code>DrugInfoContext</code> と入力して <em>次へ</em> をクリックします。</p>
+<p><img src="./images/c1-13.JPG" alt="画像">
+<br></p>
+<p>(7) バージョンの選択ウィンドウが表示される場合は、 <em>Entity Framework 6.x</em> を選択して <em>次へ</em> をクリックします。</p>
+<p><img src="./images/c1-14.JPG" alt="画像">
+<br></p>
+<p>(8) <em>テーブル</em> にチェックを入れて <em>完了</em> をクリックします。</p>
+<p><img src="./images/c1-15.JPG" alt="画像">
+<br></p>
+<p>(9) <em>セキュリティ警告</em> が表示される場合は、 <em>今後このメッセージを表示しない</em> にチェックし、 <em>OK</em> をクリックします。</p>
+<p><img src="./images/c1-16.JPG" alt="画像">
+<br></p>
+<p>(10) edmxファイルが生成され、デザイナーに取り込まれたテーブルの情報が表示されます。</p>
+<p><br><br></p>
+<h2 id="-">検索処理の実装</h2>
+<h3 id="-">コントロールの配置</h3>
+<p>検索エリアとグリッドの表示エリアを分けるため、<em>Split Container</em> を使用します。</p>
+<p>(1) <em>Split Container</em> を上下分割に変更します。</p>
+<p><br></p>
+<p>(2) 上部分のパネルのサイズが変わらないように、プロパティで <code>FixedPanel</code> = <code>Panel1</code> とします。</p>
+<p>(3) 上部分のパネルに検索に使用するコントロールを配置していきます。</p>
+<p>まず、コンボボックスとボタンを配置します。</p>
+<p><br><br></p>
+<h3 id="-">コンボボックスへのデータバインド</h3>
+<p>薬効分類ごとの薬品を一覧表示するために、コンボボックスに薬効分類をセットします。</p>
+<p>最も少ないコードで実現するには、以下のようにします。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Drawing;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フォームの初期化</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Form1_Load</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-comment">// コンボボックスに薬効分類をセット</span>
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+            {
+                <span class="hljs-comment">// 薬効分類のリスト</span>
+                <span class="hljs-keyword">var</span> list = db.Classifications.ToList();
+                <span class="hljs-keyword">this</span>.comboBox1.DisplayMember = <span class="hljs-string">"Name"</span>;
+                <span class="hljs-keyword">this</span>.comboBox1.ValueMember = <span class="hljs-string">"ClassificationId"</span>;
+
+                <span class="hljs-keyword">this</span>.comboBox1.DataSource = list;
+            }
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>非常に簡単に <em>Classifications</em> テーブルの内容をコンボボックスにセットできますが、
+コンボボックスの表示を <em>&quot;分類コード:名称&quot;</em> に変更する、といったことができません。</p>
+<p>その場合は、データ引き渡し用のクラスを用意します。<br>このようなクラスのことを <em>Data Transfer Object</em> と呼びます。</p>
+<p><em>ClassificationDTO</em> というクラスを追加します。</p>
+<p><br></p>
+<p><code>ClassificationDTO.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-title">ClassificationDTO</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ClassificationId</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> Id { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬効分類コード</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Code { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 名称</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> コンボボックスの表示内容</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Title
+        {
+            <span class="hljs-keyword">get</span>
+            {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">string</span>.IsNullOrEmpty(Name))
+                {
+                    <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Empty;
+                }
+                <span class="hljs-keyword">else</span>
+                {
+                    <span class="hljs-keyword">return</span> <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">"{0}:{1}"</span>, Code, Name);
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>コードと名前をコロンで結合した文字列をコンボボックスのラベルに表示させます。</p>
+<p>続いてコンボボックスにデータをセットするよう実装します。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Drawing;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フォームの初期化</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Form1_Load</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-comment">// コンボボックスに薬効分類をセット</span>
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+            {
+                <span class="hljs-comment">// 薬効分類のリスト</span>
+                <span class="hljs-keyword">var</span> list = db.Classifications
+                    .Select(item =&gt; <span class="hljs-keyword">new</span> ClassificationDTO {
+                        Id = item.ClassificationId,
+                        Code = item.ClassificationCode,
+                        Name = item.Name
+                    })
+                    .ToList();
+
+                <span class="hljs-comment">// 先頭にブランクを登録</span>
+                list.Insert(<span class="hljs-number">0</span>, <span class="hljs-keyword">new</span> ClassificationDTO {
+                    Id = <span class="hljs-number">0</span>,
+                    Code = <span class="hljs-keyword">string</span>.Empty,
+                    Name = <span class="hljs-keyword">string</span>.Empty
+                });
+
+                <span class="hljs-keyword">this</span>.comboBox1.DisplayMember = <span class="hljs-string">"Title"</span>;
+                <span class="hljs-keyword">this</span>.comboBox1.ValueMember = <span class="hljs-string">"Id"</span>;
+                <span class="hljs-keyword">this</span>.comboBox1.DataSource = list;
+            }
+        }
+    }
+}
+</code></pre>
+<p>DTOクラスにデータを格納し、リストにします。</p>
+<p>先頭にブランクを登録し、コンボボックスと紐付けます。</p>
+<p><br><br></p>
+<h3 id="-">動作確認</h3>
+<ul>
+<li>先頭がブランクとなっていることを確認します。</li>
+<li>2つ目以降、「コード:名称」となっていることを確認します。</li>
+</ul>
+<p><br><br></p>
+<h2 id="datagridview-">DataGridView へのデータバインド</h2>
+<p>(1) 下のパネルに <em>DataGridView</em> を配置し、親パネルいっぱいに広がるよう設定します。</p>
+<p><em>DataGridView</em> でのデータ編集ができないように、すべてのチェックを外します。</p>
+<p>(2) <em>DataGridView</em> に表示するデータを格納するDTOクラスを作成します。</p>
+<p><code>DrugDTO.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.ComponentModel;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">class</span> <span class="hljs-title">DrugDTO</span>
+    {
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> Id { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品コード</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        [DisplayName(<span class="hljs-string">"薬品コード"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Code { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品名</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        [DisplayName(<span class="hljs-string">"薬品名"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬効分類コード</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        [DisplayName(<span class="hljs-string">"分類コード"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬効分類名</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        [DisplayName(<span class="hljs-string">"分類名"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
+<p><br></p>
+<h3 id="-">用語解説: 属性</h3>
+<p><code>[DisplayName(&quot;薬品コード&quot;)]</code> など、プロパティの上に記述されたカギカッコで括られた記述は
+<a href="https://msdn.microsoft.com/ja-jp/library/z0w1kczw.aspx">属性(Attributes あるいは Annotation)</a>と呼ばれるものです。</p>
+<p>DataGridView で項目が表示される時に、<code>DisplayName</code>に設定した文言が項目名として使用されます。</p>
+<ul>
+<li>参考: <a href="https://msdn.microsoft.com/ja-jp/library/system.componentmodel.dataannotations.aspx">System.ComponentModel.DataAnnotations 名前空間</a></li>
+</ul>
+<p><br><br></p>
+<h3 id="-">検索処理の実装</h3>
+<p>検索ボタンをクリックした際の処理を実装します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 検索ボタンのクリックでDataGridViewにデータを表示する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// コンボボックスの選択内容</span>
+    <span class="hljs-keyword">int</span> id = (<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.comboBox1.SelectedValue;
+
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-comment">// 薬品情報の取得</span>
+        <span class="hljs-keyword">var</span> list = db.Drugs
+            .Where(item =&gt; item.ClassificationId == id)
+            .Select(item =&gt; <span class="hljs-keyword">new</span> DrugDTO
+            {
+                Id = item.DrugId,
+                Code = item.DrugCode,
+                Name = item.Name,
+                ClassificationCode = item.Classifications.ClassificationCode,
+                ClassificationName = item.Classifications.Name
+            })
+            .ToList();
+        <span class="hljs-comment">// DataGridViewに紐づける</span>
+        <span class="hljs-keyword">this</span>.dataGridView1.DataSource = list;
+    }
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-">動作確認</h3>
+<ul>
+<li>選択した薬効分類に該当する薬品が <em>DataGridView</em> に表示されることを確認します。</li>
+</ul>
+<p><br><br></p>
+<h3 id="-">薬品名による検索処理の実装</h3>
+<p>(1) 薬品名を入力するコントロールを追加します。</p>
+<p><br></p>
+<p>(2) 検索処理を以下のように修正します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 検索ボタンのクリックでDataGridViewにデータを表示する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// コンボボックスの選択内容</span>
+    <span class="hljs-keyword">int</span> id = (<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.comboBox1.SelectedValue;
+
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-comment">// 薬品情報の取得</span>
+        <span class="hljs-keyword">var</span> list = db.Drugs
+            .Where(item =&gt; (id == <span class="hljs-number">0</span> || item.ClassificationId == id) &amp;&amp;
+              (<span class="hljs-keyword">string</span>.IsNullOrEmpty(<span class="hljs-keyword">this</span>.textBox1.Text) || item.Name.Contains(<span class="hljs-keyword">this</span>.textBox1.Text)))
+            .Select(item =&gt; <span class="hljs-keyword">new</span> DrugDTO
+            {
+                Id = item.DrugId,
+                Code = item.DrugCode,
+                Name = item.Name,
+                ClassificationCode = item.Classifications.ClassificationCode,
+                ClassificationName = item.Classifications.Name
+            })
+            .ToList();
+        <span class="hljs-comment">// DataGridViewに紐づける</span>
+        <span class="hljs-keyword">this</span>.dataGridView1.DataSource = list;
+    }
+}
+</code></pre>
+<p><br></p>
+<p>薬品名を入力して、検索結果が変わることを確認してください。</p>
+<p><br><br></p>
+<h2 id="-">更新処理の実装</h2>
+<h3 id="-">フォームの追加</h3>
+<p>(1) 以下のようにコントロールを配置します。(赤字は各コントロールの <code>Name</code> です)</p>
+<p><br></p>
+<p>(2) フォームのプロパティを以下のように設定します。</p>
+<ul>
+<li><code>ControlBox</code> = <code>False</code> : タイトルバーの「最小化」、「最大化」、「閉じる」といったボタンが非表示となります</li>
+<li><code>FormBorderStyle</code> = <code>FixedDialog</code> : フォームのサイズ変更ができなくなります</li>
+<li><code>Text</code> = <code>薬品情報</code> : フォームのタイトルです</li>
+</ul>
+<p><br></p>
+<p>(3) 親画面から表示する薬品のIDを受け渡しできるように 変数 <code>DrugId</code> を追加します。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form2</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品ID</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> DrugId = <span class="hljs-number">0</span>;
+
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form2</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>(4) キャンセルボタンをクリックされた際に自分自身を閉じます。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> キャンセルボタンクリックでフォームを閉じる</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">btnCancel_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-keyword">this</span>.Close();
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-">フォームの表示</h3>
+<p>(1) 親画面から子フォームをモーダル表示する処理を実装します。  </p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 子画面</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">private</span> Form2 subForm;
+
+<span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 子画面を表示する</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="drugId"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">ShowSubForm</span>(<span class="hljs-params"><span class="hljs-keyword">int</span> drugId</span>)
+        </span>{
+            <span class="hljs-keyword">if</span> (subForm == <span class="hljs-keyword">null</span>)
+            {
+                subForm = <span class="hljs-keyword">new</span> Form2();
+            }
+            <span class="hljs-comment">// 薬品IDをセットする</span>
+            subForm.DrugId = drugId;
+            <span class="hljs-comment">// モーダル表示する</span>
+            subForm.ShowDialog(<span class="hljs-keyword">this</span>);
+        }
+    }
+}
+</code></pre>
+<p>(2) 「追加」ボタンのクリックと <em>DataGridView</em> で行をダブルクリックした場合にフォームを開きます。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 追加ボタンのクリックで子画面を表示する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button2_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// 子画面を表示 (追加時の薬品IDは0固定とする)</span>
+    <span class="hljs-keyword">this</span>.ShowSubForm(<span class="hljs-number">0</span>);
+}
+
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> セルのダブルクリックで子画面を表示する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">dataGridView1_CellDoubleClick</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, DataGridViewCellEventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// 選択された薬品のIDを取得</span>
+    <span class="hljs-keyword">int</span> id = (<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.dataGridView1.Rows[e.RowIndex].Cells[<span class="hljs-string">"Id"</span>].Value;
+    <span class="hljs-comment">// 子画面を表示</span>
+    <span class="hljs-keyword">this</span>.ShowSubForm(id);
+}
+</code></pre>
+<p><br></p>
+<h3 id="-">動作確認</h3>
+<ul>
+<li>ボタンクリック、行のダブルクリックでフォームが表示されることを確認します。</li>
+<li>フォームがモーダルダイアログとして表示されることを確認します。</li>
+<li>キャンセルボタンでフォームが閉じ、親画面に戻ることを確認します。</li>
+</ul>
+<p><br><br></p>
+<h3 id="-">フォームの初期化処理</h3>
+<p>(1) コンボボックスに薬効分類をセットする処理を実装します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment">/// &lt;summary&gt;</span>
+<span class="hljs-comment">/// 薬効分類をコンボボックスにセットする</span>
+<span class="hljs-comment">/// &lt;/summary&gt;</span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">BindClassifications</span><span class="hljs-params">()</span>
+</span>{
+    <span class="hljs-keyword">using</span> (var db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-comment">// 薬効分類のリストを取得</span>
+        var <span class="hljs-built_in">list</span> = db.Classifications.Select(item =&gt; <span class="hljs-keyword">new</span> ClassificationDTO
+        {
+            Id = item.ClassificationId,
+            Code = item.ClassificationCode,
+            Name = item.Name
+        }).ToList();
+
+        <span class="hljs-comment">// 先頭にブランクをセット</span>
+        <span class="hljs-built_in">list</span>.Insert(<span class="hljs-number">0</span>, <span class="hljs-keyword">new</span> ClassificationDTO
+        {
+            Id = <span class="hljs-number">0</span>,
+            Code = <span class="hljs-built_in">string</span>.Empty,
+            Name = <span class="hljs-built_in">string</span>.Empty
+        });
+
+        <span class="hljs-comment">// コンボボックスの表示設定</span>
+        <span class="hljs-keyword">this</span>.cmbClass.DisplayMember = <span class="hljs-string">"Title"</span>;
+        <span class="hljs-keyword">this</span>.cmbClass.ValueMember = <span class="hljs-string">"Id"</span>;
+        <span class="hljs-keyword">this</span>.cmbClass.DataSource = <span class="hljs-built_in">list</span>;
+    }
+}
+</code></pre>
+<p><br></p>
+<p>(2) 親画面から引き渡された薬品IDを元に、薬品情報を取得してフォームに表示します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報をフォームに表示する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetDrug</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">var</span> drug = db.Drugs
+            .Where(item =&gt; item.DrugId == <span class="hljs-keyword">this</span>.DrugId)
+            .FirstOrDefault();
+
+        <span class="hljs-keyword">if</span> (drug != <span class="hljs-keyword">null</span>)
+        {
+            <span class="hljs-keyword">this</span>.lblId.Text = <span class="hljs-keyword">this</span>.DrugId.ToString();
+            <span class="hljs-keyword">this</span>.lblCode.Text = drug.DrugCode;
+            <span class="hljs-keyword">this</span>.txtName.Text = drug.Name;
+            <span class="hljs-keyword">this</span>.txtCompany.Text = drug.Company;
+            <span class="hljs-keyword">this</span>.cmbClass.SelectedValue = drug.ClassificationId;
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>(3) CSVから登録されたデータについては更新・削除できないようにボタンを無効化します。</p>
+<p><br></p>
+<p>(4) 薬品の追加時は削除ボタンを無効化します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フォームの初期化処理</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Form2_Load</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-comment">// ラベルの初期化</span>
+    <span class="hljs-keyword">this</span>.lblId.Text = <span class="hljs-keyword">string</span>.Empty;
+    <span class="hljs-keyword">this</span>.lblCode.Text = <span class="hljs-keyword">string</span>.Empty;
+
+    <span class="hljs-comment">// コンボボックスの表示</span>
+    <span class="hljs-keyword">this</span>.BindClassifications();
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.DrugId != <span class="hljs-number">0</span>)
+    {
+        <span class="hljs-comment">// 薬品情報の表示・更新</span>
+        <span class="hljs-keyword">this</span>.SetDrug();
+        <span class="hljs-comment">// 更新・削除ボタンの制御</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">string</span>.IsNullOrEmpty(<span class="hljs-keyword">this</span>.lblCode.Text))
+        {
+            <span class="hljs-comment">// 薬品コードがブランクの場合は更新・削除可能</span>
+            <span class="hljs-keyword">this</span>.btnAdd.Enabled = <span class="hljs-keyword">true</span>;
+            <span class="hljs-keyword">this</span>.btnDel.Enabled = <span class="hljs-keyword">true</span>;
+        }
+        <span class="hljs-keyword">else</span>
+        {
+            <span class="hljs-comment">// 薬品コードが存在する場合は更新・削除不可</span>
+            <span class="hljs-keyword">this</span>.btnAdd.Enabled = <span class="hljs-keyword">false</span>;
+            <span class="hljs-keyword">this</span>.btnDel.Enabled = <span class="hljs-keyword">false</span>;
+        }
+    }
+    <span class="hljs-keyword">else</span>
+    {
+        <span class="hljs-comment">// 薬品情報の追加</span>
+        <span class="hljs-keyword">this</span>.btnAdd.Enabled = <span class="hljs-keyword">true</span>;
+        <span class="hljs-keyword">this</span>.btnDel.Enabled = <span class="hljs-keyword">false</span>;
+    }
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="entity-framework-">Entity Frameworkでのデータ登録・更新</h3>
+<p>登録ボタンを押された際にデータの登録・更新処理を行います。<br>親画面からIDが渡されているかどうかで処理を切り替えます。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Drawing;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Text;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form2</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品ID</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> DrugId = <span class="hljs-number">0</span>;
+
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form2</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> キャンセルボタンクリックでフォームを閉じる</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">btnCancel_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-keyword">this</span>.Close();
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フォームの初期化処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Form2_Load</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-comment">// ラベルの初期化</span>
+            <span class="hljs-keyword">this</span>.lblId.Text = <span class="hljs-keyword">string</span>.Empty;
+            <span class="hljs-keyword">this</span>.lblCode.Text = <span class="hljs-keyword">string</span>.Empty;
+
+            <span class="hljs-comment">// コンボボックスの表示</span>
+            <span class="hljs-keyword">this</span>.BindClassifications();
+
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.DrugId != <span class="hljs-number">0</span>)
+            {
+                <span class="hljs-comment">// 薬品情報の表示・更新</span>
+                <span class="hljs-keyword">this</span>.SetDrug();
+                <span class="hljs-comment">// 更新・削除ボタンの制御</span>
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">string</span>.IsNullOrEmpty(<span class="hljs-keyword">this</span>.lblCode.Text))
+                {
+                    <span class="hljs-comment">// 薬品コードがブランクの場合は更新・削除可能</span>
+                    <span class="hljs-keyword">this</span>.btnAdd.Enabled = <span class="hljs-keyword">true</span>;
+                    <span class="hljs-keyword">this</span>.btnDel.Enabled = <span class="hljs-keyword">true</span>;
+                }
+                <span class="hljs-keyword">else</span>
+                {
+                    <span class="hljs-comment">// 薬品コードが存在する場合は更新・削除不可</span>
+                    <span class="hljs-keyword">this</span>.btnAdd.Enabled = <span class="hljs-keyword">false</span>;
+                    <span class="hljs-keyword">this</span>.btnDel.Enabled = <span class="hljs-keyword">false</span>;
+                }
+            }
+            <span class="hljs-keyword">else</span>
+            {
+                <span class="hljs-comment">// 薬品情報の追加</span>
+                <span class="hljs-keyword">this</span>.btnAdd.Enabled = <span class="hljs-keyword">true</span>;
+                <span class="hljs-keyword">this</span>.btnDel.Enabled = <span class="hljs-keyword">false</span>;
+            }
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬効分類をコンボボックスにセットする</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">BindClassifications</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+            {
+                <span class="hljs-comment">// 薬効分類のリストを取得</span>
+                <span class="hljs-keyword">var</span> list = db.Classifications.Select(item =&gt; <span class="hljs-keyword">new</span> ClassificationDTO
+                {
+                    Id = item.ClassificationId,
+                    Code = item.ClassificationCode,
+                    Name = item.Name
+                }).ToList();
+
+                <span class="hljs-comment">// 先頭にブランクをセット</span>
+                list.Insert(<span class="hljs-number">0</span>, <span class="hljs-keyword">new</span> ClassificationDTO
+                {
+                    Id = <span class="hljs-number">0</span>,
+                    Code = <span class="hljs-keyword">string</span>.Empty,
+                    Name = <span class="hljs-keyword">string</span>.Empty
+                });
+
+                <span class="hljs-comment">// コンボボックスの表示設定</span>
+                <span class="hljs-keyword">this</span>.cmbClass.DisplayMember = <span class="hljs-string">"Title"</span>;
+                <span class="hljs-keyword">this</span>.cmbClass.ValueMember = <span class="hljs-string">"Id"</span>;
+                <span class="hljs-keyword">this</span>.cmbClass.DataSource = list;
+            }
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報をフォームに表示する</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetDrug</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+            {
+                <span class="hljs-keyword">var</span> drug = db.Drugs
+                    .Where(item =&gt; item.DrugId == <span class="hljs-keyword">this</span>.DrugId)
+                    .FirstOrDefault();
+
+                <span class="hljs-keyword">if</span> (drug != <span class="hljs-keyword">null</span>)
+                {
+                    <span class="hljs-keyword">this</span>.lblId.Text = <span class="hljs-keyword">this</span>.DrugId.ToString();
+                    <span class="hljs-keyword">this</span>.lblCode.Text = drug.DrugCode;
+                    <span class="hljs-keyword">this</span>.txtName.Text = drug.Name;
+                    <span class="hljs-keyword">this</span>.txtCompany.Text = drug.Company;
+                    <span class="hljs-keyword">this</span>.cmbClass.SelectedValue = drug.ClassificationId;
+                }
+            }
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 登録ボタンクリックで追加・更新処理を行う</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">btnAdd_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-keyword">bool</span> ret = <span class="hljs-keyword">false</span>;
+
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.validate())
+            {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.DrugId == <span class="hljs-number">0</span>)
+                {
+                    <span class="hljs-comment">// 追加</span>
+                    ret = <span class="hljs-keyword">this</span>.AddDrug();
+                }
+                <span class="hljs-keyword">else</span>
+                {
+                    <span class="hljs-comment">// 更新</span>
+                    ret = <span class="hljs-keyword">this</span>.UpdateDrug();
+                }
+
+                <span class="hljs-keyword">if</span> (ret)
+                {
+                    <span class="hljs-comment">// 登録成功</span>
+                    MessageBox.Show(<span class="hljs-string">"登録が完了しました。"</span>);
+                    <span class="hljs-keyword">this</span>.Close();
+                }
+                <span class="hljs-keyword">else</span>
+                {
+                    <span class="hljs-comment">// 登録失敗</span>
+                    MessageBox.Show(<span class="hljs-string">"登録に失敗しました。"</span>);
+                }
+            }
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 入力チェック</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">validate</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">string</span> msg = <span class="hljs-string">"登録に失敗しました。\n{0}"</span>;
+            <span class="hljs-keyword">bool</span> valid = <span class="hljs-keyword">true</span>;
+
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">string</span>.IsNullOrEmpty(<span class="hljs-keyword">this</span>.txtName.Text))
+            {
+                <span class="hljs-comment">// 薬品名は必須</span>
+                msg = <span class="hljs-keyword">string</span>.Format(msg, <span class="hljs-string">"薬品名は必須項目です。"</span>);
+            }
+
+            <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.cmbClass.SelectedValue == <span class="hljs-number">0</span>)
+            {
+                <span class="hljs-comment">// 薬効分類は必須</span>
+                msg = <span class="hljs-keyword">string</span>.Format(msg, <span class="hljs-string">"薬効分類は必須項目です。"</span>);
+            }
+
+            <span class="hljs-keyword">if</span> (!valid)
+            {
+                <span class="hljs-comment">// エラーメッセージを表示する</span>
+                MessageBox.Show(msg);
+            }
+
+            <span class="hljs-keyword">return</span> valid;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報の追加処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">AddDrug</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">try</span> {
+                <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+                {
+                    <span class="hljs-comment">// フォームの入力値を取得</span>
+                    <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">this</span>.GetFormValue();
+                    <span class="hljs-comment">// 薬品を追加</span>
+                    db.Drugs.Add(drug);
+                    <span class="hljs-comment">// 更新を保存</span>
+                    db.SaveChanges();
+                }
+            }
+            <span class="hljs-keyword">catch</span> (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            }
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報の更新処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">UpdateDrug</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">try</span>
+            {
+                <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+                {
+                    <span class="hljs-comment">// 更新対象の薬品を取得</span>
+                    <span class="hljs-keyword">var</span> drug1 = db.Drugs
+                        .Where(item =&gt; item.DrugId == <span class="hljs-keyword">this</span>.DrugId)
+                        .FirstOrDefault();
+
+                    <span class="hljs-keyword">if</span> (drug1 == <span class="hljs-keyword">null</span>)
+                    {
+                        <span class="hljs-comment">// 薬品が取得できなかった</span>
+                        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+                    }
+
+                    <span class="hljs-comment">// 入力値を取得</span>
+                    <span class="hljs-keyword">var</span> drug2 = <span class="hljs-keyword">this</span>.GetFormValue();
+
+                    <span class="hljs-comment">// プロパティを更新</span>
+                    drug1.Name = drug2.Name;
+                    drug1.Company = drug2.Company;
+                    drug1.ClassificationId = drug2.ClassificationId;
+
+                    <span class="hljs-comment">// 変更を保存</span>
+                    db.SaveChanges();
+                }
+            }
+            <span class="hljs-keyword">catch</span> (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            }
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フォームの入力値を取得する</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> Drugs <span class="hljs-title">GetFormValue</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">new</span> Drugs
+            {
+                DrugId = <span class="hljs-keyword">this</span>.DrugId,
+                DrugCode = <span class="hljs-keyword">this</span>.lblCode.Text,
+                Name = <span class="hljs-keyword">this</span>.txtName.Text,
+                Company = <span class="hljs-keyword">this</span>.txtCompany.Text,
+                ClassificationId = (<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.cmbClass.SelectedValue
+            };
+
+            <span class="hljs-keyword">return</span> drug;
+        }
+    }
+}
+</code></pre>
+<p>(1) 登録ボタンクリック時の処理</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 登録ボタンクリックで追加・更新処理を行う</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">btnAdd_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-keyword">bool</span> ret = <span class="hljs-keyword">false</span>;
+
+    <span class="hljs-comment">// 入力チェック</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.validate())
+    {
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.DrugId == <span class="hljs-number">0</span>)
+        {
+            <span class="hljs-comment">// 追加</span>
+            ret = <span class="hljs-keyword">this</span>.AddDrug();
+        }
+        <span class="hljs-keyword">else</span>
+        {
+            <span class="hljs-comment">// 更新</span>
+            ret = <span class="hljs-keyword">this</span>.UpdateDrug();
+        }
+
+        <span class="hljs-keyword">if</span> (ret)
+        {
+            <span class="hljs-comment">// 登録成功</span>
+            MessageBox.Show(<span class="hljs-string">"登録が完了しました。"</span>);
+            <span class="hljs-keyword">this</span>.Close();
+        }
+        <span class="hljs-keyword">else</span>
+        {
+            <span class="hljs-comment">// 登録失敗</span>
+            MessageBox.Show(<span class="hljs-string">"登録に失敗しました。"</span>);
+        }
+    }
+}
+</code></pre>
+<p><code>DrugId</code> が 0 の場合は追加、それ以外は更新処理を行います。</p>
+<p>追加・更新が完了したら、成否に応じてメッセージを表示します。<br>また、成功時はフォームを閉じて親画面に戻ります。</p>
+<p><br></p>
+<p>(2) 入力チェック</p>
+<p>薬品名と薬効分類は必須項目なので、入力チェックにて未入力の場合はエラーとします。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 入力チェック</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">validate</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">string</span> msg = <span class="hljs-string">"登録に失敗しました。\n{0}"</span>;
+    <span class="hljs-keyword">bool</span> valid = <span class="hljs-keyword">true</span>;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">string</span>.IsNullOrEmpty(<span class="hljs-keyword">this</span>.txtName.Text))
+    {
+        <span class="hljs-comment">// 薬品名は必須</span>
+        msg = <span class="hljs-keyword">string</span>.Format(msg, <span class="hljs-string">"薬品名は必須項目です。"</span>);
+    }
+
+    <span class="hljs-keyword">if</span> ((<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.cmbClass.SelectedValue == <span class="hljs-number">0</span>)
+    {
+        <span class="hljs-comment">// 薬効分類は必須</span>
+        msg = <span class="hljs-keyword">string</span>.Format(msg, <span class="hljs-string">"薬効分類は必須項目です。"</span>);
+    }
+
+    <span class="hljs-keyword">if</span> (!valid)
+    {
+        <span class="hljs-comment">// エラーメッセージを表示する</span>
+        MessageBox.Show(msg);
+    }
+
+    <span class="hljs-keyword">return</span> valid;
+}
+</code></pre>
+<p><br></p>
+<p>(3) 追加時の処理</p>
+<p>追加時の処理は以下のようになります。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報の追加処理</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">AddDrug</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+        {
+            <span class="hljs-comment">// フォームの入力値を取得</span>
+            <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">this</span>.GetFormValue();
+            <span class="hljs-comment">// 薬品を追加</span>
+            db.Drugs.Add(drug);
+            <span class="hljs-comment">// 更新を保存</span>
+            db.SaveChanges();
+        }
+    }
+    <span class="hljs-keyword">catch</span> (Exception e)
+    {
+        System.Diagnostics.Debug.WriteLine(e.Message);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+}
+
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フォームの入力値を取得する</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> Drugs <span class="hljs-title">GetFormValue</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">new</span> Drugs
+    {
+        DrugId = <span class="hljs-keyword">this</span>.DrugId,
+        DrugCode = <span class="hljs-keyword">this</span>.lblCode.Text,
+        Name = <span class="hljs-keyword">this</span>.txtName.Text,
+        Company = <span class="hljs-keyword">this</span>.txtCompany.Text,
+        ClassificationId = (<span class="hljs-keyword">int</span>)<span class="hljs-keyword">this</span>.cmbClass.SelectedValue
+    };
+
+    <span class="hljs-keyword">return</span> drug;
+}
+</code></pre>
+<p>データベースへの登録時に、何らかのアクシデントで登録に失敗した場合、例外(<code>Exception</code>) が発生します。</p>
+<p>通常、例外が発生するとアプリケーションが停止しますが、
+<code>try</code> ステートメントの範囲内では例外が発生した場合は <code>catch</code> に処理が移ります。</p>
+<p>ファイルやデータベースの読み書きを行う際は、<code>using</code> とともに
+<code>try-catch</code> を使用する事が多いです。</p>
+<ul>
+<li><a href="https://msdn.microsoft.com/ja-jp/library/0yd65esw.aspx">try-catch (C# リファレンス)</a></li>
+<li><a href="http://dobon.net/vb/dotnet/beginner/exceptionhandling.html">エラー処理（例外処理）の基本</a></li>
+</ul>
+<p><br></p>
+<p>(4) 更新時の処理</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 薬品情報の更新処理</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">UpdateDrug</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">try</span>
+    {
+        <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+        {
+            <span class="hljs-comment">// 更新対象の薬品を取得</span>
+            <span class="hljs-keyword">var</span> drug1 = db.Drugs
+                .Where(item =&gt; item.DrugId == <span class="hljs-keyword">this</span>.DrugId)
+                .FirstOrDefault();
+
+            <span class="hljs-keyword">if</span> (drug1 == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-comment">// 薬品が取得できなかった</span>
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+            }
+
+            <span class="hljs-comment">// 入力値を取得</span>
+            <span class="hljs-keyword">var</span> drug2 = <span class="hljs-keyword">this</span>.GetFormValue();
+
+            <span class="hljs-comment">// プロパティを更新</span>
+            drug1.Name = drug2.Name;
+            drug1.Company = drug2.Company;
+            drug1.ClassificationId = drug2.ClassificationId;
+
+            <span class="hljs-comment">// 変更を保存</span>
+            db.SaveChanges();
+        }
+    }
+    <span class="hljs-keyword">catch</span> (Exception e)
+    {
+        System.Diagnostics.Debug.WriteLine(e.Message);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="entity-framework-">Entity Frameworkでのデータ削除</h3>
+<p>(1) 削除ボタンクリック時の処理</p>
+<p><br><br></p>
+<h2 id="-">動作確認</h2>
+<p><br><br></p>
+<hr>
+<p><a href="./classic-004.html">次へ</a></p>
+<p><br><br></p>
+      </div>
+      <div class="col-md-3">
+        <div class="list-group">
+  <a href="./index.html" class="list-group-item active">TOP</a>
+  <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
+  <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
+  <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
+  <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="#" class="list-group-item">3. マルチスレッド対応</a>
+  <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
+  <a href="./asp-002.html" class="list-group-item">2. EntityFramework によるコードファースト開発</a>
+  <a href="#" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
+  <a href="#" class="list-group-item">4. メンバーシップ フレームワークによる認証機能の実装</a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+
+    <div class="center-block ad-block">
+      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- aaa-768x90 -->
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:728px;height:90px"
+           data-ad-client="ca-pub-5886049398949171"
+           data-ad-slot="8568248344"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">.NET アプリケーション開発入門 , &copy; 2015 Kazunori Kimura</p>
+    </div>
+  </footer>
+
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>
+  $(function(){
+    $(".contents table").addClass("table");
+  });
+  </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-29149079-3', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>

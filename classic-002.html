@@ -42,58 +42,100 @@
       <div class="col-md-2"></div>
       <div class="col-md-7">
         <!-- contents -->
-        <h2 id="2-windows-">2. Windowsフォームアプリケーションの開発</h2>
-<h3 id="-">イベントサンプル</h3>
+        <h1 id="2-windows-1">2. Windowsフォームアプリケーションの開発 - 1</h1>
+<h2 id="windows-">Windowsフォームアプリケーションの基礎</h2>
+<p>単純にクリック回数をカウントするアプリの作成を通して、
+Visual Studio の基本的な 操作方法について解説します。</p>
+<p><br><br></p>
+<h3 id="-">プロジェクトの作成</h3>
+<p><img src="images/c1-5.png" alt="イメージ図"></p>
+<p><em>Windowsフォームアプリケーション</em> を選択します。</p>
+<p><img src="images/c2-1.png" alt="イメージ図"></p>
+<p>名前は <em>HelloWorld</em> とします。</p>
+<p><br><br></p>
+<h3 id="-">コントロールの配置と設定</h3>
+<p><em>ツール ボックス</em> から <em>Button</em> と <em>Label</em> をドラッグしてフォームに配置します。</p>
+<p><img src="images/c2-2.png" alt="イメージ図"></p>
+<p>配置したボタンを選択した状態で、 <em>プロパティ</em> を表示します。<br><em>Text</em> を <em>OK</em> に変更します。</p>
+<p><img src="images/c2-3.png" alt="イメージ図"></p>
+<p><br><br></p>
+<h3 id="-">イベントの割り当て</h3>
+<p>フォームを読み込んだ際の初期化処理のイベントを割り当てます。</p>
+<p>フォームを選択した状態で、 <em>プロパティ</em> を表示します。</p>
+<p>雷のアイコンをクリックしてイベントを表示し、 <em>Load</em> にフォーカスを合わせて
+ダブルクリックするか、Enterを押します。</p>
+<p><img src="images/c2-4.png" alt="イメージ図"></p>
+<p>同じように、ボタンをクリックした際のイベントを割り当てます。</p>
+<p>ボタンを選択した状態で、<em>プロパティ</em> を表示し
+<em>Click</em> にフォーカスを合わせてダブルクリックします。</p>
+<p><br><br></p>
+<h3 id="-">処理の実装</h3>
+<p>イベント割り当てを行った時に <code>Form1.cs</code> が表示されていると思います。</p>
+<p>まだ表示されていない場合は、フォームを右クリックして <em>コードの表示</em> を選択します。</p>
 <pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
 <span class="hljs-keyword">using</span> System.Windows.Forms;
 
-<span class="hljs-keyword">namespace</span> <span class="hljs-title">DrugInfoViewer</span>
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">HelloWorld</span>
 {
     <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
     {
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ボタンのクリック回数</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
-        <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> count = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">int</span> count;
 
         <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
         </span>{
             InitializeComponent();
+        }
 
-            <span class="hljs-comment">// ラベルの初期化</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 初期化処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Form1_Load</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-keyword">this</span>.count = <span class="hljs-number">0</span>;
             <span class="hljs-keyword">this</span>.UpdateLabel();
         }
 
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ボタンのクリック回数をカウントする</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ボタンのクリック回数を集計</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
         <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
         </span>{
-            <span class="hljs-comment">// クリック回数をカウントアップ</span>
             <span class="hljs-keyword">this</span>.count++;
-            <span class="hljs-comment">// ラベルの更新</span>
             <span class="hljs-keyword">this</span>.UpdateLabel();
         }
 
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ラベルの内容を更新する</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ラベルにクリック回数をセットする</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">UpdateLabel</span>(<span class="hljs-params"></span>)
         </span>{
-            <span class="hljs-keyword">this</span>.label1.Text = <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">"{0} 回 クリックしました。"</span>, <span class="hljs-keyword">this</span>.count);
+            <span class="hljs-keyword">this</span>.label1.Text = <span class="hljs-keyword">string</span>.Format(<span class="hljs-string">"{0}回 クリックしました。"</span>, <span class="hljs-keyword">this</span>.count);
         }
     }
 }
 </code></pre>
-<ul>
-<li><code>public</code>, <code>protected</code>, <code>private</code></li>
-<li>メンバ、プロパティ、メソッド</li>
-<li>コンストラクタ</li>
-<li><code>this</code> について</li>
-</ul>
-<p>イベントの割り当て</p>
+<p><code>Form1</code> のプロパティとして、ボタンのクリック回数を保持するための <code>count</code> 変数を定義しています。</p>
+<p><code>Form1_Load</code> はフォームが読み込まれる際に実行されるメソッドです。
+そこで <code>count</code> 変数の初期化と ラベルの表示内容の設定を行っています。</p>
+<p><code>button1_Click</code> はボタンのクリック時に実行されるメソッドです。
+クリックされる度に <code>count</code> をインクリメントし、ラベルの表示内容を更新しています。</p>
+<p><br><br></p>
+<h3 id="-">デバッグ実行</h3>
+<p>開始ボタンをクリックするか、F5キーを押してデバッグ実行してみてください。</p>
+<p><img src="images/c2-5.png" alt="イメージ図"></p>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<p>非常に簡単なWindowsフォーム アプリケーションの作り方について解説しました。</p>
+<p><a href="./classic-003.html">次へ</a></p>
+<p><br></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">
@@ -101,7 +143,7 @@
   <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
   <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
   <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
-  <a href="#" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
   <a href="#" class="list-group-item">3. マルチスレッド対応</a>
   <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
   <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
