@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>.NET アプリケーション開発入門</title>
+  <!-- Bootstrap -->
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
+  <!-- highlightjs -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  <!-- font-awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/"><i class="fa fa-code"></i> .NET アプリケーション開発入門</a>
+      </div>
+      <p class="navbar-text navbar-right">
+        <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
+          <i class="fa fa-github"></i>
+          View on GitHub
+        </a>
+        &nbsp;
+      </p>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <h1 id="3-1-">3. 非同期処理の基礎 - (1)</h1>
+<p>.NET Framework 4.5 から導入された <em>async/await</em> キーワードを使用した非同期処理について解説します。</p>
+<p><br><br></p>
+<p>参考: <a href="http://www.atmarkit.co.jp/ait/subtop/features/dotnet/app/masterasync_index.html">連載：C# 5.0＆VB 11.0新機能「async／await非同期メソッド」入門</a></p>
+<p>非同期処理を行う必要があるシーンには、以下の様なものが挙げられます。</p>
+<ul>
+<li>重たい処理をするとき</li>
+<li>ファイルの読み書きやネットワーク通信など、不定な待ち時間が発生する処理をするとき</li>
+</ul>
+<p>時間がかかる処理が原因で、アプリケーションやUIがフリーズすることを防ぐのが目的となります。</p>
+<p><br><br></p>
+<h3 id="-">アプリがフリーズする例</h3>
+<p>重たい処理の変わりに、ボタンをクリックすると3秒待機するアプリを作成します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい処理</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="label"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Calc</span>(<span class="hljs-params">Label label</span>)
+</span>{
+    label.Text = <span class="hljs-string">@"wait..."</span>;
+    Thread.Sleep(<span class="hljs-number">3000</span>);
+    label.Text = <span class="hljs-string">@"done"</span>;
+}
+
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フリーズしてしまう処理</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button2_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+</span>{
+    <span class="hljs-keyword">this</span>.button2.Enabled = <span class="hljs-keyword">false</span>;
+
+    Calc(<span class="hljs-keyword">this</span>.label1);
+    Calc(<span class="hljs-keyword">this</span>.label2);
+    Calc(<span class="hljs-keyword">this</span>.label3);
+
+    <span class="hljs-keyword">this</span>.button2.Enabled = <span class="hljs-keyword">true</span>;
+}
+</code></pre>
+<p>ボタンをクリックして、UIが固まることを確認します。</p>
+<p>これは、重たい処理とUIの更新処理が同期的に実行されるために発生します。</p>
+<p>重たい処理を非同期処理とすることにより、UIの更新処理を阻害しなくなるため
+アプリがフリーズすることを回避できます。</p>
+<p><br><br></p>
+<h3 id="-">重たい処理の非同期化</h3>
+<p><em>async/await</em> で非同期メソッドの機能を使用して処理を非同期化します。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Threading;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="label"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> Task <span class="hljs-title">CalcAsync</span>(<span class="hljs-params">Label label</span>)
+        </span>{
+            label.Text = <span class="hljs-string">@"wait..."</span>;
+            <span class="hljs-keyword">await</span> Task.Run(() =&gt;
+            {
+                Thread.Sleep(<span class="hljs-number">3000</span>);
+            });
+            label.Text = <span class="hljs-string">@"done."</span>;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フリーズしない処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-keyword">this</span>.button1.Enabled = <span class="hljs-keyword">false</span>;
+
+            <span class="hljs-keyword">var</span> t1 = CalcAsync(<span class="hljs-keyword">this</span>.label1);
+            <span class="hljs-keyword">var</span> t2 = CalcAsync(<span class="hljs-keyword">this</span>.label2);
+            <span class="hljs-keyword">var</span> t3 = CalcAsync(<span class="hljs-keyword">this</span>.label3);
+
+            <span class="hljs-comment">// すべて完了するまで待機</span>
+            <span class="hljs-keyword">await</span> Task.WhenAll(t1, t2, t3);
+
+            <span class="hljs-keyword">this</span>.button1.Enabled = <span class="hljs-keyword">true</span>;
+        }
+    }
+}
+</code></pre>
+<h3 id="-async-"><em>async</em> 修飾子</h3>
+<p><em>async</em> は、修飾したメソッド内で <em>await</em> を利用するためのキーワードです。</p>
+<p><em>async</em> を付けたメソッドを <em>非同期メソッド</em> と呼びます。</p>
+<p>しかしながら、このメソッドのそものが非同期で実行されるわけではなく、
+「このメソッドに非同期処理を待つ必要がある処理(await)がある」ということを意味しています。</p>
+<p>非同期メソッドの末尾に &quot;Async&quot; と付けることで、他のメソッドと区別するようにします。</p>
+<p><br></p>
+<h3 id="-await-"><em>await</em> 演算子</h3>
+<p><em>await</em> に <em>Task</em> クラスを渡すことにより、非同期処理の実行が可能です。</p>
+<p>待っているタスクがまだ完了していない場合、メソッドの残りをそのタスクの『継続』として登録して
+呼び出し元に処理を戻し、タスクが完了したら登録しておいた継続処理を実行します。</p>
+<ul>
+<li>参考: <a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_01.html">第2回　非同期メソッドの構文</a><ul>
+<li>「非同期メソッドの動き」を参照</li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<hr>
+<p><a href="classic-302.html">次へ</a></p>
+      </div>
+      <div class="col-md-3">
+        <div class="list-group">
+  <a href="./index.html" class="list-group-item active">TOP</a>
+  <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
+  <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
+  <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
+  <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="#" class="list-group-item">3. マルチスレッド対応</a>
+  <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
+  <a href="./asp-002.html" class="list-group-item">2. EntityFramework によるコードファースト開発</a>
+  <a href="#" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
+  <a href="#" class="list-group-item">4. メンバーシップ フレームワークによる認証機能の実装</a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+
+    <div class="center-block ad-block">
+      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- aaa-768x90 -->
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:728px;height:90px"
+           data-ad-client="ca-pub-5886049398949171"
+           data-ad-slot="8568248344"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">.NET アプリケーション開発入門 , &copy; 2015 Kazunori Kimura</p>
+    </div>
+  </footer>
+
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>
+  $(function(){
+    $(".contents table").addClass("table");
+  });
+  </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-29149079-3', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>
