@@ -55,37 +55,60 @@
 <p><br><br></p>
 <h3 id="-">アプリがフリーズする例</h3>
 <p>重たい処理の変わりに、ボタンをクリックすると3秒待機するアプリを作成します。</p>
-<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい処理</span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="label"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
-<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Calc</span>(<span class="hljs-params">Label label</span>)
-</span>{
-    label.Text = <span class="hljs-string">@"wait..."</span>;
-    Thread.Sleep(<span class="hljs-number">3000</span>);
-    label.Text = <span class="hljs-string">@"done"</span>;
-}
+<p><img src="./images/c3-0.JPG" alt="画像"></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Threading;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
 
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> フリーズしてしまう処理</span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
-<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
-<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button2_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
-</span>{
-    <span class="hljs-keyword">this</span>.button2.Enabled = <span class="hljs-keyword">false</span>;
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication2</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
 
-    Calc(<span class="hljs-keyword">this</span>.label1);
-    Calc(<span class="hljs-keyword">this</span>.label2);
-    Calc(<span class="hljs-keyword">this</span>.label3);
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="label"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Calc</span>(<span class="hljs-params">Label label</span>)
+        </span>{
+            label.Text = <span class="hljs-string">"wait..."</span>;
+            Thread.Sleep(<span class="hljs-number">3000</span>); <span class="hljs-comment">// 3秒待機</span>
+            label.Text = <span class="hljs-string">"done."</span>;
+        }
 
-    <span class="hljs-keyword">this</span>.button2.Enabled = <span class="hljs-keyword">true</span>;
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> UIがフリーズしてしまう処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            <span class="hljs-keyword">this</span>.button1.Enabled = <span class="hljs-keyword">false</span>;
+
+            Calc(<span class="hljs-keyword">this</span>.label1);
+            Calc(<span class="hljs-keyword">this</span>.label2);
+            Calc(<span class="hljs-keyword">this</span>.label3);
+
+            <span class="hljs-keyword">this</span>.button1.Enabled = <span class="hljs-keyword">true</span>;
+        }
+    }
 }
 </code></pre>
 <p>ボタンをクリックして、UIが固まることを確認します。</p>
+<p><img src="./images/c3-1.JPG" alt="画像"></p>
 <p>これは、重たい処理とUIの更新処理が同期的に実行されるために発生します。</p>
 <p>重たい処理を非同期処理とすることにより、UIの更新処理を阻害しなくなるため
 アプリがフリーズすることを回避できます。</p>
+<ul>
+<li><a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_01/masterasync_01_01.html">第1回　.NET開発における非同期処理の基礎と歴史</a><ul>
+<li>「同期処理」を参照</li>
+</ul>
+</li>
+</ul>
 <p><br><br></p>
 <h3 id="-">重たい処理の非同期化</h3>
 <p><em>async/await</em> で非同期メソッドの機能を使用して処理を非同期化します。</p>
@@ -139,6 +162,9 @@
     }
 }
 </code></pre>
+<p><img src="./images/c3-2.JPG" alt="画像"></p>
+<p>ボタンをクリックすると、UIが意図通りに更新され、ドラッグ等の操作も受け付けることを確認します。</p>
+<p><br></p>
 <h3 id="-async-"><em>async</em> 修飾子</h3>
 <p><em>async</em> は、修飾したメソッド内で <em>await</em> を利用するためのキーワードです。</p>
 <p><em>async</em> を付けたメソッドを <em>非同期メソッド</em> と呼びます。</p>
@@ -167,7 +193,7 @@
   <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
   <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
   <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
-  <a href="#" class="list-group-item">3. マルチスレッド対応</a>
+  <a href="./classic-301.html" class="list-group-item">3. 非同期処理</a>
   <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
   <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
   <a href="./asp-002.html" class="list-group-item">2. EntityFramework によるコードファースト開発</a>
