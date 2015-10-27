@@ -1,5 +1,83 @@
 # 3. マルチスレッド対応
 
+```cs
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication1
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        /// <summary>
+        /// 重たい処理
+        /// </summary>
+        /// <param name="label"></param>
+        private void Calc(Label label)
+        {
+            label.Text = @"wait...";
+            Thread.Sleep(3000);
+            label.Text = @"done";
+        }
+
+        /// <summary>
+        /// 重たい処理
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
+        private async Task CalcAsync(Label label)
+        {
+            label.Text = @"wait...";
+            await Task.Run(() =>
+            {
+                Thread.Sleep(3000);
+            });
+            label.Text = @"done.";
+        }
+
+        /// <summary>
+        /// フリーズしない処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            this.button1.Enabled = false;
+
+            var t1 = CalcAsync(this.label1);
+            var t2 = CalcAsync(this.label2);
+            var t3 = CalcAsync(this.label3);
+
+            await Task.WhenAll(t1, t2, t3);
+
+            this.button1.Enabled = true;
+        }
+
+        /// <summary>
+        /// フリーズしてしまう処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.button2.Enabled = false;
+
+            Calc(this.label1);
+            Calc(this.label2);
+            Calc(this.label3);
+
+            this.button2.Enabled = true;
+        }
+    }
+}
+```
+
 * [await async を用いたシンプルな非同期メソッドの作成と利用](http://www.ipentec.com/document/document.aspx?page=csharp-simple-async-method)
 
 * [タスクの並列化 (タスク並列ライブラリ)](https://msdn.microsoft.com/ja-jp/library/dd537609.aspx)
