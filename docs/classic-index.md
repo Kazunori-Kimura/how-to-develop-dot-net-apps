@@ -94,11 +94,16 @@ SQL Serverの検索、登録、更新、削除を行うアプリケーション�
 
 <br>
 
-## 3. マルチスレッド対応
+## 3. 非同期処理の基礎
 
-* 参考
-  - [マルチスレッド アプリケーション](https://msdn.microsoft.com/ja-jp/library/ck8bc5c6.aspx)
-  - [チュートリアル: BackgroundWorker コンポーネントでのマルチスレッド](https://msdn.microsoft.com/ja-jp/library/ywkkz4s1.aspx)
+.NET Framework 4.5 から導入された *async/await* キーワードを使用した非同期処理について解説します。
+
+参考: [連載：C# 5.0＆VB 11.0新機能「async／await非同期メソッド」入門](http://www.atmarkit.co.jp/ait/subtop/features/dotnet/app/masterasync_index.html)
+
+
+<br>
+
+## 4. 非同期処理を組み込んだアプリケーションの開発
 
 <br>
 
@@ -108,18 +113,4 @@ CSV取り込み時に進捗状況を表示するインターフェースを用�
 
 取り込み処理中もアプリケーションが固まらないように、CSV読み込み・データ登録処理をバックグラウンドのスレッドで実行します。
 
-<br>
-
-* Windowsフォームアプリケーション プロジェクトの作成
-  - コントロールの配置、イベント処理の実装
-* CSVファイルの読み込み
-  - フォルダ内のファイル一覧を取得
-  - ファイルの操作
-  - CSVファイルの読み込み処理の実装
-* DB更新処理の実装
-  - Entity Frameworkのインストール
-  - EDMの作成
-  - POCOの作成
-  - DB登録
-* マルチスレッド対応 - BackgroundWorker コンポーネントでのマルチスレッド
-* 動作確認
+<br><br>

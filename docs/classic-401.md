@@ -4,6 +4,8 @@
 
 CSVの内容を読み込み、データベースに取り込むアプリケーションを作成していきます。
 
+<br>
+
 ## 準備
 
 300行のCSVファイルを5つ用意しましたので、それを `C:¥CSV¥in` に保存してください。  
@@ -71,7 +73,9 @@ static class Program
 
 CSVの取り込み処理を開始するボタンを配置します。
 
-また、現在の処理過程を表示するようにプログレスバーとラベルを2つづつ配置します。
+また、現在の処理過程を表示するようにラベルを配置します。
+
+<br>
 
 ### コントロールの初期化処理
 
@@ -86,7 +90,7 @@ CSVの取り込み処理を開始するボタンを配置します。
 private void Form1_Load(object sender, EventArgs e)
 {
     this.label1.Text = @"";
-    this.label1.Text = @"";
+    this.label2.Text = @"";
     initializeProgressBar(this.progressBar1, 0, 100, 0);
     initializeProgressBar(this.progressBar2, 0, 100, 0);
 }
@@ -146,6 +150,19 @@ CSVファイルの読み込み処理を実装していきます。
 3. Modelに格納し
 4. リストを返します。
 
+<br>
+
+### 薬効分類、薬品情報クラスの作成
+
+CSVから取り込んだデータを格納するModelクラスを作成します。
+
+
+<br>
+
+### CSVファイルの読み込み処理
+
+非同期メソッドでCSVファイルを読み込む処理を作成します。
+
 ```cs
 using System;
 using System.Collections.Generic;
@@ -162,15 +179,7 @@ namespace CsvImportManager
 {
     public partial class Form1 : Form
     {
-        /// <summary>
-        /// CSV保存先
-        /// </summary>
-        const string CSV_DIR = @"C:\CSV\in";
-
-        public Form1()
-        {
-            InitializeComponent();
-        }
+        /* ~~ 省略 ~~ */
 
         /// <summary>
         /// CSV取り込みボタンのクリック
@@ -189,33 +198,6 @@ namespace CsvImportManager
                     .Select(item => item.Code + ":" + item.Name).ToArray()));
 
             label2.Text = "完了";
-        }
-
-        /// <summary>
-        /// プログレスバー、ラベルの初期化
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            this.label1.Text = @"";
-            this.label2.Text = @"";
-            initializeProgressBar(this.progressBar1, 0, 100, 0);
-            initializeProgressBar(this.progressBar2, 0, 100, 0);
-        }
-
-        /// <summary>
-        /// プログレスバーの初期化処理
-        /// </summary>
-        /// <param name="bar"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
-        /// <param name="value"></param>
-        private void initializeProgressBar(ProgressBar bar, int min, int max, int value)
-        {
-            bar.Minimum = min;
-            bar.Maximum = max;
-            bar.Value = value;
         }
 
         /// <summary>
@@ -316,6 +298,7 @@ namespace CsvImportManager
         }
 
         /// <summary>
+        /// 薬効分類リストの結合
         /// list1にlist2をマージする
         /// </summary>
         /// <param name="list1"></param>
@@ -334,6 +317,7 @@ namespace CsvImportManager
         }
 
         /// <summary>
+        /// 薬品情報リストの結合
         /// list1にlist2をマージする
         /// </summary>
         /// <param name="list1"></param>
@@ -353,6 +337,10 @@ namespace CsvImportManager
     }
 }
 ```
+
+*Tupleクラス*
+
+
 
 
 ## データの登録処理
