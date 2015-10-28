@@ -42,7 +42,7 @@
       <div class="col-md-2"></div>
       <div class="col-md-7">
         <!-- contents -->
-        <h1 id="3-1-">3. 非同期処理の基礎 - (1)</h1>
+        <h1 id="3-">3. 非同期処理の基礎</h1>
 <p>.NET Framework 4.5 から導入された <em>async/await</em> キーワードを使用した非同期処理について解説します。</p>
 <p><br><br></p>
 <p>参考: <a href="http://www.atmarkit.co.jp/ait/subtop/features/dotnet/app/masterasync_index.html">連載：C# 5.0＆VB 11.0新機能「async／await非同期メソッド」入門</a></p>
@@ -53,11 +53,159 @@
 </ul>
 <p>時間がかかる処理が原因で、アプリケーションやUIがフリーズすることを防ぐのが目的となります。</p>
 <p><br><br></p>
+<h2 id="-">最もシンプルな非同期処理の例</h2>
+<p>重たい処理の変わりに、ボタンをクリックすると3秒待機するという
+非常にシンプルなアプリを作成し、非同期処理の基本的な動きについて解説していきます。</p>
+<p><br></p>
 <h3 id="-">アプリがフリーズする例</h3>
-<p>重たい処理の変わりに、ボタンをクリックすると3秒待機するアプリを作成します。</p>
-<p><img src="./images/c3-0.JPG" alt="画像"></p>
+<p>非同期処理を使わずに実装した場合のサンプルです。</p>
 <pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
 <span class="hljs-keyword">using</span> System.Threading;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication4</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            label1.Text = <span class="hljs-string">"開始"</span>;
+            Cals();
+            label1.Text = <span class="hljs-string">"終了"</span>;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい計算処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Cals</span>(<span class="hljs-params"></span>)
+        </span>{
+            Thread.Sleep(<span class="hljs-number">3000</span>);
+        }
+    }
+}
+</code></pre>
+<p>ボタンをクリックすると、待機中はアプリがフリーズしてしまいます。</p>
+<p>これは、重たい処理とUIの更新処理が同期的に実行されるために発生します。</p>
+<p>重たい処理を非同期処理とすることにより、UIの更新処理を阻害しなくなるため
+アプリがフリーズすることを回避できます。</p>
+<ul>
+<li><a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_01/masterasync_01_01.html">第1回　.NET開発における非同期処理の基礎と歴史</a><ul>
+<li>「同期処理」を参照</li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<h3 id="-">非同期メソッドを使用する</h3>
+<p>非同期メソッドを使用して、アプリがフリーズしないように修正します。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Threading;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication4</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            label1.Text = <span class="hljs-string">"開始"</span>;
+            <span class="hljs-keyword">await</span> Cals();
+            label1.Text = <span class="hljs-string">"終了"</span>;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい計算処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> Task <span class="hljs-title">CalsAsync</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">return</span> Task.Run(() =&gt; {
+                Thread.Sleep(<span class="hljs-number">3000</span>);
+            });
+        }
+    }
+}
+</code></pre>
+<p>ボタンをクリックすると、UIが意図通りに更新され、ドラッグ等の操作も受け付けることを確認します。</p>
+<p><br></p>
+<h3 id="-task-">用語解説: <em>Task</em> クラス</h3>
+<p>非同期メソッドから呼ばれる処理の戻り値として使用します。</p>
+<p>後述する <em>await</em> 演算子を付けることの出来るメソッドは <em>Task</em> クラスを返すものになります。</p>
+<p>また、非同期処理から戻り値を受け取る場合は <em>Task<T></em> クラスを使用します。</p>
+<p><br></p>
+<h3 id="-async-">用語解説: <em>async</em> 修飾子</h3>
+<p><em>async</em> は、修飾したメソッド内で <em>await</em> を利用するためのキーワードです。</p>
+<p><em>async</em> を付けたメソッドを <em>非同期メソッド</em> と呼びます。</p>
+<p>しかしながら、このメソッドのそものが非同期で実行されるわけではなく、
+「このメソッドに非同期処理を待つ必要がある処理(await)がある」ということを意味しています。</p>
+<p>非同期メソッドの末尾に &quot;Async&quot; と付けることで、他のメソッドと区別するようにします。</p>
+<p><br></p>
+<h3 id="-await-">用語解説: <em>await</em> 演算子</h3>
+<p><em>await</em> に <em>Task</em> クラスを渡すことにより、非同期処理の実行が可能です。</p>
+<p>待っているタスクがまだ完了していない場合、メソッドの残りをそのタスクの『継続』として登録して
+呼び出し元に処理を戻し、タスクが完了したら登録しておいた継続処理を実行します。</p>
+<p><br><br></p>
+<h2 id="-">非同期処理から戻り値を受け取る</h2>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Threading;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
+<span class="hljs-keyword">using</span> System.Windows.Forms;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication3</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Form1</span> : <span class="hljs-title">Form</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Form1</span>(<span class="hljs-params"></span>)
+        </span>{
+            InitializeComponent();
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        </span>{
+            label1.Text = <span class="hljs-string">"計算中"</span>;
+            <span class="hljs-keyword">var</span> result = <span class="hljs-keyword">await</span> CalcAsync(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
+            label1.Text = result.ToString();
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">private</span> Task&lt;<span class="hljs-keyword">int</span>&gt; <span class="hljs-title">CalcAsync</span>(<span class="hljs-params"><span class="hljs-keyword">int</span> x, <span class="hljs-keyword">int</span> y</span>)
+        </span>{
+            <span class="hljs-keyword">var</span> task = Task.Run(() =&gt;
+            {
+                Thread.Sleep(<span class="hljs-number">3000</span>);
+                <span class="hljs-keyword">return</span> x + y;
+            });
+            <span class="hljs-keyword">return</span> task;
+        }
+    }
+}
+</code></pre>
+<p><code>Task&lt;int&gt;</code> といったように、非同期処理で戻り値となる型を指定することで
+非同期処理の計算結果を取得することができます。</p>
+<p>非同期で呼ばれる処理 (<code>Task.Run</code> から呼ばれる処理) は特別な指定はなく、そのまま <code>return</code> します。</p>
+<ul>
+<li>参考: <a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_02.html">第2回　非同期メソッドの構文</a><ul>
+<li>「戻り値」を参照</li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<h2 id="-">複数の非同期処理を実行する</h2>
+<p>複数の非同期処理が存在する場合について、詳しく見ていきます。</p>
+<p><br></p>
+<h3 id="-">直列に実行</h3>
+<p>複数の非同期処理を順に実行するサンプルです。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Threading;
+<span class="hljs-keyword">using</span> System.Threading.Tasks;
 <span class="hljs-keyword">using</span> System.Windows.Forms;
 
 <span class="hljs-keyword">namespace</span> <span class="hljs-title">WindowsFormsApplication2</span>
@@ -73,45 +221,41 @@
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 重たい処理</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="label"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
-        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Calc</span>(<span class="hljs-params">Label label</span>)
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> Task <span class="hljs-title">CalcAsync</span>(<span class="hljs-params">Label label</span>)
         </span>{
-            label.Text = <span class="hljs-string">"wait..."</span>;
-            Thread.Sleep(<span class="hljs-number">3000</span>); <span class="hljs-comment">// 3秒待機</span>
-            label.Text = <span class="hljs-string">"done."</span>;
+            label.Text = <span class="hljs-string">@"wait..."</span>;
+            <span class="hljs-keyword">await</span> Task.Run(() =&gt;
+            {
+                Thread.Sleep(<span class="hljs-number">3000</span>);
+            });
+            label.Text = <span class="hljs-string">@"done."</span>;
         }
 
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
-        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> UIがフリーズしてしまう処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> UIがフリーズしない書き方</span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="sender"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
         <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="e"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
-        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">void</span> <span class="hljs-title">button1_Click</span>(<span class="hljs-params"><span class="hljs-keyword">object</span> sender, EventArgs e</span>)
         </span>{
             <span class="hljs-keyword">this</span>.button1.Enabled = <span class="hljs-keyword">false</span>;
 
-            Calc(<span class="hljs-keyword">this</span>.label1);
-            Calc(<span class="hljs-keyword">this</span>.label2);
-            Calc(<span class="hljs-keyword">this</span>.label3);
+            <span class="hljs-keyword">await</span> CalcAsync(<span class="hljs-keyword">this</span>.label1);
+            <span class="hljs-keyword">await</span> CalcAsync(<span class="hljs-keyword">this</span>.label2);
+            <span class="hljs-keyword">await</span> CalcAsync(<span class="hljs-keyword">this</span>.label3);
 
             <span class="hljs-keyword">this</span>.button1.Enabled = <span class="hljs-keyword">true</span>;
         }
     }
 }
 </code></pre>
-<p>ボタンをクリックして、UIが固まることを確認します。</p>
-<p><img src="./images/c3-1.JPG" alt="画像"></p>
-<p>これは、重たい処理とUIの更新処理が同期的に実行されるために発生します。</p>
-<p>重たい処理を非同期処理とすることにより、UIの更新処理を阻害しなくなるため
-アプリがフリーズすることを回避できます。</p>
-<ul>
-<li><a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_01/masterasync_01_01.html">第1回　.NET開発における非同期処理の基礎と歴史</a><ul>
-<li>「同期処理」を参照</li>
-</ul>
-</li>
-</ul>
+<p><img src="./images/c3-2.JPG" alt="画像"></p>
+<p>ボタンをクリックすると、ラベルが上から順に更新されることを確認します。</p>
+<p>ある非同期処理の結果を受けて、別の非同期処理にその結果を引き渡すような場合は、非同期処理を順に実行する必要があります。</p>
 <p><br><br></p>
-<h3 id="-">重たい処理の非同期化</h3>
-<p><em>async/await</em> で非同期メソッドの機能を使用して処理を非同期化します。</p>
+<h3 id="-">並列に実行する</h3>
+<p>重たい処理を並列に実行することで、処理時間の短縮を図ることができます。</p>
 <pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
 <span class="hljs-keyword">using</span> System.Threading;
 <span class="hljs-keyword">using</span> System.Threading.Tasks;
@@ -162,20 +306,13 @@
     }
 }
 </code></pre>
-<p><img src="./images/c3-2.JPG" alt="画像"></p>
-<p>ボタンをクリックすると、UIが意図通りに更新され、ドラッグ等の操作も受け付けることを確認します。</p>
-<p><br></p>
-<h3 id="-async-"><em>async</em> 修飾子</h3>
-<p><em>async</em> は、修飾したメソッド内で <em>await</em> を利用するためのキーワードです。</p>
-<p><em>async</em> を付けたメソッドを <em>非同期メソッド</em> と呼びます。</p>
-<p>しかしながら、このメソッドのそものが非同期で実行されるわけではなく、
-「このメソッドに非同期処理を待つ必要がある処理(await)がある」ということを意味しています。</p>
-<p>非同期メソッドの末尾に &quot;Async&quot; と付けることで、他のメソッドと区別するようにします。</p>
-<p><br></p>
-<h3 id="-await-"><em>await</em> 演算子</h3>
-<p><em>await</em> に <em>Task</em> クラスを渡すことにより、非同期処理の実行が可能です。</p>
-<p>待っているタスクがまだ完了していない場合、メソッドの残りをそのタスクの『継続』として登録して
-呼び出し元に処理を戻し、タスクが完了したら登録しておいた継続処理を実行します。</p>
+<p><code>await Task.WhenAll(t1, t2, t3);</code> で各タスクが完了するまで待機しています。</p>
+<p>ボタンをクリックすると、ほぼ同時にラベルが &quot;wait...&quot; となり、すべてのラベルが &quot;done&quot; になると
+ボタンがクリックできるようになります。</p>
+<p>ファイルのダウンロードなど、同時に実行しても他の非同期処理に影響を及ぼさないものは
+並列に実行することで、全体の処理時間を短縮することができます。</p>
+<p>しかしながら、DBアクセスやファイルの読み書きなど、排他制御が必要となるような場合は
+処理が複雑になりますし、デバッグも難しいので、注意が必要です。</p>
 <ul>
 <li>参考: <a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_01.html">第2回　非同期メソッドの構文</a><ul>
 <li>「非同期メソッドの動き」を参照</li>
@@ -184,7 +321,6 @@
 </ul>
 <p><br><br></p>
 <hr>
-<p><a href="classic-302.html">次へ</a></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">

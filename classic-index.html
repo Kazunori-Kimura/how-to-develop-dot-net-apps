@@ -123,40 +123,16 @@
 <br></p>
 <hr>
 <p><br></p>
-<h2 id="3-">3. マルチスレッド対応</h2>
-<ul>
-<li>参考<ul>
-<li><a href="https://msdn.microsoft.com/ja-jp/library/ck8bc5c6.aspx">マルチスレッド アプリケーション</a></li>
-<li><a href="https://msdn.microsoft.com/ja-jp/library/ywkkz4s1.aspx">チュートリアル: BackgroundWorker コンポーネントでのマルチスレッド</a></li>
-</ul>
-</li>
-</ul>
+<h2 id="3-">3. 非同期処理の基礎</h2>
+<p>.NET Framework 4.5 から導入された <em>async/await</em> キーワードを使用した非同期処理について解説します。</p>
+<p>参考: <a href="http://www.atmarkit.co.jp/ait/subtop/features/dotnet/app/masterasync_index.html">連載：C# 5.0＆VB 11.0新機能「async／await非同期メソッド」入門</a></p>
+<p><br></p>
+<h2 id="4-">4. 非同期処理を組み込んだアプリケーションの開発</h2>
 <p><br></p>
 <p><img src="images/image4.png" alt="イメージ図"></p>
 <p>CSV取り込み時に進捗状況を表示するインターフェースを用意します。</p>
 <p>取り込み処理中もアプリケーションが固まらないように、CSV読み込み・データ登録処理をバックグラウンドのスレッドで実行します。</p>
-<p><br></p>
-<ul>
-<li>Windowsフォームアプリケーション プロジェクトの作成<ul>
-<li>コントロールの配置、イベント処理の実装</li>
-</ul>
-</li>
-<li>CSVファイルの読み込み<ul>
-<li>フォルダ内のファイル一覧を取得</li>
-<li>ファイルの操作</li>
-<li>CSVファイルの読み込み処理の実装</li>
-</ul>
-</li>
-<li>DB更新処理の実装<ul>
-<li>Entity Frameworkのインストール</li>
-<li>EDMの作成</li>
-<li>POCOの作成</li>
-<li>DB登録</li>
-</ul>
-</li>
-<li>マルチスレッド対応 - BackgroundWorker コンポーネントでのマルチスレッド</li>
-<li>動作確認</li>
-</ul>
+<p><br><br></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">
