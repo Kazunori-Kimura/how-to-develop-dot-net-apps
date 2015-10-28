@@ -153,8 +153,17 @@
 <p><em>await</em> に <em>Task</em> クラスを渡すことにより、非同期処理の実行が可能です。</p>
 <p>待っているタスクがまだ完了していない場合、メソッドの残りをそのタスクの『継続』として登録して
 呼び出し元に処理を戻し、タスクが完了したら登録しておいた継続処理を実行します。</p>
+<p><br></p>
+<ul>
+<li>参考: <a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_01.html">第2回　非同期メソッドの構文</a><ul>
+<li>「非同期メソッドの動き」を参照</li>
+</ul>
+</li>
+</ul>
 <p><br><br></p>
 <h2 id="-">非同期処理から戻り値を受け取る</h2>
+<p><code>Task&lt;int&gt;</code> といったように、非同期処理で戻り値となる型を指定することで
+非同期処理の計算結果を取得することができます。</p>
 <pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
 <span class="hljs-keyword">using</span> System.Threading;
 <span class="hljs-keyword">using</span> System.Threading.Tasks;
@@ -188,8 +197,6 @@
     }
 }
 </code></pre>
-<p><code>Task&lt;int&gt;</code> といったように、非同期処理で戻り値となる型を指定することで
-非同期処理の計算結果を取得することができます。</p>
 <p>非同期で呼ばれる処理 (<code>Task.Run</code> から呼ばれる処理) は特別な指定はなく、そのまま <code>return</code> します。</p>
 <ul>
 <li>参考: <a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_02.html">第2回　非同期メソッドの構文</a><ul>
@@ -250,7 +257,6 @@
     }
 }
 </code></pre>
-<p><img src="./images/c3-2.JPG" alt="画像"></p>
 <p>ボタンをクリックすると、ラベルが上から順に更新されることを確認します。</p>
 <p>ある非同期処理の結果を受けて、別の非同期処理にその結果を引き渡すような場合は、非同期処理を順に実行する必要があります。</p>
 <p><br><br></p>
@@ -307,20 +313,32 @@
 }
 </code></pre>
 <p><code>await Task.WhenAll(t1, t2, t3);</code> で各タスクが完了するまで待機しています。</p>
+<p><br></p>
 <p>ボタンをクリックすると、ほぼ同時にラベルが &quot;wait...&quot; となり、すべてのラベルが &quot;done&quot; になると
 ボタンがクリックできるようになります。</p>
+<p><br></p>
 <p>ファイルのダウンロードなど、同時に実行しても他の非同期処理に影響を及ぼさないものは
 並列に実行することで、全体の処理時間を短縮することができます。</p>
 <p>しかしながら、DBアクセスやファイルの読み書きなど、排他制御が必要となるような場合は
 処理が複雑になりますし、デバッグも難しいので、注意が必要です。</p>
+<p><br><br></p>
+<h3 id="-">参考: 非同期での例外処理</h3>
+<p>複数の非同期処理がある場合、<em>await</em> の有無によって例外の発生の仕方が異なります。</p>
 <ul>
-<li>参考: <a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_01.html">第2回　非同期メソッドの構文</a><ul>
-<li>「非同期メソッドの動き」を参照</li>
+<li><a href="http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_03.html">第2回　非同期メソッドの構文</a><ul>
+<li>「例外処理」を参照</li>
 </ul>
 </li>
 </ul>
 <p><br><br></p>
 <hr>
+<p><br></p>
+<p>非同期処理の基礎について解説しました。</p>
+<p>巨大なデータのダウンロードやファイルの生成処理など、重たい処理を行う場合は
+UIがフリーズしないように、非同期処理で実装する必要があります。</p>
+<p>また、非同期処理によって処理を並列化し、処理時間を短縮することもできますが
+排他制御や例外処理が複雑になりますので、設計に注意が必要です。</p>
+<p><br><br></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">
