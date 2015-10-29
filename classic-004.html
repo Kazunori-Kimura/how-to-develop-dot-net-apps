@@ -134,7 +134,10 @@ Idに該当する薬品情報をデータベースから取得するよう実装
 <p><img src="./images/c2-26.JPG" alt="画像"></p>
 <p><br></p>
 <p><em>EPPlus</em> を使用して、Excelファイルを生成します。</p>
-<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> OfficeOpenXml; <span class="hljs-comment">// &lt;- 先頭に追加</span>
+<span class="hljs-comment">/* ~~ 中略 ~~ */</span>
+
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
 <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> Excelファイルを出力する</span>
 <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
 <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="data"&gt;</span>薬品データ<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
