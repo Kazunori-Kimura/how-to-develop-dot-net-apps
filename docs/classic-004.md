@@ -116,6 +116,9 @@ NuGetで *EPPlus* をインストールします。
 *EPPlus* を使用して、Excelファイルを生成します。
 
 ```cs
+using OfficeOpenXml; // <- 先頭に追加
+/* ~~ 中略 ~~ */
+
 /// <summary>
 /// Excelファイルを出力する
 /// </summary>
