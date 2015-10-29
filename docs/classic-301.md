@@ -92,7 +92,7 @@ namespace WindowsFormsApplication4
         private async void button1_Click(object sender, EventArgs e)
         {
             label1.Text = "開始";
-            await Cals();
+            await CalsAsync();
             label1.Text = "終了";
         }
 
@@ -143,9 +143,18 @@ namespace WindowsFormsApplication4
 待っているタスクがまだ完了していない場合、メソッドの残りをそのタスクの『継続』として登録して
 呼び出し元に処理を戻し、タスクが完了したら登録しておいた継続処理を実行します。
 
+<br>
+
+* 参考: [第2回　非同期メソッドの構文](http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_01.html)
+  - 「非同期メソッドの動き」を参照
+
+
 <br><br>
 
 ## 非同期処理から戻り値を受け取る
+
+`Task<int>` といったように、非同期処理で戻り値となる型を指定することで
+非同期処理の計算結果を取得することができます。
 
 ```cs
 using System;
@@ -181,9 +190,6 @@ namespace WindowsFormsApplication3
     }
 }
 ```
-
-`Task<int>` といったように、非同期処理で戻り値となる型を指定することで
-非同期処理の計算結果を取得することができます。
 
 非同期で呼ばれる処理 (`Task.Run` から呼ばれる処理) は特別な指定はなく、そのまま `return` します。
 
@@ -252,8 +258,6 @@ namespace WindowsFormsApplication2
 }
 ```
 
-![画像](./images/c3-2.JPG)
-
 ボタンをクリックすると、ラベルが上から順に更新されることを確認します。
 
 ある非同期処理の結果を受けて、別の非同期処理にその結果を引き渡すような場合は、非同期処理を順に実行する必要があります。
@@ -319,8 +323,12 @@ namespace WindowsFormsApplication1
 
 `await Task.WhenAll(t1, t2, t3);` で各タスクが完了するまで待機しています。
 
+<br>
+
 ボタンをクリックすると、ほぼ同時にラベルが "wait..." となり、すべてのラベルが "done" になると
 ボタンがクリックできるようになります。
+
+<br>
 
 ファイルのダウンロードなど、同時に実行しても他の非同期処理に影響を及ぼさないものは
 並列に実行することで、全体の処理時間を短縮することができます。
@@ -329,9 +337,27 @@ namespace WindowsFormsApplication1
 処理が複雑になりますし、デバッグも難しいので、注意が必要です。
 
 
-* 参考: [第2回　非同期メソッドの構文](http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_01.html)
-  - 「非同期メソッドの動き」を参照
+<br><br>
+
+### 参考: 非同期での例外処理
+
+複数の非同期処理がある場合、*await* の有無によって例外の発生の仕方が異なります。
+
+* [第2回　非同期メソッドの構文](http://www.atmarkit.co.jp/fdotnet/chushin/masterasync_02/masterasync_02_03.html)
+  - 「例外処理」を参照
 
 <br><br>
 
 -----------
+
+<br>
+
+非同期処理の基礎について解説しました。
+
+巨大なデータのダウンロードやファイルの生成処理など、重たい処理を行う場合は
+UIがフリーズしないように、非同期処理で実装する必要があります。
+
+また、非同期処理によって処理を並列化し、処理時間を短縮することもできますが
+排他制御や例外処理が複雑になりますので、設計に注意が必要です。
+
+<br><br>
