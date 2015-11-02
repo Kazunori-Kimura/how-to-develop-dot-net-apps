@@ -2,9 +2,17 @@
 
 *ASP.NET* は、Microsoftが開発・提供しているWebアプリケーションフレームワークです。
 
-ここでは、「薬品情報検索システム」の構築を通して *ASP.NET MVC* を使用したWebアプリケーションの開発について解説します。
+<br>
+
+-------
 
 <br>
+
+## 0. Webアプリケーションの定義
+
+*ASP.NET* の解説に入るまえに、大前提となるWebの仕組みと
+この勉強会で扱う Webアプリケーション の定義について解説します。
+
 <br>
 
 ## 1. ASP.NET MVC の概要
@@ -25,55 +33,25 @@ ASP.NET および ASP.NET MVC の概要について解説します。
 * Controllerクラスの作成
   - アクション メソッド
   - ActionResultクラス
-  - Nullable型
-* View
-  - 共通レイアウトの作成
-  - Viewファイルの作成
+* Viewの作成
   - Razor
   - コードナゲット と コメントの書き方
   - HTMLヘルパー
-* ルーティングの設定
 * 動作確認
 
 <br>
 
-## 3. EntityFramework によるコードファースト開発
+## 3. EntityFramework によるデータベースファースト開発
 
-*EntityFramework* を使用した *コードファースト開発* について解説します。
-
-コード ファースト開発は *EntityFramework 4.1* から提供された機能です。
-
-データ構造を表現する `POCO` (Plain Old Clr Object: 特別なクラスやインターフェイスを継承していないクラス(のオブジェクト)) と
-POCOを管理する Contextクラスを定義することで、EntityFrameworkが必要なテーブルを生成します。
-(Databaseの操作は必要ありません。)
-
-詳細については [Entity Framework (EF) の概要](http://msdn.microsoft.com/ja-jp/data/ee712907) を参照してください。
-
-
-* 「ASP.NET Webアプリケーション」プロジェクトの作成
-* NuGetによる EntityFrameworkのインストール
-  - NuGetとは
-  - EntityFrameworkとは
-  - O/Rマッパーとは
-  - インストール手順
-* Modelクラスの作成
-  - POCOの作成
-  - DbContextクラスの作成
-  - 属性(Annotation) について
-* 共通レイアウトの作成
-* Controllerの作成
-  - スキャフォールディングによる自動生成
-* ルーティングの設定
-* 動作確認
-* 生成されたソースコードの解説
+先にデータベースにテーブルを作成し、それを元に *EntityFramework* でソースコードを自動生成する
+*データベース・ファースト* について解説します。
 
 <br>
 
-## 4. EntityFramework によるデータベースファースト開発
+## 4. 薬品情報検索システムの開発
 
-すでにデータベースにテーブルが存在する場合でも *EntityFramework* で開発できます。
-
-*SQL Server LocalDB* にテーブルを作成し、そのデータ構造に合わせて Modelクラスを実装していく手順について、解説します。
+*3.* で作成したアプリに機能追加を行って「薬品情報検索システム」を完成させます。
+実践的なWebアプリケーションの開発について解説します。
 
 <br>
 
@@ -82,7 +60,7 @@ POCOを管理する Contextクラスを定義することで、EntityFramework�
 *メンバーシップ フレームワーク* はASP.NET 2.0 以降から採用された認証ライブラリです。
 比較的シンプルに実装できるため、広く利用されています。
 
-今回は 4. で作成したアプリケーションに認証・認可機能を実装していきます。
+今回は *4.* で作成したアプリケーションに認証・認可機能を実装していきます。
 
 * Providerクラスの実装
   - MembershipProviderの実装
