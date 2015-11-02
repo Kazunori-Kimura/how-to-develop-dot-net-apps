@@ -238,23 +238,95 @@
 <p><br>
 <br></p>
 <h2 id="view-">Viewの作成</h2>
+<p><em>アクションメソッド</em> に対応した <em>View</em> を作成し、アプリを完成させます。</p>
+<p><br>
+<br></p>
+<h3 id="view-">Viewの追加</h3>
+<p><em>Index</em> メソッドを右クリックし、<em>ビューを追加</em> を選択します。</p>
 <p><img src="./images/a1-9.JPG" alt="image"></p>
-<p><br></p>
+<p><code>Empty</code>, モデルに <code>UserModel</code> を選択します。</p>
+<p>同様に、<em>Hello</em> メソッドを右クリックし <em>ビューを追加</em> を選択します。<br><code>Empty</code>, モデルに <code>UserModel</code> を選択します。</p>
+<p><br>
+<br></p>
 <h3 id="-razor">用語解説: Razor</h3>
 <p><code>Razor</code> は HTMLにC#/VBのコードを埋め込むための仕組み (ビューエンジン) です。
 <code>@</code>で始まる箇所がサーバーサイドで実行され、クライアントに生成したHTMLが返されます。</p>
-<p><br>
-<br></p>
-<h3 id="view-">Viewファイルの作成</h3>
-<p><br>
-<br></p>
+<p><br><br></p>
 <h3 id="-">コードナゲット と コメントの書き方</h3>
-<p><br>
-<br></p>
+<p><code>@</code>から始まる文はRazorの <em>コードナゲット</em> としてサーバーサイドで処理されます。</p>
+<p>HTML内にRazorの式としてではなく、<code>@</code>をそのまま表示したい場合は
+<code>@@</code> とすることでエスケープして表示されます。</p>
+<p>また、コメントを記載する場合は <code>@* ... *@</code> と記述します。<br>HTMLのコメントと異なり、サーバーサイドでコメントとして処理されるため、ブラウザでソースを表示しても
+<code>@* ... *@</code> は出力されません。</p>
+<p><br><br></p>
 <h3 id="html-">HTMLヘルパー</h3>
+<p><code>@Html</code>から始まるメソッドは <em>HTMLヘルパー</em> と呼ばれ、HTMLの生成をカプセル化します。</p>
+<ul>
+<li><code>@Html.LabelFor()</code> を使用すると、表示名を <code>&lt;label&gt;</code> タグで括って出力します。</li>
+<li><code>@Html.DisplayFor()</code> や <code>@Html.EditorFor()</code> は引数に渡したプロパティの型に応じて出力される内容が変わります。</li>
+</ul>
 <p><br>
 <br></p>
-<h2 id="-">動作確認</h2>
+<p><code>Views/Index.cshtml</code></p>
+<pre><code class="lang-html">@model WebApplication2.Models.UserModel
+
+@{
+    Layout = null;
+}
+
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>Index<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>あなたのお名前を教えてください。<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        @using (Html.BeginForm())
+        {
+            @Html.LabelFor(model =&gt; model.Name)
+            @Html.EditorFor(model =&gt; model.Name)
+            <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"submit"</span>&gt;</span>OK<span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+        }
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span>
+</code></pre>
+<p><br></p>
+<p><code>@model</code> は、コントローラから渡されるデータを表します。</p>
+<p><code>Layout</code> は、各Viewで共通のレイアウトを使用する場合に指定します。<br>(今回はレイアウトは使用しません。)</p>
+<p><code>@using (Html.BeginForm()) { ... }</code> はカッコ内を <code>&lt;form&gt;</code> タグで括ります。</p>
+<p><code>@Html.LabelFor()</code>, <code>@Html.EditorFor()</code> でラベルとテキストボックスを生成します。</p>
+<p><br></p>
+<p><code>Views/Hello.cshtml</code></p>
+<pre><code class="lang-html">@model WebApplication2.Models.UserModel
+
+@{
+    Layout = null;
+}
+
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>Hello<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>こんにちは、 @Html.DisplayFor(model =&gt; model.Name) さん！<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span>
+</code></pre>
+<p><code>@Html.DisplayFor()</code> でコントローラから渡されたデータを表示しています。</p>
+<p>コントローラの <code>Hello</code> メソッドから渡されたユーザー名を表示します。</p>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<p>非常にシンプルなWebアプリの作成を通して、 <em>ASP.NET MVC</em> の基本的な要素について解説しました。</p>
 <p><br>
 <br></p>
       </div>
