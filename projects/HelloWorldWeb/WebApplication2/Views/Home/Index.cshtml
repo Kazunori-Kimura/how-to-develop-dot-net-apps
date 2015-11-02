@@ -1,0 +1,25 @@
+﻿@model WebApplication2.Models.UserModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div> 
+        <p>あなたのお名前を教えてください。</p>
+        @using (Html.BeginForm())
+        {
+            @Html.LabelFor(model => model.Name)
+            @Html.EditorFor(model => model.Name)
+            <button type="submit">OK</button>
+        }
+    </div>
+</body>
+</html>
