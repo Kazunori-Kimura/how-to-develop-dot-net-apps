@@ -45,34 +45,215 @@
         <h1 id="2-asp-net-mvc-">2. ASP.NET MVC の基礎</h1>
 <p>非常に簡単な ASP.NET MVC のサンプルを作成を通して Model,View,Controllerの役割について解説します。</p>
 <p><br></p>
+<p>名前を入力してボタンをクリックすると、<br>「こんにちは、○○さん！」というメッセージを表示するアプリケーションを作成します。</p>
+<p>名前を入力する <code>Index</code> 画面と、
+「こんにちは」メッセージを表示する <code>Hello</code> 画面の
+2画面構成とします。</p>
+<p><br><br></p>
 <h2 id="-asp-net-web-">「ASP.NET Webアプリケーション」プロジェクトの作成</h2>
+<p>「新しいプロジェクト」を選択します。</p>
 <p><br></p>
+<p><em>Web</em> -&gt; <em>ASP.NET Webアプリケーション</em> を選択します。
+<img src="./images/a1-1.JPG" alt="image"></p>
+<p><br></p>
+<p>テンプレートは <em>Empty</em> を選択し、<em>MVC</em> にチェックを入れて <em>OK</em> をクリックします。
+<img src="./images/a1-2.JPG" alt="image"></p>
+<p><br></p>
+<p>以下の様なフォルダ構成でプロジェクトが生成されます。
+<img src="./images/a1-3.JPG" alt="image"></p>
+<p><br>
+<br></p>
 <h2 id="model-">Modelクラスの作成</h2>
+<p>まずは、データを格納する <em>Model</em> クラスを作成します。</p>
 <p><br></p>
+<p><em>Models</em> フォルダを右クリックし、<em>追加</em> -&gt; <em>クラス</em> を選択します。
+<img src="./images/a1-4.JPG" alt="image"></p>
+<p><br></p>
+<p>名前を <code>UserModel</code> として <em>追加</em> をクリックします。
+<img src="./images/a1-5.JPG" alt="image"></p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.ComponentModel;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication2.Models</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">UserModel</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 名前</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        [DisplayName(<span class="hljs-string">"お名前"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
+<p><code>Name</code> というプロパティを定義します。</p>
+<p>また、 <code>Name</code> プロパティの名前として、<code>DisplayName</code> に <em>お名前</em> をセットしています。</p>
+<p><br><br></p>
 <h2 id="controller-">Controllerクラスの作成</h2>
+<p>つづいて、<em>Controller</em> を作成します。</p>
 <p><br></p>
-<h3 id="-">用語解説: アクション メソッド</h3>
+<p><em>Controllers</em> フォルダを右クリックし、<em>追加</em> -&gt; <em>コントローラー</em> を選択します。
+<img src="./images/a1-6.JPG" alt="image"></p>
 <p><br></p>
+<p><em>MVC5 コントローラー-空</em> を選択し、<em>追加</em> をクリックします。
+<img src="./images/a1-7.JPG" alt="image"></p>
+<p><br></p>
+<p>コントローラー名を <code>HomeController</code> とし、<em>追加</em> をクリックします。
+<img src="./images/a1-8.JPG" alt="image"></p>
+<ul>
+<li>コントローラークラスの名前は必ず<code>Controller</code>で終わる必要があります。</li>
+<li>コントローラーは<code>Controller</code>クラスを継承します。
+(Controllerクラスを継承した独自のControllerクラスでも構いません)</li>
+</ul>
+<p><br></p>
+<p>ブラウザからのリクエストを処理するメソッド (<em>アクションメソッド</em> と呼ばれます)
+を作成していきます。</p>
+<p><br></p>
+<p>以下の3つのメソッドを定義します。</p>
+<ol>
+<li><em>Index</em> 画面を表示する <em>Index</em> メソッド</li>
+<li><em>Index</em> 画面から入力された値を受け取る <em>Index</em> メソッド</li>
+<li><em>Hello</em> 画面を表示する <em>Hello</em> メソッド</li>
+</ol>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication2.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication2.Controllers</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">HomeController</span> : <span class="hljs-title">Controller</span>
+    {
+        <span class="hljs-comment">// GET: Home</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">return</span> View(<span class="hljs-keyword">new</span> UserModel());
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> 名前をpostされたときの処理</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="user"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        [HttpPost]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"Name"</span></span>)] UserModel user)
+        </span>{
+            <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Hello"</span>, user);
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> あいさつページの表示</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="user"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Hello</span>(<span class="hljs-params">UserModel user</span>)
+        </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">string</span>.IsNullOrEmpty(user.Name))
+            {
+                <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">return</span> View(user);
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p>ひとつ目の <code>Index</code> メソッドは、最初に <code>/Home/Index</code> に
+アクセスした際に実行されます。</p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/dd492930.aspx">View</a> メソッドは
+アクションメソッドに対応した View を元に <code>ViewResult</code> ( <code>ActionResult</code> を継承した、Viewを表示するためのクラス)を返します。</p>
+<p>ここでは、空っぽの <em>UserModel</em> を返しています。</p>
+<p><br></p>
+<p>ふたつ目の <code>Index</code> メソッドは、<code>/Home/Index</code> で
+フォームの内容が送信されてきた際に実行されます。</p>
+<p><code>[HttpPost]</code>は <code>http</code> の <code>POST</code>メソッドで
+リクエストがあった場合に呼び出されるアクションメソッドを表す
+属性です。</p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/system.web.mvc.bindattribute.aspx">Bind</a> は POSTされたデータを
+<code>UserModel</code> に格納します。</p>
+<p><code>RedirectToAction</code> は、指定したアクションメソッドに処理を転送します。</p>
+<p>ここでは、<code>Hello</code> メソッドに <code>UserModel</code> のデータを引き渡して
+呼び出しています。</p>
+<p><br></p>
+<p>みっつ目の <code>Hello</code> メソッドは ふたつ目の <code>Index</code> から
+<code>UserModel</code> を受け取って、画面に表示します。</p>
+<p>直接 <code>/Home/Hello</code> にアクセスした場合は
+引数の <code>UserModel</code> に空っぽのデータが入ってます。</p>
+<p>その場合はひとつ目の <code>Index</code> メソッドに処理を転送します。</p>
+<p><br>
+<br></p>
 <h3 id="-actionresult-">用語解説: ActionResultクラス</h3>
-<p><br></p>
-<h3 id="-nullable-">用語解説: Nullable型</h3>
-<p><br></p>
+<p>アクションメソッドは、戻り値となる <code>ActionResult</code> の派生オブジェクトを介してアクションの結果 (その後に行うべき挙動) を通知します。</p>
+<p>代表的なActionResultの派生クラスは以下の通りです。</p>
+<table>
+  <thead>
+    <tr>
+      <th>クラス名</th>
+      <th>ヘルパーメソッド</th>
+      <th>概要</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ViewResult</td>
+      <td>View</td>
+      <td>アクションメソッドに対応したViewを出力</td>
+    </tr>
+    <tr>
+      <td>RedirectToRouteResult</td>
+      <td>RedirectToAction</td>
+      <td>指定のアクションメソッドに処理を転送</td>
+    </tr>
+    <tr>
+      <td>ContentResult</td>
+      <td>Content</td>
+      <td>指定されたテキストを出力</td>
+    </tr>
+    <tr>
+      <td>FileContentResult</td>
+      <td>File</td>
+      <td>指定されたファイルを出力</td>
+    </tr>
+    <tr>
+      <td>JsonResult</td>
+      <td>Json</td>
+      <td>指定されたオブジェクトをJSON形式で出力</td>
+    </tr>
+    <tr>
+      <td>HttpNotFoundResult</td>
+      <td>HttpNotFound</td>
+      <td>404ページを出力</td>
+    </tr>
+    <tr>
+      <td>EmptyResult</td>
+      <td>-</td>
+      <td>なにも行わない</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br>
+<br></p>
 <h2 id="view-">Viewの作成</h2>
+<p><img src="./images/a1-9.JPG" alt="image"></p>
 <p><br></p>
 <h3 id="-razor">用語解説: Razor</h3>
 <p><code>Razor</code> は HTMLにC#/VBのコードを埋め込むための仕組み (ビューエンジン) です。
 <code>@</code>で始まる箇所がサーバーサイドで実行され、クライアントに生成したHTMLが返されます。</p>
-<p><br></p>
-<h3 id="-">共通レイアウトの作成</h3>
-<p><br></p>
+<p><br>
+<br></p>
 <h3 id="view-">Viewファイルの作成</h3>
-<p><br></p>
+<p><br>
+<br></p>
 <h3 id="-">コードナゲット と コメントの書き方</h3>
-<p><br></p>
+<p><br>
+<br></p>
 <h3 id="html-">HTMLヘルパー</h3>
-<p><br></p>
-<h2 id="-">ルーティングの設定</h2>
-<p><br></p>
+<p><br>
+<br></p>
 <h2 id="-">動作確認</h2>
 <p><br>
 <br></p>
