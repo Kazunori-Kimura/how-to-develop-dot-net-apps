@@ -44,9 +44,13 @@
         <!-- contents -->
         <h1 id="asp-net-mvc-">ASP.NET MVC開発入門</h1>
 <p><em>ASP.NET</em> は、Microsoftが開発・提供しているWebアプリケーションフレームワークです。</p>
-<p>ここでは、「薬品情報検索システム」の構築を通して <em>ASP.NET MVC</em> を使用したWebアプリケーションの開発について解説します。</p>
-<p><br>
-<br></p>
+<p><br></p>
+<hr>
+<p><br></p>
+<h2 id="0-web-">0. Webアプリケーションの定義</h2>
+<p><em>ASP.NET</em> の解説に入るまえに、大前提となるWebの仕組みと
+この勉強会で扱う Webアプリケーション の定義について解説します。</p>
+<p><br></p>
 <h2 id="1-asp-net-mvc-">1. ASP.NET MVC の概要</h2>
 <p>ASP.NET および ASP.NET MVC の概要について解説します。</p>
 <ul>
@@ -62,61 +66,29 @@
 <li>Controllerクラスの作成<ul>
 <li>アクション メソッド</li>
 <li>ActionResultクラス</li>
-<li>Nullable型</li>
 </ul>
 </li>
-<li>View<ul>
-<li>共通レイアウトの作成</li>
-<li>Viewファイルの作成</li>
+<li>Viewの作成<ul>
 <li>Razor</li>
 <li>コードナゲット と コメントの書き方</li>
 <li>HTMLヘルパー</li>
 </ul>
 </li>
-<li>ルーティングの設定</li>
 <li>動作確認</li>
 </ul>
 <p><br></p>
-<h2 id="3-entityframework-">3. EntityFramework によるコードファースト開発</h2>
-<p><em>EntityFramework</em> を使用した <em>コードファースト開発</em> について解説します。</p>
-<p>コード ファースト開発は <em>EntityFramework 4.1</em> から提供された機能です。</p>
-<p>データ構造を表現する <code>POCO</code> (Plain Old Clr Object: 特別なクラスやインターフェイスを継承していないクラス(のオブジェクト)) と
-POCOを管理する Contextクラスを定義することで、EntityFrameworkが必要なテーブルを生成します。
-(Databaseの操作は必要ありません。)</p>
-<p>詳細については <a href="http://msdn.microsoft.com/ja-jp/data/ee712907">Entity Framework (EF) の概要</a> を参照してください。</p>
-<ul>
-<li>「ASP.NET Webアプリケーション」プロジェクトの作成</li>
-<li>NuGetによる EntityFrameworkのインストール<ul>
-<li>NuGetとは</li>
-<li>EntityFrameworkとは</li>
-<li>O/Rマッパーとは</li>
-<li>インストール手順</li>
-</ul>
-</li>
-<li>Modelクラスの作成<ul>
-<li>POCOの作成</li>
-<li>DbContextクラスの作成</li>
-<li>属性(Annotation) について</li>
-</ul>
-</li>
-<li>共通レイアウトの作成</li>
-<li>Controllerの作成<ul>
-<li>スキャフォールディングによる自動生成</li>
-</ul>
-</li>
-<li>ルーティングの設定</li>
-<li>動作確認</li>
-<li>生成されたソースコードの解説</li>
-</ul>
+<h2 id="3-entityframework-">3. EntityFramework によるデータベースファースト開発</h2>
+<p>先にデータベースにテーブルを作成し、それを元に <em>EntityFramework</em> でソースコードを自動生成する
+<em>データベース・ファースト</em> について解説します。</p>
 <p><br></p>
-<h2 id="4-entityframework-">4. EntityFramework によるデータベースファースト開発</h2>
-<p>すでにデータベースにテーブルが存在する場合でも <em>EntityFramework</em> で開発できます。</p>
-<p><em>SQL Server LocalDB</em> にテーブルを作成し、そのデータ構造に合わせて Modelクラスを実装していく手順について、解説します。</p>
+<h2 id="4-">4. 薬品情報検索システムの開発</h2>
+<p><em>3.</em> で作成したアプリに機能追加を行って「薬品情報検索システム」を完成させます。
+実践的なWebアプリケーションの開発について解説します。</p>
 <p><br></p>
 <h2 id="5-">5. メンバーシップ フレームワークによる認証機能の実装</h2>
 <p><em>メンバーシップ フレームワーク</em> はASP.NET 2.0 以降から採用された認証ライブラリです。
 比較的シンプルに実装できるため、広く利用されています。</p>
-<p>今回は 4. で作成したアプリケーションに認証・認可機能を実装していきます。</p>
+<p>今回は <em>4.</em> で作成したアプリケーションに認証・認可機能を実装していきます。</p>
 <ul>
 <li>Providerクラスの実装<ul>
 <li>MembershipProviderの実装</li>
@@ -144,10 +116,12 @@ POCOを管理する Contextクラスを定義することで、EntityFramework�
   <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
   <a href="./classic-301.html" class="list-group-item">3. 非同期処理</a>
   <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
-  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要と基礎</a>
-  <a href="./asp-002.html" class="list-group-item">2. EntityFramework によるコードファースト開発</a>
+  <a href="./webapp-intro.html" class="list-group-item">0. Webアプリケーションの定義</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要</a>
+  <a href="./asp-002.html" class="list-group-item">2. ASP.NET MVC の基礎</a>
   <a href="#" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
-  <a href="#" class="list-group-item">4. メンバーシップ フレームワークによる認証機能の実装</a>
+  <a href="#" class="list-group-item">4. 薬品情報検索システムの開発</a>
+  <a href="#" class="list-group-item">5. メンバーシップ フレームワークによる認証機能の実装</a>
 </div>
       </div>
     </div>
