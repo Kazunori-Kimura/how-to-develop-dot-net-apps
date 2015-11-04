@@ -42,70 +42,71 @@
       <div class="col-md-2"></div>
       <div class="col-md-7">
         <!-- contents -->
-        <h1 id="asp-net-mvc-">ASP.NET MVC開発入門</h1>
-<p><em>ASP.NET</em> は、Microsoftが開発・提供しているWebアプリケーションフレームワークです。</p>
-<p><br></p>
-<hr>
-<p><br></p>
-<h2 id="0-web-">0. Webアプリケーションの定義</h2>
-<p><em>ASP.NET</em> の解説に入るまえに、大前提となるWebの仕組みと
-この勉強会で扱う Webアプリケーション の定義について解説します。</p>
-<p><br></p>
-<h2 id="1-asp-net-mvc-">1. ASP.NET MVC の概要</h2>
-<p>ASP.NET および ASP.NET MVC の概要について解説します。</p>
+        <h1 id="4-">4. 薬品情報検索システムの開発</h1>
+<p><br><br></p>
+<h2 id="-">共通レイアウトの作成</h2>
+<p><br><br></p>
+<h3 id="-bootstrap">用語解説: Bootstrap</h3>
+<p><br><br></p>
+<h2 id="model-">Modelの修正</h2>
+<p>表示名</p>
+<p><br><br></p>
+<h2 id="index-">Indexの変更</h2>
+<p>最初に表示される <em>Index</em> ページには、検索フォームを追加したいので
+自動生成された <em>アクションメソッド</em> と <em>View</em> を削除し、作り直します。</p>
+<p><br><br></p>
+<h3 id="viewmodel-">ViewModelの作成</h3>
+<p>自動生成されたソースコードでは、データベースの構造そのままの <em>Model</em> と <em>View</em> が紐付いており、
+<em>Model</em> に検索フォームを格納するプロパティがないためにデータの受け渡しが上手くできません。</p>
+<p>このような場合、<em>View</em> で扱うデータを定義する <em>ViewModel</em> を作成します。</p>
+<p><code>Models/SearchViewModel.cs</code></p>
+<pre><code class="lang-cs">
+</code></pre>
+<p><br><br></p>
+<h3 id="index-get-">Index アクションメソッド (GET) の作成</h3>
+<pre><code class="lang-cs">
+</code></pre>
+<p><br><br></p>
+<h3 id="index-post-">Index アクションメソッド (POST) の作成</h3>
+<pre><code class="lang-cs">
+</code></pre>
+<p><br><br></p>
+<h3 id="index-view-">Index Viewの作成</h3>
+<pre><code class="lang-html">
+</code></pre>
+<p><br><br></p>
+<h4 id="-">新規登録リンク</h4>
+<p><code>ActionLink</code></p>
+<p><br><br></p>
+<h4 id="-">検索フォームの表示</h4>
+<pre><code class="lang-cs"><span class="hljs-annotation">@Html</span>.DropDownList(<span class="hljs-string">"ClassificationId"</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">htmlAttributes:</span> <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
+</code></pre>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/system.web.mvc.html.selectextensions.dropdownlist.aspx">DropDownList</a> は第2引数に <code>null</code> を渡した場合、 <code>ViewBag</code> に 第1引数と同じキーの項目があれば、それをセットしてくれます。</p>
+<p><br><br></p>
+<h4 id="-">検索結果の表示</h4>
+<p><code>Create</code>, <code>Details</code>, <code>Edit</code> を選択した場合の処理</p>
+<p><br><br></p>
+<h2 id="details-">Detailsの変更</h2>
+<p>自動生成されたソースコードでは、薬効分類コードのみ表示されています。<br>薬効分類の名称を表示するように <em>View</em> を修正します。</p>
+<p><br><br></p>
+<h2 id="create-">Createの変更</h2>
+<p><br><br></p>
+<h2 id="edit-">Editの変更</h2>
+<p>自動生成されたソースコードでは、コンボボックスに薬効分類コードのみ表示されています。<br>薬効分類の名称を表示するようにコントローラーの処理を修正します。</p>
+<p><br><br></p>
+<h3 id="controller-">Controllerの変更</h3>
+<p><em>View</em> では自動生成されたソースコードのまま <code>DropDownList</code> を使用し、
+コントローラー側で <code>ViewBag</code> に コンボボックスの選択肢と初期選択値をセットします。</p>
+<p><br><br></p>
+<h3 id="view-">Viewの変更</h3>
+<p>自動生成されたソースコードで <code>DropDownListFor</code> を使用していないのは、初期選択値を渡せないためです。</p>
 <ul>
-<li>ASP.NET の概要</li>
-<li>ASP.NET MVC の概要</li>
+<li>参考: <a href="http://blog.shibayan.jp/entry/20130207/1360226954">DropDownListFor と ViewBag を組み合わせた時の問題</a></li>
 </ul>
-<p><br></p>
-<h2 id="2-asp-net-mvc-">2. ASP.NET MVC の基礎</h2>
-<p>非常に簡単な ASP.NET MVC のサンプルを作成を通して Model,View,Controllerの役割について解説します。</p>
-<ul>
-<li>「ASP.NET Webアプリケーション」プロジェクトの作成</li>
-<li>Modelクラスの作成</li>
-<li>Controllerクラスの作成<ul>
-<li>アクション メソッド</li>
-<li>ActionResultクラス</li>
-</ul>
-</li>
-<li>Viewの作成<ul>
-<li>Razor</li>
-<li>コードナゲット と コメントの書き方</li>
-<li>HTMLヘルパー</li>
-</ul>
-</li>
-<li>動作確認</li>
-</ul>
-<p><br></p>
-<h2 id="3-entityframework-">3. EntityFramework によるデータベースファースト開発</h2>
-<p>先にデータベースにテーブルを作成し、それを元に <em>EntityFramework</em> でソースコードを自動生成する
-<em>データベース・ファースト</em> について解説します。</p>
-<p><br></p>
-<h2 id="4-">4. 薬品情報検索システムの開発</h2>
-<p><em>3.</em> で作成したアプリに機能追加を行って「薬品情報検索システム」を完成させます。
-実践的なWebアプリケーションの開発について解説します。</p>
-<p><br></p>
-<h2 id="5-">5. メンバーシップ フレームワークによる認証機能の実装</h2>
-<p><em>メンバーシップ フレームワーク</em> はASP.NET 2.0 以降から採用された認証ライブラリです。
-比較的シンプルに実装できるため、広く利用されています。</p>
-<p>今回は <em>4.</em> で作成したアプリケーションに認証・認可機能を実装していきます。</p>
-<ul>
-<li>Providerクラスの実装<ul>
-<li>MembershipProviderの実装</li>
-<li>RoleProviderの実装</li>
-</ul>
-</li>
-<li>ログイン画面の作成<ul>
-<li>ViewModelの作成</li>
-<li>LoginControllerの作成</li>
-<li>Viewの作成</li>
-</ul>
-</li>
-<li>フォーム認証の設定</li>
-<li>動作確認</li>
-</ul>
-<p><br>
-<br></p>
+<p><br><br></p>
+<h2 id="delete-">Deleteの変更</h2>
+<h3 id="view-">Viewの変更</h3>
+<p><br><br></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">
