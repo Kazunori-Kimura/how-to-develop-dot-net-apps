@@ -43,28 +43,39 @@
       <div class="col-md-7">
         <!-- contents -->
         <h1 id="3-entityframework-">3. EntityFramework によるデータベースファースト開発</h1>
+<p>薬品情報を検索するWebアプリケーションを例に、ASP.NET MVCの開発手順について解説していきます。</p>
+<p><img src="./images/a2-15.JPG" alt="image"></p>
+<p><br><br></p>
 <h2 id="entityframework-">EntityFrameworkによるソースコードの自動生成</h2>
 <p><em>EntityFramework</em> によって Webアプリケーションの雛形を作成します。</p>
 <h3 id="-1-">(1) プロジェクトの作成</h3>
 <p><code>DrugInfoSearch</code> という名前で新しいプロジェクトを作成します。</p>
-<p><img src="./images/a2-1.JPG" alt="image"></p>
+<p><img src="./images/a2-1.JPG" alt="image">
+<br></p>
 <p><em>テンプレート</em> は <code>Empty</code> を選択します。<br><code>MVC</code> にチェックを入れ、<em>OK</em> をクリックします。</p>
 <p><img src="./images/a2-2.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-2-entityframework-">(2) EntityFrameworkのインストール</h3>
 <p><em>NuGet</em> で 最新の <em>EntityFramework</em> をインストールします。</p>
 <p><img src="./images/a2-3.JPG" alt="image">
-<img src="./images/a2-4.JPG" alt="image"></p>
+<br></p>
+<p><img src="./images/a2-4.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-3-edm-">(3) EDMファイルの作成</h3>
 <p><img src="./images/a2-5.JPG" alt="image">
+<br>
 <img src="./images/a2-6.JPG" alt="image">
+<br>
 <img src="./images/a2-7.JPG" alt="image">
+<br>
 <img src="./images/a2-8.JPG" alt="image">
+<br>
 <img src="./images/a2-9.JPG" alt="image">
-<img src="./images/a2-10.JPG" alt="image"></p>
-<p>一度ビルドを行う。</p>
-<p><img src="./images/a2-11.JPG" alt="image"></p>
+<br>
+<img src="./images/a2-10.JPG" alt="image">
+<br></p>
+<p>一度ビルドを行う。
+<img src="./images/a2-11.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-4-">(4) コントローラー、ビューの作成</h3>
 <p>スキャフォールディング(Scaffolding、「骨組み」「足場」という意味)によって、
@@ -72,15 +83,19 @@ Create（作成）、Read（参照）、Update（更新）、Delete（削除）�
 <p><br></p>
 <p><em>ソリューション エクスプローラー</em> で <em>Controllers</em> を右クリック -&gt; <em>追加</em> -&gt;
 <em>新規スキャフォールディングアイテム</em> を選択します。</p>
-<p><img src="./images/a2-12.JPG" alt="image"></p>
+<p><img src="./images/a2-12.JPG" alt="image">
+<br></p>
 <p><em>Entity Framework を使用した、ビューがあるMVC5 コントローラー</em> を選択し、<em>追加</em> をクリックします。</p>
-<p><img src="./images/a2-13.JPG" alt="image"></p>
+<p><img src="./images/a2-13.JPG" alt="image">
+<br></p>
 <p><em>モデル クラス</em> に <code>Drugs</code> 、 <em>データ コンテキスト クラス</em> に <code>DrugInfoContext</code> を選択し、<em>追加</em> をクリックします。</p>
 <p><img src="./images/a2-14.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-5-">(5) 動作確認</h3>
 <p><img src="./images/a2-15.JPG" alt="image">
+<br>
 <img src="./images/a2-16.JPG" alt="image">
+<br>
 <img src="./images/a2-17.JPG" alt="image"></p>
 <p><br><br></p>
       </div>
