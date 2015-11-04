@@ -52,30 +52,30 @@
 <h3 id="-1-">(1) プロジェクトの作成</h3>
 <p><code>DrugInfoSearch</code> という名前で新しいプロジェクトを作成します。</p>
 <p><img src="./images/a2-1.JPG" alt="image">
-<br></p>
+<br><br></p>
 <p><em>テンプレート</em> は <code>Empty</code> を選択します。<br><code>MVC</code> にチェックを入れ、<em>OK</em> をクリックします。</p>
 <p><img src="./images/a2-2.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-2-entityframework-">(2) EntityFrameworkのインストール</h3>
 <p><em>NuGet</em> で 最新の <em>EntityFramework</em> をインストールします。</p>
 <p><img src="./images/a2-3.JPG" alt="image">
-<br></p>
+<br><br></p>
 <p><img src="./images/a2-4.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-3-edm-">(3) EDMファイルの作成</h3>
 <p><img src="./images/a2-5.JPG" alt="image">
-<br>
-<img src="./images/a2-6.JPG" alt="image">
-<br>
-<img src="./images/a2-7.JPG" alt="image">
-<br>
-<img src="./images/a2-8.JPG" alt="image">
-<br>
-<img src="./images/a2-9.JPG" alt="image">
-<br>
-<img src="./images/a2-10.JPG" alt="image">
-<br></p>
-<p>一度ビルドを行う。
+<br><br></p>
+<p><img src="./images/a2-6.JPG" alt="image">
+<br><br></p>
+<p><img src="./images/a2-7.JPG" alt="image">
+<br><br></p>
+<p><img src="./images/a2-8.JPG" alt="image">
+<br><br></p>
+<p><img src="./images/a2-9.JPG" alt="image">
+<br><br></p>
+<p><img src="./images/a2-10.JPG" alt="image">
+<br><br></p>
+<p>一度ビルドを行ってください。<br>（ビルドしなかった場合、次の手順でエラーとなります。）
 <img src="./images/a2-11.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-4-">(4) コントローラー、ビューの作成</h3>
@@ -92,12 +92,51 @@ Create（作成）、Read（参照）、Update（更新）、Delete（削除）�
 <p><em>モデル クラス</em> に <code>Drugs</code> 、 <em>データ コンテキスト クラス</em> に <code>DrugInfoContext</code> を選択し、<em>追加</em> をクリックします。</p>
 <p><img src="./images/a2-14.JPG" alt="image"></p>
 <p><br><br></p>
-<h3 id="-5-">(5) 動作確認</h3>
+<h3 id="-5-">(5) ルーティングの設定</h3>
+<p><code>App_Start/RouteConfig.cs</code> を修正し、デフォルトページをToDoの一覧ページに変更します。</p>
+<p><code>routes.MapRoute</code>メソッドの<code>defaults</code>引数にデフォルトの設定を定義します。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> System.Web.Routing;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">RouteConfig</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">RegisterRoutes</span>(<span class="hljs-params">RouteCollection routes</span>)
+        </span>{
+            routes.IgnoreRoute(<span class="hljs-string">"{resource}.axd/{*pathInfo}"</span>);
+
+            routes.MapRoute(
+                name: <span class="hljs-string">"Default"</span>,
+                url: <span class="hljs-string">"{controller}/{action}/{id}"</span>,
+                defaults: <span class="hljs-keyword">new</span> { controller = <span class="hljs-string">"Drugs"</span>, action = <span class="hljs-string">"Index"</span>, id = UrlParameter.Optional }
+            );
+        }
+    }
+}
+</code></pre>
+<p><br><br></p>
+<hr>
+<h3 id="-">用語解説: ルーティング</h3>
+<p>ルーティングとは、リクエストURIに応じて処理を受け渡し先を決定することを言います。</p>
+<p><code>ASP.NET MVC</code> ではクライアントからの要求を受け取ると、<code>RouteConfig.cs</code> の内容を元に
+呼び出すべきコントローラー/アクションを決定します。</p>
+<p><code>routes.MapRoute</code>メソッドの<code>url</code>引数がルーティングの定義です。</p>
+<p>例えば <code>http://localhost/Drugs/Details/3</code> というリクエストが来た場合、
+<code>url</code> の定義にしたがって <code>DrugsController</code> の <code>Details</code> メソッドに <code>id=3</code> を引数に与えて呼び出します。</p>
+<p>また、 <code>defaults</code> でデフォルトのコントローラー、アクションを指定しているので、<code>http://localhost/</code> という
+リクエストが来た場合は <code>http://localhost/Drugs/Index</code> というリクエストとして処理されます。</p>
+<p><br><br></p>
+<h3 id="-6-">(6) 動作確認</h3>
 <p><img src="./images/a2-15.JPG" alt="image">
-<br>
-<img src="./images/a2-16.JPG" alt="image">
-<br>
-<img src="./images/a2-17.JPG" alt="image"></p>
+<br><br></p>
+<p><img src="./images/a2-16.JPG" alt="image">
+<br><br></p>
+<p><img src="./images/a2-17.JPG" alt="image"></p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
