@@ -63,6 +63,7 @@
 <p><img src="./images/a2-4.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-3-edm-">(3) EDMファイルの作成</h3>
+<p>薬品情報を取得するため、データベースから <em>EDMファイル</em> を生成します。</p>
 <p><img src="./images/a2-5.JPG" alt="image">
 <br><br></p>
 <p><img src="./images/a2-6.JPG" alt="image">
@@ -91,6 +92,25 @@ Create（作成）、Read（参照）、Update（更新）、Delete（削除）�
 <br></p>
 <p><em>モデル クラス</em> に <code>Drugs</code> 、 <em>データ コンテキスト クラス</em> に <code>DrugInfoContext</code> を選択し、<em>追加</em> をクリックします。</p>
 <p><img src="./images/a2-14.JPG" alt="image"></p>
+<p><br></p>
+<p>以下のファイルが生成されます。</p>
+<ul>
+<li>Controllers/DrugsController.cs</li>
+<li>Views/Drugs/<ul>
+<li>Create.cshtml</li>
+<li>Delete.cshtml</li>
+<li>Details.cshtml</li>
+<li>Edit.cshtml</li>
+<li>Index.cshtml</li>
+</ul>
+</li>
+<li>Views/Shared/<ul>
+<li>_Layout.cshtml</li>
+<li>_ViewStart.cshtml</li>
+</ul>
+</li>
+</ul>
+<p>後ほど、生成されたファイルの中身について解説します。</p>
 <p><br><br></p>
 <h3 id="-5-">(5) ルーティングの設定</h3>
 <p><code>App_Start/RouteConfig.cs</code> を修正し、デフォルトページをToDoの一覧ページに変更します。</p>
@@ -120,7 +140,6 @@ Create（作成）、Read（参照）、Update（更新）、Delete（削除）�
 }
 </code></pre>
 <p><br><br></p>
-<hr>
 <h3 id="-">用語解説: ルーティング</h3>
 <p>ルーティングとは、リクエストURIに応じて処理を受け渡し先を決定することを言います。</p>
 <p><code>ASP.NET MVC</code> ではクライアントからの要求を受け取ると、<code>RouteConfig.cs</code> の内容を元に
@@ -137,6 +156,502 @@ Create（作成）、Read（参照）、Update（更新）、Delete（削除）�
 <p><img src="./images/a2-16.JPG" alt="image">
 <br><br></p>
 <p><img src="./images/a2-17.JPG" alt="image"></p>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<h2 id="-">ソースコード解説</h2>
+<h3 id="controller">Controller</h3>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Data.Entity;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Net;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">DrugsController</span> : <span class="hljs-title">Controller</span>
+    {
+        <span class="hljs-keyword">private</span> DrugInfoContext db = <span class="hljs-keyword">new</span> DrugInfoContext();
+
+        <span class="hljs-comment">// GET: Drugs</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">var</span> drugs = db.Drugs.Include(d =&gt; d.Classifications);
+            <span class="hljs-keyword">return</span> View(drugs.ToList());
+        }
+</code></pre>
+<p><br></p>
+<p><code>Index</code>メソッドの定義です。 <a href="https://msdn.microsoft.com/ja-jp/library/dd492930.aspx">View</a> メソッドは
+アクションメソッドに対応した View を元に <code>ViewResult</code> (<code>ActionResult</code> を継承した、Viewを表示するためのクラス) を返します。</p>
+<p>ここでは、<code>views/Index.cshtml</code> に すべての薬品のListを渡しています。</p>
+<p><br></p>
+<pre><code class="lang-cs">        <span class="hljs-comment">// GET: Drugs/Details/5</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-function">ActionResult <span class="hljs-title">Details</span><span class="hljs-params">(<span class="hljs-keyword">int</span>? id)</span>
+        </span>{
+            <span class="hljs-keyword">if</span> (id == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Drugs drugs = db.Drugs.Find(id);
+            <span class="hljs-keyword">if</span> (drugs == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">HttpNotFound</span><span class="hljs-params">()</span></span>;
+            }
+            <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">View</span><span class="hljs-params">(drugs)</span></span>;
+        }
+</code></pre>
+<p><br></p>
+<p><code>Details</code> メソッドの定義です。</p>
+<p><code>int?</code> は <code>int</code> の <a href="https://msdn.microsoft.com/ja-jp/library/1t3y8s4s.aspx">null許容型</a>
+あるいは <em>nullable</em> といいます。
+通常の <code>int</code> には <code>null</code> を代入することはできませんが、null許容型であれば
+<code>null</code> を代入することが可能です。</p>
+<p><code>RouteConfig.cs</code> の <code>defaults</code> の定義により、<code>id</code>は省略可能です。<br><code>id</code> が省略された場合、<code>Details</code>の引数 <code>id</code> には <code>null</code> が設定されます。</p>
+<p><code>id</code> が <code>null</code> の場合は要求されたURLが正しくないので、<code>BadRequest</code> を返しています。</p>
+<p>一致するデータが存在しない場合は <code>Find</code> から <code>null</code> が返ってくるので、<code>NotFound</code> を返しています。<br>一致するデータが存在すれば、それを<code>View</code>にセットして返します。</p>
+<p><br></p>
+<pre><code class="lang-cs">        <span class="hljs-comment">// GET: Drugs/Create</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-function">ActionResult <span class="hljs-title">Create</span><span class="hljs-params">()</span>
+        </span>{
+            ViewBag.ClassificationId = <span class="hljs-keyword">new</span> SelectList(db.Classifications, <span class="hljs-string">"ClassificationId"</span>, <span class="hljs-string">"ClassificationCode"</span>);
+            <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">View</span><span class="hljs-params">()</span></span>;
+        }
+</code></pre>
+<p><br></p>
+<p><code>Drugs/Create</code> に <em>GET</em> のリクエストが来た場合は <code>View</code> を表示するだけです。</p>
+<p>1行目の <code>ViewBag.ClassificationId</code> は、コンボボックスにセットする内容を定義しています。</p>
+<p><br></p>
+<pre><code class="lang-cs">        <span class="hljs-comment">// POST: Drugs/Create</span>
+        <span class="hljs-comment">// 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。</span>
+        <span class="hljs-comment">// 詳細については、http://go.microsoft.com/fwlink/?LinkId=317598 を参照してください。</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(<span class="hljs-keyword">Include</span> = <span class="hljs-string">"DrugId,DrugCode,Name,Company,ClassificationId"</span>)] Drugs drugs)
+        {
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-keyword">db</span>.Drugs.Add(drugs);
+                <span class="hljs-keyword">db</span>.SaveChanges();
+                <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+            }
+
+            ViewBag.ClassificationId = new SelectList(<span class="hljs-keyword">db</span>.Classifications, <span class="hljs-string">"ClassificationId"</span>, <span class="hljs-string">"ClassificationCode"</span>, drugs.ClassificationId);
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">View</span>(drugs);
+        }
+</code></pre>
+<p><br></p>
+<p><code>Drugs/Create</code> に <em>POST</em> のリクエストが来た場合、
+<em>POST</em> されてきたデータに問題がなければデータベースに登録して <code>Index</code> に戻ります。</p>
+<p><code>ModelState.IsValid</code> は <code>Model</code> にセットされた値が正しいかどうかを判定し、
+問題があれば <code>false</code> を返します。</p>
+<p><code>ValidateAntiForgeryToken</code> は <em>クロスサイト・リクエスト・フォージェリ攻撃</em> を防ぐための記述です。</p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/system.web.mvc.bindattribute.aspx">Bind</a> は POSTされたデータを
+<code>Drugs</code>モデルに紐付けます。</p>
+<p><code>ModelState.IsValid</code> は入力チェックがOKかどうかを判定します。<br>判定には、Modelクラスに設定した <code>[required]</code> などの属性を使用します。</p>
+<p><br></p>
+<hr>
+<h3 id="-csrf-">用語解説: クロスサイトリクエストフォージェリ (CSRF)</h3>
+<blockquote>
+<p>クロスサイトリクエストフォージェリ（Cross site request forgeries、略記：CSRF、またはXSRF）は、WWW における攻撃手法のひとつである。 具体的な被害としては、掲示板に意図しない書き込みをさせられたり、オンラインショップで買い物をさせられたりするなどが挙げられる。
+<a href="https://ja.wikipedia.org/wiki/%E3%82%AF%E3%83%AD%E3%82%B9%E3%82%B5%E3%82%A4%E3%83%88%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%83%95%E3%82%A9%E3%83%BC%E3%82%B8%E3%82%A7%E3%83%AA">クロスサイトリクエストフォージェリ</a></p>
+</blockquote>
+<hr>
+<p><br><br></p>
+<hr>
+<h3 id="-bind-">用語解説: Bind と 過多ポスティング攻撃について</h3>
+<p><em>ASP.NET MVC</em> では、クライアントからの入力値を自動的にモデルに割り当てる <em>モデルバインド</em> という機能があります。</p>
+<p>クライアントからPOSTされてきたデータのkey名を見てモデルに自動的に割り当ててくれるのですが、
+セキュリティホールの原因となる場合もあります。</p>
+<p>例えば、以下の様な <code>Account</code>クラスがあった場合を考えます。</p>
+<ul>
+<li>Account.cs</li>
+</ul>
+<pre><code class="lang-cs"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Account</span>
+{
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> id { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> mail { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> password { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+  <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> role { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+}
+</code></pre>
+<p><br></p>
+<p>ここで、 <code>role</code>(権限) は管理者のみが設定でき、エンドユーザーからは勝手に編集できないものとします。
+(以下の様なViewのイメージ)</p>
+<ul>
+<li>Create.cshtml</li>
+</ul>
+<pre><code class="lang-html">&lt;html&gt;
+&lt;body&gt;
+<span class="hljs-annotation">@using</span> (Html.BeginForm())
+{
+  <span class="hljs-annotation">@Html</span>.HiddenFor(model =&gt; model.id)
+  <span class="hljs-annotation">@Html</span>.EditorFor(model =&gt; model.mail)
+  <span class="hljs-annotation">@Html</span>.EditorFor(model =&gt; model.password)
+}
+&lt;/body&gt;
+</code></pre>
+<p><br></p>
+<p>Create.cshtml から POSTされた際に実行されるアクションメソッドを以下のように実装したとします。</p>
+<ul>
+<li>XxxController.cs</li>
+</ul>
+<pre><code class="lang-cs"><span class="hljs-list">[<span class="hljs-keyword">HttpPost</span>]
+<span class="hljs-list">[<span class="hljs-keyword">ValidateAntiForgeryToken</span>]
+public ActionResult Create<span class="hljs-list">(<span class="hljs-keyword">Account</span> account)</span>
+{
+    if <span class="hljs-list">(<span class="hljs-keyword">ModelState.IsValid</span>)</span>
+    {
+        db.Accounts.Add<span class="hljs-list">(<span class="hljs-keyword">account</span>)</span><span class="hljs-comment">;</span>
+        db.SaveChanges<span class="hljs-list">()</span><span class="hljs-comment">;</span>
+        return RedirectToAction<span class="hljs-list">(<span class="hljs-string">"Index"</span>)</span><span class="hljs-comment">;</span>
+    }
+
+    return View<span class="hljs-list">(<span class="hljs-keyword">account</span>)</span><span class="hljs-comment">;</span>
+}</span></span>
+</code></pre>
+<p><br></p>
+<p>Create.cshtmlからPOSTされた場合は id, mail, password のみがセットされてきます。<br><code>Add</code>では新しいレコードとしてDBに登録されるので、id は自動的に採番されますので、
+プログラマーが期待している動作としては、 <em>POSTされてきた mail と password がDBに登録される</em>
+という動作だと思います。</p>
+<p>しかし、悪意あるユーザーがPOSTデータを改ざんし、role値を含んだデータを送信すると、
+<code>Create</code>メソッドはその値をモデルに割り当ててしまい、結果、意図せず <code>role</code>に値が設定されてしまいます。</p>
+<p>このような攻撃を <em>過多ポスティング攻撃</em> といいます。</p>
+<p>自動生成された <code>Create</code> メソッドのように <code>Bind</code> を使用して
+モデルバインドするプロパティを明示することにより、過多ポスティング攻撃を防止します。</p>
+<pre><code class="lang-cs"><span class="hljs-list">[<span class="hljs-keyword">HttpPost</span>]
+<span class="hljs-list">[<span class="hljs-keyword">ValidateAntiForgeryToken</span>]
+public ActionResult Create<span class="hljs-list">(<span class="hljs-list">[<span class="hljs-keyword">Bind</span><span class="hljs-list">(<span class="hljs-keyword">Include</span> = <span class="hljs-string">"id,mail,password"</span>)</span>] Account account)</span></span></span></span>
+</code></pre>
+<p><br></p>
+<hr>
+<p><br><br></p>
+<pre><code class="lang-cs">        <span class="hljs-comment">// GET: Drugs/Edit/5</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-function">ActionResult <span class="hljs-title">Edit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>? id)</span>
+        </span>{
+            <span class="hljs-keyword">if</span> (id == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Drugs drugs = db.Drugs.Find(id);
+            <span class="hljs-keyword">if</span> (drugs == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">HttpNotFound</span><span class="hljs-params">()</span></span>;
+            }
+            ViewBag.ClassificationId = <span class="hljs-keyword">new</span> SelectList(db.Classifications, <span class="hljs-string">"ClassificationId"</span>, <span class="hljs-string">"ClassificationCode"</span>, drugs.ClassificationId);
+            <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">View</span><span class="hljs-params">(drugs)</span></span>;
+        }
+
+        <span class="hljs-comment">// POST: Drugs/Edit/5</span>
+        <span class="hljs-comment">// 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。</span>
+        <span class="hljs-comment">// 詳細については、http://go.microsoft.com/fwlink/?LinkId=317598 を参照してください。</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-keyword">public</span> ActionResult Edit([Bind(Include = <span class="hljs-string">"DrugId,DrugCode,Name,Company,ClassificationId"</span>)] Drugs drugs)
+        {
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                db.Entry(drugs).State = EntityState.Modified;
+                db.SaveChanges();
+                <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">RedirectToAction</span><span class="hljs-params">(<span class="hljs-string">"Index"</span>)</span></span>;
+            }
+            ViewBag.ClassificationId = <span class="hljs-keyword">new</span> SelectList(db.Classifications, <span class="hljs-string">"ClassificationId"</span>, <span class="hljs-string">"ClassificationCode"</span>, drugs.ClassificationId);
+            <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">View</span><span class="hljs-params">(drugs)</span></span>;
+        }
+</code></pre>
+<p><br></p>
+<p><code>Edit</code>メソッドは <code>Details</code> と <code>Create</code> の処理を組み合わせた内容です。</p>
+<p><br></p>
+<pre><code class="lang-cs">        <span class="hljs-comment">// GET: Drugs/Delete/5</span>
+        <span class="hljs-keyword">public</span> <span class="hljs-function">ActionResult <span class="hljs-title">Delete</span><span class="hljs-params">(<span class="hljs-keyword">int</span>? id)</span>
+        </span>{
+            <span class="hljs-keyword">if</span> (id == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Drugs drugs = db.Drugs.Find(id);
+            <span class="hljs-keyword">if</span> (drugs == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">HttpNotFound</span><span class="hljs-params">()</span></span>;
+            }
+            <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">View</span><span class="hljs-params">(drugs)</span></span>;
+        }
+
+        <span class="hljs-comment">// POST: Drugs/Delete/5</span>
+        [HttpPost, ActionName(<span class="hljs-string">"Delete"</span>)]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-keyword">public</span> <span class="hljs-function">ActionResult <span class="hljs-title">DeleteConfirmed</span><span class="hljs-params">(<span class="hljs-keyword">int</span> id)</span>
+        </span>{
+            Drugs drugs = db.Drugs.Find(id);
+            db.Drugs.Remove(drugs);
+            db.SaveChanges();
+            <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">RedirectToAction</span><span class="hljs-params">(<span class="hljs-string">"Index"</span>)</span></span>;
+        }
+</code></pre>
+<p><br></p>
+<p>削除時の流れは以下のようになります。</p>
+<ul>
+<li><code>Delete/{id}</code> にリクエスト (Get)<ul>
+<li><code>Delete</code> メソッドから <code>Delete.cshtml</code> が返される</li>
+</ul>
+</li>
+<li><code>Delete</code> ボタンをクリック -&gt; <code>Delete</code> にPOSTされる<ul>
+<li>該当IDの項目を検索し削除</li>
+<li><code>Index</code> を返す</li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<pre><code class="lang-cs">        <span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Dispose</span>(<span class="hljs-params"><span class="hljs-keyword">bool</span> disposing</span>)
+        </span>{
+            <span class="hljs-keyword">if</span> (disposing)
+            {
+                db.Dispose();
+            }
+            <span class="hljs-keyword">base</span>.Dispose(disposing);
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p><code>Dispose</code> は終了処理です。
+<code>db.Dispose()</code> で保持している <code>Context</code> を開放しています。</p>
+<p><br><br></p>
+<hr>
+<h3 id="view">View</h3>
+<p><code>Views/_ViewStart.cshtml</code></p>
+<p>各Viewに共通の処理を書くことができます。</p>
+<pre><code class="lang-html"><span class="hljs-at_rule">@<span class="hljs-keyword">{</span>
+    Layout = <span class="hljs-string">"~/Views/Shared/_Layout.cshtml"</span></span>;
+}
+</code></pre>
+<p>ここでは、レイアウトファイルを指定しています。</p>
+<p><br><br></p>
+<p><code>Views/Shared/_Layout.cshtml</code></p>
+<p>各Viewで共通するレイアウトになります。</p>
+<p>画面上部のメニューバーとフッターを定義しています。</p>
+<p>また、各画面で使用するcss, javascriptの読み込みを行っています。</p>
+<pre><code class="lang-html"><span class="xml"><span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">"utf-8"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>@ViewBag.Title - My ASP.NET Application<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/Site.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/bootstrap.min.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/modernizr-2.6.2.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar navbar-inverse navbar-fixed-top"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-header"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"button"</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-toggle"</span> <span class="hljs-attribute">data-toggle</span>=<span class="hljs-value">"collapse"</span> <span class="hljs-attribute">data-target</span>=<span class="hljs-value">".navbar-collapse"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+                @Html.ActionLink("Application name", "Index", "Home", new </span><span class="hljs-expression">{ <span class="hljs-variable">area</span> = <span class="hljs-string">""</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-brand"</span> }</span><span class="xml">)
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-collapse collapse"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">ul</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"nav navbar-nav"</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container body-content"</span>&gt;</span>
+        @RenderBody()
+        <span class="hljs-tag">&lt;<span class="hljs-title">hr</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">footer</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>&amp;copy; @DateTime.Now.Year - My ASP.NET Application<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">footer</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/bootstrap.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
+</code></pre>
+<p><br></p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/gg512039.aspx">ViewBag</a> はコントローラとビューの間でデータをやりとりする際に使用します。</p>
+<p><code>@Html.ActionLink()</code> はリンクを生成します。<br>上記の場合は <code>HomeController</code>の<code>Index</code>アクションへのリンクが生成されます。</p>
+<p><code>@RenderBody()</code> の箇所に各Viewの内容が埋め込まれます。</p>
+<p><br><br></p>
+<hr>
+<h3 id="-bootstrap">用語解説: bootstrap</h3>
+<blockquote>
+<p>BootstrapはWebサイトやWebアプリケーションを作成するフリーソフトウェアツール集である。 タイポグラフィ、フォーム、ボタン、ナビゲーション、その他構成要素やJavaScript用拡張などがHTML及びCSSベースのデザインテンプレートとして用意されている。</p>
+</blockquote>
+<ul>
+<li><a href="http://getbootstrap.com/">Bootstrap</a></li>
+</ul>
+<p><br></p>
+<h3 id="-modernizr">用語解説: modernizr</h3>
+<p>HTML5やCSS3では、HTMLで表現できることが大幅に強化されましたが、
+HTML5／CSS3機能の実装状況はブラウザーごとに異なるため、
+HTML5／CSS3の仕様として定義されているからといってそのまま使えるわけではありません。</p>
+<p><code>modernizr</code> はブラウザーで使用可能な機能をCSSやJavaScriptから確認できるようにする機能を提供します。</p>
+<ul>
+<li><a href="https://modernizr.com/">modernizr</a></li>
+</ul>
+<p><br></p>
+<h3 id="-jquery">用語解説: jQuery</h3>
+<p>John Resig（ジョン・レッシグ）氏によって開発／公開されたJavaScript用のライブラリです。<br>ライセンスは MIT Licenseとなっており、ライブラリの著作権表示を消さなければ
+商用・非商用を問わず、誰でも自由に利用することができます。</p>
+<p>機能・特徴として、以下の点が挙げられます。</p>
+<ul>
+<li>ブラウザに依存しない</li>
+<li><em>DOM</em> 選択、操作を容易に記述できる</li>
+<li><em>Ajax</em> 操作を容易に記述できる</li>
+<li><p>拡張性 (プラグイン機構) がある</p>
+</li>
+<li><p><a href="https://jquery.com/">jQuery</a></p>
+</li>
+</ul>
+<p><br><br></p>
+<hr>
+<p><br><br></p>
+<p><code>Views/Drugs/Index.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-comment">@model IEnumerable&lt;WebApplication1.Models.Drugs&gt;</span>
+
+<span class="hljs-comment">@{</span>
+    ViewBag.Title = <span class="hljs-string">"Index"</span>;
+}
+
+<span class="hljs-variable">&lt;h2&gt;</span>Index<span class="hljs-variable">&lt;/h2&gt;</span>
+
+<span class="hljs-variable">&lt;p&gt;</span>
+    <span class="hljs-comment">@Html.ActionLink("Create New", "Create")</span>
+<span class="hljs-variable">&lt;/p&gt;</span>
+<span class="hljs-variable">&lt;table class="table"&gt;</span>
+    <span class="hljs-variable">&lt;tr&gt;</span>
+        <span class="hljs-variable">&lt;th&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.DrugCode)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Name)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Company)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Classifications.ClassificationCode)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th&gt;</span><span class="hljs-variable">&lt;/th&gt;</span>
+    <span class="hljs-variable">&lt;/tr&gt;</span>
+
+<span class="hljs-comment">@foreach (var item in Model) {</span>
+    <span class="hljs-variable">&lt;tr&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.DrugCode)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Name)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Company)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Classifications.ClassificationCode)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.ActionLink("Edit", "Edit", new { id=item.DrugId }) |</span>
+            <span class="hljs-comment">@Html.ActionLink("Details", "Details", new { id=item.DrugId }) |</span>
+            <span class="hljs-comment">@Html.ActionLink("Delete", "Delete", new { id=item.DrugId })</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+    <span class="hljs-variable">&lt;/tr&gt;</span>
+}
+
+<span class="hljs-variable">&lt;/table&gt;</span>
+</code></pre>
+<p>コントローラーのアクションメソッドにて <em>Viewメソッド</em> で引き渡されたデータを受け取るには、
+<code>@modelディレクティブ</code> を使用します。</p>
+<p><br><br></p>
+<pre><code class="lang-cs"><span class="hljs-annotation">@model</span> <span class="hljs-type">WebApplication1</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">Drugs</span>
+
+@{
+    <span class="hljs-type">ViewBag</span>.<span class="hljs-type">Title</span> = <span class="hljs-string">"Edit"</span>;
+}
+
+&lt;h2&gt;<span class="hljs-type">Edit</span>&lt;/h2&gt;
+
+
+<span class="hljs-annotation">@using</span> (<span class="hljs-type">Html</span>.<span class="hljs-type">BeginForm</span>())
+{
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">AntiForgeryToken</span>()
+
+    &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-horizontal"</span>&gt;
+        &lt;h4&gt;<span class="hljs-type">Drugs</span>&lt;/h4&gt;
+        &lt;hr /&gt;
+        <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationSummary</span>(<span class="hljs-literal">true</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+        <span class="hljs-annotation">@Html</span>.<span class="hljs-type">HiddenFor</span>(model =&gt; model.<span class="hljs-type">DrugId</span>)
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">DrugCode</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">DrugCode</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">DrugCode</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">Name</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">Name</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">Name</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">Company</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">Company</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">Company</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">ClassificationId</span>, <span class="hljs-string">"ClassificationId"</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DropDownList</span>(<span class="hljs-string">"ClassificationId"</span>, <span class="hljs-literal">null</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">ClassificationId</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-offset-2 col-md-10"</span>&gt;
+                &lt;input <span class="hljs-class"><span class="hljs-keyword">type</span>=</span><span class="hljs-string">"submit"</span> value=<span class="hljs-string">"Save"</span> <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"btn btn-default"</span> /&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+
+&lt;div&gt;
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Back to List"</span>, <span class="hljs-string">"Index"</span>)
+&lt;/div&gt;
+
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.unobtrusive.min.js"</span>&gt;&lt;/script&gt;
+</code></pre>
+<p>HTMLヘルパーで入力フォームを生成しています。</p>
+<ul>
+<li><code>@Html.AntiForgeryToken()</code> は CSRF対策の <code>&lt;hidden&gt;</code> タグを埋め込みます。</li>
+<li><code>@Html.ValidationSummary()</code>: 入力検証(validation)の結果で返されるメッセージが入ります。</li>
+<li><code>@Html.HiddenFor()</code>: <code>hidden</code>タグを生成します。</li>
+<li><code>@Html.LabelFor()</code>: <code>label</code>タグを生成します。</li>
+<li><code>@Html.EditorFor()</code>: モデル定義に応じたタグを生成します。</li>
+<li><code>@Html.ValidationMessageFor()</code>: 各エディタでのvalidationのエラーメッセージが表示されます。</li>
+</ul>
+<p><br><br></p>
+<hr>
+<p><br><br></p>
+<p><code>ASP.NET MVC 5</code> と <code>Entity Framework 6</code> を活用して、非常にシンプルなWebアプリケーションを
+簡単・簡潔に作成する手順について解説しました。</p>
+<p>ほとんどコーディングを行わずに、基本的な CRUD を行うアプリケーションが作成できることに驚かれたと思います。</p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
