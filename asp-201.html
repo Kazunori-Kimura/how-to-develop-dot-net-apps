@@ -43,17 +43,12 @@
       <div class="col-md-7">
         <!-- contents -->
         <h1 id="4-">4. 薬品情報検索システムの開発</h1>
-<p><br><br></p>
-<h2 id="-">共通レイアウトの作成</h2>
-<p><br><br></p>
-<h3 id="-bootstrap">用語解説: Bootstrap</h3>
-<p><br><br></p>
-<h2 id="model-">Modelの修正</h2>
-<p><code>Drugs</code>, <code>Classifications</code> に <code>DisplayName</code> を設定します。</p>
-<p><br><br></p>
+<p>前回作成した <em>DrugInfoSearch</em> に手を加え、
+検索機能と薬効分類のメンテナンス機能を作成します。</p>
+<p><br></p>
 <h2 id="index-">Indexの変更</h2>
-<p>最初に表示される <em>Index</em> ページには、検索フォームを追加したいので
-自動生成された <em>アクションメソッド</em> と <em>View</em> を削除し、作り直します。</p>
+<p>最初に表示される <em>Index</em> ページには検索フォームを追加したいので
+自動生成された <em>アクションメソッド</em> と <em>View</em> を修正します。</p>
 <p><br><br></p>
 <h3 id="viewmodel-">ViewModelの作成</h3>
 <p>自動生成されたソースコードでは、データベースの構造そのままの <em>Model</em> と <em>View</em> が紐付いており、
@@ -81,30 +76,28 @@
 <h4 id="-">検索フォームの表示</h4>
 <pre><code class="lang-cs"><span class="hljs-annotation">@Html</span>.DropDownList(<span class="hljs-string">"ClassificationId"</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">htmlAttributes:</span> <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
 </code></pre>
-<p><a href="https://msdn.microsoft.com/ja-jp/library/system.web.mvc.html.selectextensions.dropdownlist.aspx">DropDownList</a> は第2引数に <code>null</code> を渡した場合、 <code>ViewBag</code> に 第1引数と同じキーの項目があれば、それをセットしてくれます。</p>
 <p><br><br></p>
 <h4 id="-">検索結果の表示</h4>
-<p><code>Create</code>, <code>Details</code>, <code>Edit</code> を選択した場合の処理</p>
+<p>薬品コードが空でない薬品については編集・削除不可としますので
+<code>Edit</code>、<code>Delete</code> のリンクを表示しないように修正します。</p>
 <p><br><br></p>
 <h2 id="details-">Detailsの変更</h2>
-<p>自動生成されたソースコードでは、薬効分類コードのみ表示されています。<br>薬効分類の名称を表示するように <em>View</em> を修正します。</p>
+<p>薬品コードが空でない薬品については編集・削除不可としますので
+<code>Edit</code>、<code>Delete</code> のリンクを表示しないように修正します。</p>
 <p><br><br></p>
 <h2 id="create-">Createの変更</h2>
 <p><br><br></p>
 <h2 id="edit-">Editの変更</h2>
-<p>自動生成されたソースコードでは、コンボボックスに薬効分類コードのみ表示されています。<br>薬効分類の名称を表示するようにコントローラーの処理を修正します。</p>
+<p>薬品コードが空でない薬品については変更不可とします。
+URLを直接叩いて変更しようとするユーザーが存在するかもしれませんので、その対応を行います。</p>
 <p><br><br></p>
 <h3 id="controller-">Controllerの変更</h3>
-<p><em>View</em> では自動生成されたソースコードのまま <code>DropDownList</code> を使用し、
-コントローラー側で <code>ViewBag</code> に コンボボックスの選択肢と初期選択値をセットします。</p>
 <p><br><br></p>
 <h3 id="view-">Viewの変更</h3>
-<p>自動生成されたソースコードで <code>DropDownListFor</code> を使用していないのは、初期選択値を渡せないためです。</p>
-<ul>
-<li>参考: <a href="http://blog.shibayan.jp/entry/20130207/1360226954">DropDownListFor と ViewBag を組み合わせた時の問題</a></li>
-</ul>
 <p><br><br></p>
 <h2 id="delete-">Deleteの変更</h2>
+<p>薬品コードが空でない薬品については削除不可とします。
+URLを直接叩いて削除しようとするユーザーが存在するかもしれませんので、その対応を行います。</p>
 <h3 id="view-">Viewの変更</h3>
 <p><br><br></p>
       </div>

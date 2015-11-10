@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>.NET アプリケーション開発入門</title>
+  <!-- Bootstrap -->
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
+  <!-- highlightjs -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  <!-- font-awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/"><i class="fa fa-code"></i> .NET アプリケーション開発入門</a>
+      </div>
+      <p class="navbar-text navbar-right">
+        <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
+          <i class="fa fa-github"></i>
+          View on GitHub
+        </a>
+        &nbsp;
+      </p>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <h1 id="-">自動生成されたアプリケーションの修正</h1>
+<p>自動生成されたソースコードに手を加え、より見栄え良くなるように修正します。</p>
+<p><br><br></p>
+<h2 id="-view-">共通Viewの修正</h2>
+<p>以下の修正を行います。</p>
+<ul>
+<li>タイトルを &quot;薬品情報検索&quot; に変更</li>
+<li>タイトルクリック時に <code>Drugs/Index</code> に遷移するよう修正</li>
+<li>フッターの名称を修正</li>
+</ul>
+<p><br><br></p>
+<p><code>_Layout.cshtml</code></p>
+<pre><code class="lang-html"><span class="xml">@</span><span class="hljs-expression">{
+    <span class="hljs-variable">ViewBag.ApplicationName</span> = <span class="hljs-string">"薬品情報検索"</span>;
+}</span><span class="xml">
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">"utf-8"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>@ViewBag.Title - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/Site.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/bootstrap.min.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/modernizr-2.6.2.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar navbar-inverse navbar-fixed-top"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-header"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"button"</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-toggle"</span> <span class="hljs-attribute">data-toggle</span>=<span class="hljs-value">"collapse"</span> <span class="hljs-attribute">data-target</span>=<span class="hljs-value">".navbar-collapse"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+                @Html.ActionLink((string)ViewBag.ApplicationName, "Index", "Drugs", new </span><span class="hljs-expression">{ <span class="hljs-variable">area</span> = <span class="hljs-string">""</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-brand"</span> }</span><span class="xml">)
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-collapse collapse"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">ul</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"nav navbar-nav"</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container body-content"</span>&gt;</span>
+        @RenderBody()
+        <span class="hljs-tag">&lt;<span class="hljs-title">hr</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">footer</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>&amp;copy; @DateTime.Now.Year - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">footer</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/bootstrap.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
+</code></pre>
+<p><br><br></p>
+<h2 id="index-">Indexの修正</h2>
+<p>以下の修正を行います。</p>
+<ul>
+<li>項目名を日本語化する</li>
+<li>薬効分類コードに名称を併記する</li>
+</ul>
+<p><br><br></p>
+<h3 id="-">メタデータクラスの追加</h3>
+<p><em>メタデータクラス</em> を使用して <code>Drugs</code>, <code>Classifications</code> に <code>DisplayName</code> を設定します。</p>
+<p><br></p>
+<p><code>Models/DrugsMetadata.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.ComponentModel.DataAnnotations;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Models</span>
+{
+    [MetadataType(<span class="hljs-keyword">typeof</span>(DrugsMetadata))]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Drugs</span>
+    {
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">DrugsMetadata</span>
+    {
+        [DisplayName(<span class="hljs-string">"薬品ID"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> DrugId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬品コード"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> DrugCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬品名"</span>)]
+        [Required(ErrorMessage = <span class="hljs-string">"薬品名は必須項目です。"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"会社名"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Company { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
+<p><br><br></p>
+<p><code>Models/ClassificationsMetadata.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.ComponentModel.DataAnnotations;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Models</span>
+{
+    [MetadataType(<span class="hljs-keyword">typeof</span>(ClassificationsMetadata))]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Classifications</span>
+    {
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">ClassificationsMetadata</span>
+    {
+        [DisplayName(<span class="hljs-string">"薬効分類ID"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> ClassificationId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬効分類コード"</span>)]
+        [Required(ErrorMessage = <span class="hljs-string">"薬効分類コードは必須項目です。"</span>)]
+        [StringLength(<span class="hljs-number">3</span>, ErrorMessage = <span class="hljs-string">"薬効分類コードは3桁以内で入力してください。"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬効分類"</span>)]
+        [Required(ErrorMessage = <span class="hljs-string">"薬効分類名称は必須項目です。"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-partial-class">用語解説: partial class</h3>
+<p><code>partial</code> キーワードによって、クラスや構造体、メソッドの定義を複数のソースファイルに分割できます。</p>
+<p>ここでは、<em>EntityFramework</em> で自動生成したモデルクラスに
+メタデータクラスの定義を追加する目的で使用しています。</p>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/wa80x488.aspx">部分クラスと部分メソッド</a></p>
+<p><br></p>
+<h3 id="-metadatatype">用語解説: MetadataType</h3>
+<p><code>MetadataType</code> 属性は 指定したクラス (<em>メタデータクラス</em>) と
+自身の名称が一致するプロパティについて、メタデータクラスの属性を適用します。</p>
+<p>これにより、自動生成されたモデルクラスに手を入れることなく
+<code>DisplayName</code> などの属性を定義することができます。</p>
+<p><em>メタデータクラス</em> の名称は何でも構いませんが
+わかりやすさから、<em>対象モデルクラス名 + Metadata</em> とするのが慣習です。</p>
+<p><br></p>
+<ul>
+<li>参考:<ul>
+<li><a href="http://www.asp.net/mvc/overview/getting-started/database-first-development/enhancing-data-validation">EF Database First with ASP.NET MVC: Enhancing Data Validation</a></li>
+<li><a href="http://www.atmarkit.co.jp/fdotnet/special/vs2008sp1dd/vs2008sp1dd_03.html">メタデータ編集によるDynamic Dataアプリケーションのカスタマイズ</a></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<h3 id="view-">Viewの修正</h3>
+<p>薬効分類コードだけでなく、名称を併記するように修正します。</p>
+<p>また、<code>th</code> タグに <code>class=&quot;col-xs-N&quot;</code> を指定して、各列の幅を調整しています。<br>(<code>class</code> の詳細については <a href="http://getbootstrap.com/css/#grid">Bootstrap - Grid system</a> を参照してください。)</p>
+<p><br></p>
+<p><code>Views/Drugs/Index.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-comment">@model IEnumerable&lt;WebApplication1.Models.Drugs&gt;</span>
+
+<span class="hljs-comment">@{</span>
+    ViewBag.Title = <span class="hljs-string">"Index"</span>;
+}
+
+<span class="hljs-variable">&lt;h2&gt;</span>Index<span class="hljs-variable">&lt;/h2&gt;</span>
+
+<span class="hljs-variable">&lt;p&gt;</span>
+    <span class="hljs-comment">@Html.ActionLink("Create New", "Create")</span>
+<span class="hljs-variable">&lt;/p&gt;</span>
+<span class="hljs-variable">&lt;table class="table"&gt;</span>
+    <span class="hljs-variable">&lt;tr&gt;</span>
+        <span class="hljs-variable">&lt;th class="col-xs-1"&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.DrugCode)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th class="col-xs-4"&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Name)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th class="col-xs-2"&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Company)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th class="col-xs-3"&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Classifications.Name)</span>
+        <span class="hljs-variable">&lt;/th&gt;</span>
+        <span class="hljs-variable">&lt;th class="col-xs-2"&gt;</span><span class="hljs-variable">&lt;/th&gt;</span>
+    <span class="hljs-variable">&lt;/tr&gt;</span>
+
+<span class="hljs-comment">@foreach (var item in Model) {</span>
+    <span class="hljs-variable">&lt;tr&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.DrugCode)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Name)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Company)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Classifications.ClassificationCode) :</span>
+            <span class="hljs-comment">@Html.DisplayFor(modelItem =&gt; item.Classifications.Name)</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+        <span class="hljs-variable">&lt;td&gt;</span>
+            <span class="hljs-comment">@Html.ActionLink("Edit", "Edit", new { id=item.DrugId }) |</span>
+            <span class="hljs-comment">@Html.ActionLink("Details", "Details", new { id=item.DrugId }) |</span>
+            <span class="hljs-comment">@Html.ActionLink("Delete", "Delete", new { id=item.DrugId })</span>
+        <span class="hljs-variable">&lt;/td&gt;</span>
+    <span class="hljs-variable">&lt;/tr&gt;</span>
+}
+
+<span class="hljs-variable">&lt;/table&gt;</span>
+</code></pre>
+<p><br><br></p>
+<h3 id="-razor-model-model-modelitem">補足解説: Razor での model, Model, modelItem</h3>
+<p><code>@model</code> ディレクティブはそのViewファイルに渡されるデータ (コントローラーの <code>View</code> メソッドの引数) の型を表します。</p>
+<p>コントローラーの <code>View</code> メソッドで渡されてきたデータは <code>Model</code> というプロパティに格納されます。<br><code>Index.cshtml</code> の場合は <code>Drugs</code> のリストが格納されています。</p>
+<p><em>HTMLヘルパーメソッド</em> では、特にコード上で指定していませんが、 <code>Model</code> の内容を
+ヘルパーに指定された <a href="https://msdn.microsoft.com/ja-jp/library/bb397687.aspx">ラムダ式</a> の引数として渡します。</p>
+<p><br></p>
+<p><code>DisplayNameFor</code> のラムダ式で指定されている <code>model</code> には <code>Drugs</code> クラスが入ります。</p>
+<p><code>DisplayNameFor</code> で必要なのはモデルクラスの Metadata なので、リストが渡されてきた場合でも
+モデルクラスから Metadata を参照して <code>DisplayName</code> を返します。</p>
+<p><br></p>
+<p><code>DisplayFor</code> では、モデルクラスに格納されているデータが必要となります。</p>
+<p>ラムダ式の <code>modelItem</code> には <code>Model</code> (<code>Drugs</code>のリスト) が渡されてきますが
+それは使用せず、<code>foreach</code> で取り出した <code>item</code> のプロパティを参照しています。</p>
+<p><br></p>
+<ul>
+<li><a href="http://stackoverflow.com/questions/11893859/asp-net-razor-model-syntax-in-the-view">ASP.NET Razor Model syntax in the view</a></li>
+</ul>
+<p><br><br></p>
+<h2 id="details-">Details の修正</h2>
+<p>薬効分類コードのみ表示されているので、名称も表示するように修正します。</p>
+<p><code>Views/Drusg/Details.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-comment">@model WebApplication1.Models.Drugs</span>
+
+<span class="hljs-comment">@{</span>
+    ViewBag.Title = <span class="hljs-string">"Details"</span>;
+}
+
+<span class="hljs-variable">&lt;h2&gt;</span>Details<span class="hljs-variable">&lt;/h2&gt;</span>
+
+<span class="hljs-variable">&lt;div&gt;</span>
+    <span class="hljs-variable">&lt;h4&gt;</span>Drugs<span class="hljs-variable">&lt;/h4&gt;</span>
+    <span class="hljs-variable">&lt;hr /&gt;</span>
+    <span class="hljs-variable">&lt;dl class="dl-horizontal"&gt;</span>
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.DrugCode)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.DrugCode)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Name)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Name)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Company)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Company)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Classifications.Name)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Classifications.ClassificationCode) :</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Classifications.Name)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+    <span class="hljs-variable">&lt;/dl&gt;</span>
+<span class="hljs-variable">&lt;/div&gt;</span>
+<span class="hljs-variable">&lt;p&gt;</span>
+    <span class="hljs-comment">@Html.ActionLink("Edit", "Edit", new { id = Model.DrugId }) |</span>
+    <span class="hljs-comment">@Html.ActionLink("Back to List", "Index")</span>
+<span class="hljs-variable">&lt;/p&gt;</span>
+</code></pre>
+<p><br><br></p>
+<h2 id="create-">Create の修正</h2>
+<p>コンボボックスに薬効分類コードのみ表示されているので、名称も表示するように修正します。</p>
+<p><br></p>
+<h3 id="-">コントローラーの修正</h3>
+<p><code>Drugs/Create</code> の <code>GET</code> に対応するアクションメソッドを修正します。</p>
+<p><br></p>
+<p><code>Controllers/DrugsController.cs</code></p>
+<pre><code class="lang-cs">// <span class="hljs-preprocessor">GET</span>: Drugs/Create
+<span class="hljs-label">public</span> ActionResult Create()
+{
+    ViewBag.ClassificationId = db.Classifications.<span class="hljs-keyword">Select(item </span>=&gt; new <span class="hljs-keyword">SelectListItem
+</span>    {
+        Text = <span class="hljs-keyword">item.ClassificationCode </span>+ <span class="hljs-string">":"</span> + <span class="hljs-keyword">item.Name,
+</span>        Value = <span class="hljs-keyword">item.ClassificationId.ToString()
+</span>    })<span class="hljs-comment">;</span>
+
+    return View()<span class="hljs-comment">;</span>
+}
+</code></pre>
+<p><code>SelectListItem</code> はコンボボックスの各要素を表します。<br><code>Text</code> に 薬効分類コードと名称を、 <code>Value</code> に ID を指定しています。</p>
+<p><br><br></p>
+<h3 id="view-">Viewの解説</h3>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/system.web.mvc.html.selectextensions.dropdownlist.aspx">@Html.DropDownList()</a> は第2引数に <code>null</code> を渡した場合、 <code>ViewBag</code> に 第1引数と同じキーの項目があれば、それをセットしてくれます。</p>
+<p><code>ViewBag</code> の項目名は変更していないので、<code>Create.cshtml</code> には何も変更を行わなくとも期待する動作となります。</p>
+<p><br><br></p>
+<h2 id="edit-">Edit の修正</h2>
+<p>コンボボックスに薬効分類コードのみ表示されているので、名称も表示するように修正します。</p>
+<p><br></p>
+<h3 id="-">コントローラーの修正</h3>
+<p><code>Create</code> と同様、コンボボックスの各要素の生成処理を修正します。</p>
+<p><br></p>
+<p><code>Controllers/DrugsController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-comment">// GET: Drugs/Edit/5</span>
+<span class="hljs-keyword">public</span> <span class="hljs-function">ActionResult <span class="hljs-title">Edit</span><span class="hljs-params">(<span class="hljs-keyword">int</span>? id)</span>
+</span>{
+    <span class="hljs-keyword">if</span> (id == <span class="hljs-keyword">null</span>)
+    {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    Drugs drugs = db.Drugs.Find(id);
+    <span class="hljs-keyword">if</span> (drugs == <span class="hljs-keyword">null</span>)
+    {
+        <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">HttpNotFound</span><span class="hljs-params">()</span></span>;
+    }
+
+    ViewBag.ClassificationId = db.Classifications.Select(item =&gt; <span class="hljs-keyword">new</span> SelectListItem
+    {
+        Text = item.ClassificationCode + <span class="hljs-string">":"</span> + item.Name,
+        Value = item.ClassificationId.ToString(),
+        Selected = item.ClassificationId == drugs.ClassificationId
+    });
+
+    <span class="hljs-function"><span class="hljs-keyword">return</span> <span class="hljs-title">View</span><span class="hljs-params">(drugs)</span></span>;
+}
+</code></pre>
+<p><br></p>
+<p><code>Selected = item.ClassificationId == drugs.ClassificationId</code> は
+コンボボックスの初期値の指定です。</p>
+<p><br><br></p>
+<h3 id="view-">Viewの解説</h3>
+<p>自動生成されたソースコードで <code>DropDownListFor</code> を使用していないのは、初期選択値を渡せないためです。</p>
+<ul>
+<li>参考: <a href="http://blog.shibayan.jp/entry/20130207/1360226954">DropDownListFor と ViewBag を組み合わせた時の問題</a></li>
+</ul>
+<p><br><br></p>
+<h2 id="delete-">Delete の修正</h2>
+<p>薬効分類コードのみ表示されているので、名称も表示するように修正します。</p>
+<p>また、確認メッセージが英語になっているので、日本語に変更します。</p>
+<p><br></p>
+<p><code>Views/Drugs/Delete.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-comment">@model WebApplication1.Models.Drugs</span>
+
+<span class="hljs-comment">@{</span>
+    ViewBag.Title = <span class="hljs-string">"Delete"</span>;
+}
+
+<span class="hljs-variable">&lt;h2&gt;</span>Delete<span class="hljs-variable">&lt;/h2&gt;</span>
+
+<span class="hljs-variable">&lt;h3&gt;</span>以下のデータを削除します。よろしいですか？<span class="hljs-variable">&lt;/h3&gt;</span>
+<span class="hljs-variable">&lt;div&gt;</span>
+    <span class="hljs-variable">&lt;h4&gt;</span>Drugs<span class="hljs-variable">&lt;/h4&gt;</span>
+    <span class="hljs-variable">&lt;hr /&gt;</span>
+    <span class="hljs-variable">&lt;dl class="dl-horizontal"&gt;</span>
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.DrugCode)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.DrugCode)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Name)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Name)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Company)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Company)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+        <span class="hljs-variable">&lt;dt&gt;</span>
+            <span class="hljs-comment">@Html.DisplayNameFor(model =&gt; model.Classifications.Name)</span>
+        <span class="hljs-variable">&lt;/dt&gt;</span>
+
+        <span class="hljs-variable">&lt;dd&gt;</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Classifications.ClassificationCode) :</span>
+            <span class="hljs-comment">@Html.DisplayFor(model =&gt; model.Classifications.Name)</span>
+        <span class="hljs-variable">&lt;/dd&gt;</span>
+
+    <span class="hljs-variable">&lt;/dl&gt;</span>
+
+    <span class="hljs-comment">@using (Html.BeginForm()) {</span>
+        <span class="hljs-comment">@Html.AntiForgeryToken()</span>
+
+        <span class="hljs-variable">&lt;div class="form-actions no-color"&gt;</span>
+            <span class="hljs-variable">&lt;input type="submit" value="Delete" class="btn btn-default" /&gt;</span> |<span class="hljs-string">
+            @Html.ActionLink("Back to List", "Index")
+        &lt;/div&gt;
+    }
+&lt;/div&gt;</span>
+</code></pre>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<p>自動生成されたアプリケーションの修正について解説しました。</p>
+<p>今回は見た目の修正を行いましたが、次回は機能の追加・修正について解説します。</p>
+<p><br></p>
+<hr>
+<p><br></p>
+<p><a href="./asp-201.html">次へ</a></p>
+<p><br><br></p>
+      </div>
+      <div class="col-md-3">
+        <div class="list-group">
+  <a href="./index.html" class="list-group-item active">TOP</a>
+  <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
+  <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
+  <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
+  <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="./classic-301.html" class="list-group-item">3. 非同期処理</a>
+  <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
+  <a href="./webapp-intro.html" class="list-group-item">0. Webアプリケーションの定義</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要</a>
+  <a href="./asp-002.html" class="list-group-item">2. ASP.NET MVC の基礎</a>
+  <a href="./asp-101.html" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
+  <a href="./asp-201.html" class="list-group-item">4. 薬品情報検索システムの開発</a>
+  <a href="#" class="list-group-item">5. メンバーシップ フレームワークによる認証機能の実装</a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+
+    <div class="center-block ad-block">
+      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- aaa-768x90 -->
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:728px;height:90px"
+           data-ad-client="ca-pub-5886049398949171"
+           data-ad-slot="8568248344"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">.NET アプリケーション開発入門 , &copy; 2015 Kazunori Kimura</p>
+    </div>
+  </footer>
+
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>
+  $(function(){
+    $(".contents table").addClass("table");
+  });
+  </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-29149079-3', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>
