@@ -46,59 +46,244 @@
 <p>前回作成した <em>DrugInfoSearch</em> に手を加え、
 検索機能と薬効分類のメンテナンス機能を作成します。</p>
 <p><br></p>
-<h2 id="index-">Indexの変更</h2>
-<p>最初に表示される <em>Index</em> ページには検索フォームを追加したいので
-自動生成された <em>アクションメソッド</em> と <em>View</em> を修正します。</p>
+<h2 id="-">検索画面の追加</h2>
+<p>薬品名と薬効分類で絞込を行う機能を追加します。</p>
+<h3 id="-">コントローラの追加</h3>
+<p>一番最初に表示される画面としますので、
+<em>HomeController.cs</em> とします。</p>
+<p><em>ソリューション エクスプローラー</em> で <em>Controllers</em> を右クリックし、<em>追加</em> -&gt; <em>コントローラー</em> を選択します。</p>
+<p><em>MVC5 の空のコントローラー</em> を選択します。</p>
+<p>名前を <em>HomeController</em> とします。</p>
 <p><br><br></p>
 <h3 id="viewmodel-">ViewModelの作成</h3>
 <p>自動生成されたソースコードでは、データベースの構造そのままの <em>Model</em> と <em>View</em> が紐付いており、
-<em>Model</em> に検索フォームを格納するプロパティがないためにデータの受け渡しが上手くできません。</p>
+<em>Model</em> に検索条件を格納するのに適切なプロパティがないためにデータの受け渡しが上手くできません。</p>
 <p>このような場合、<em>View</em> で扱うデータを定義する <em>ViewModel</em> を作成します。</p>
+<p><br></p>
+<p><em>ソリューション エクスプローラー</em> で <em>Models</em> を右クリックし、<em>追加</em> -&gt; <em>クラス</em> を選択します。</p>
 <p><code>Models/SearchViewModel.cs</code></p>
-<pre><code class="lang-cs">
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Models</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">SearchViewModel</span>
+    {
+        [DisplayName(<span class="hljs-string">"薬品名"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> DrugName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬効分類"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> ClassificationId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        <span class="hljs-keyword">public</span> List&lt;Drugs&gt; Drugs { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
 </code></pre>
 <p><br><br></p>
-<h3 id="index-get-">Index アクションメソッド (GET) の作成</h3>
-<pre><code class="lang-cs">
-</code></pre>
-<p><br><br></p>
-<h3 id="index-post-">Index アクションメソッド (POST) の作成</h3>
-<pre><code class="lang-cs">
+<h3 id="index-get-post-">Index アクションメソッド (GET/POST) の作成</h3>
+<p><em>Index</em> の <em>GET</em>, <em>POST</em> に対応するアクションメソッドを実装します。</p>
+<p><code>Controllers/HomeController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">HomeController</span> : <span class="hljs-title">Controller</span>
+    {
+        <span class="hljs-keyword">private</span> DrugInfoContext db = <span class="hljs-keyword">new</span> DrugInfoContext();
+
+        <span class="hljs-comment">// GET: Home</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">this</span>.SetClassificationItems();
+
+            <span class="hljs-comment">// Viewでの処理を簡単にするため、空のViewModelを渡す</span>
+            <span class="hljs-keyword">var</span> model = <span class="hljs-keyword">new</span> SearchViewModel();
+            <span class="hljs-keyword">return</span> View(model);
+        }
+
+        <span class="hljs-comment">// POST: Home</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"DrugName,ClassificationId"</span></span>)] SearchViewModel model)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-comment">// 検索処理</span>
+                <span class="hljs-keyword">var</span> list = db.Drugs.Where(item =&gt;
+                    (<span class="hljs-keyword">string</span>.IsNullOrEmpty(model.DrugName) || item.Name.Contains(model.DrugName))
+                    &amp;&amp; (model.ClassificationId == <span class="hljs-number">0</span> || item.ClassificationId == model.ClassificationId)).ToList();
+                model.Drugs = list;
+            }
+            <span class="hljs-keyword">this</span>.SetClassificationItems();
+            <span class="hljs-keyword">return</span> View(model);
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ViewBagにコンボボックスの項目をセット</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetClassificationItems</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">var</span> list = db.Classifications.Select(item =&gt; <span class="hljs-keyword">new</span> SelectListItem
+            {
+                Text = item.ClassificationCode + <span class="hljs-string">":"</span> + item.Name,
+                Value = item.ClassificationId.ToString()
+            }).ToList();
+
+            <span class="hljs-comment">// 先頭にブランクを挿入</span>
+            list.Insert(<span class="hljs-number">0</span>, <span class="hljs-keyword">new</span> SelectListItem {
+                Text = <span class="hljs-keyword">string</span>.Empty,
+                Value = <span class="hljs-string">"0"</span>
+            });
+
+            ViewBag.ClassificationId = list;
+        }
+    }
+}
 </code></pre>
 <p><br><br></p>
 <h3 id="index-view-">Index Viewの作成</h3>
-<pre><code class="lang-html">
+<p><em>HomeController</em> の <em>Index</em> メソッドを右クリックし、<em>Viewの追加</em> を選択します。</p>
+<ul>
+<li>モデル: <em>SearchViewModel</em></li>
+<li>テンプレート: <em>Create</em></li>
+<li>データ コンテキスト クラス: (空)</li>
+</ul>
+<p><br></p>
+<p><code>Views/Home/Index.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-annotation">@model</span> <span class="hljs-type">WebApplication1</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">SearchViewModel</span>
+
+@{
+    <span class="hljs-type">ViewBag</span>.<span class="hljs-type">Title</span> = <span class="hljs-string">"Index"</span>;
+}
+
+<span class="hljs-annotation">@using</span> (<span class="hljs-type">Html</span>.<span class="hljs-type">BeginForm</span>())
+{
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">AntiForgeryToken</span>()
+
+    &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-horizontal"</span>&gt;
+        &lt;h4&gt;<span class="hljs-type">SearchViewModel</span>&lt;/h4&gt;
+        &lt;hr /&gt;
+        <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationSummary</span>(<span class="hljs-literal">true</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">DrugName</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">DrugName</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">DrugName</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">ClassificationId</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DropDownList</span>(<span class="hljs-string">"ClassificationId"</span>, <span class="hljs-literal">null</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">ClassificationId</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-offset-2 col-md-10"</span>&gt;
+                &lt;input <span class="hljs-class"><span class="hljs-keyword">type</span>=</span><span class="hljs-string">"submit"</span> value=<span class="hljs-string">"検索"</span> <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"btn btn-default"</span> /&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+
+@{
+    <span class="hljs-comment">// ヘッダーの描画で使用</span>
+    <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">new</span> <span class="hljs-type">WebApplication1</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">Drugs</span>();
+}
+
+<span class="hljs-annotation">@if</span> (<span class="hljs-type">Model</span>.<span class="hljs-type">Drugs</span> != <span class="hljs-literal">null</span>)
+{
+&lt;table <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"table"</span>&gt;
+    &lt;tr&gt;
+        &lt;th&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayNameFor</span>(model =&gt; drug.<span class="hljs-type">DrugCode</span>)
+        &lt;/th&gt;
+        &lt;th&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayNameFor</span>(model =&gt; drug.<span class="hljs-type">Name</span>)
+        &lt;/th&gt;
+        &lt;th&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayNameFor</span>(model =&gt; drug.<span class="hljs-type">Company</span>)
+        &lt;/th&gt;
+        &lt;th&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayNameFor</span>(model =&gt; drug.<span class="hljs-type">Classifications</span>.<span class="hljs-type">ClassificationCode</span>)
+        &lt;/th&gt;
+        &lt;th&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+
+    <span class="hljs-annotation">@foreach</span> (<span class="hljs-keyword">var</span> item in <span class="hljs-type">Model</span>.<span class="hljs-type">Drugs</span>)
+    {
+        &lt;tr&gt;
+            &lt;td&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayFor</span>(modelItem =&gt; item.<span class="hljs-type">DrugCode</span>)
+            &lt;/td&gt;
+            &lt;td&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayFor</span>(modelItem =&gt; item.<span class="hljs-type">Name</span>)
+            &lt;/td&gt;
+            &lt;td&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayFor</span>(modelItem =&gt; item.<span class="hljs-type">Company</span>)
+            &lt;/td&gt;
+            &lt;td&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">DisplayFor</span>(modelItem =&gt; item.<span class="hljs-type">Classifications</span>.<span class="hljs-type">ClassificationCode</span>)
+            &lt;/td&gt;
+            &lt;td&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Details"</span>, <span class="hljs-string">"Details"</span>, <span class="hljs-keyword">new</span> { id = item.<span class="hljs-type">DrugId</span>, <span class="hljs-type">Controller</span> = <span class="hljs-string">"Drugs"</span> })
+                <span class="hljs-annotation">@if</span> (string.<span class="hljs-type">IsNullOrEmpty</span>(item.<span class="hljs-type">DrugCode</span>))
+                {
+                    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">Raw</span>(<span class="hljs-string">"|"</span>)
+                    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Edit"</span>, <span class="hljs-string">"Edit"</span>, <span class="hljs-keyword">new</span> { id = item.<span class="hljs-type">DrugId</span>, <span class="hljs-type">Controller</span> = <span class="hljs-string">"Drugs"</span> })
+                    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">Raw</span>(<span class="hljs-string">"|"</span>)
+                    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Delete"</span>, <span class="hljs-string">"Delete"</span>, <span class="hljs-keyword">new</span> { id = item.<span class="hljs-type">DrugId</span>, <span class="hljs-type">Controller</span> = <span class="hljs-string">"Drugs"</span> })
+                }
+
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    }
+&lt;/table&gt;
+}
+
+    &lt;script src=<span class="hljs-string">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;&lt;/script&gt;
+    &lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.min.js"</span>&gt;&lt;/script&gt;
+    &lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.unobtrusive.min.js"</span>&gt;&lt;/script&gt;
 </code></pre>
+<p>検索項目の薬効分類はコンボボックスとしたいので、 <code>@Html.DropDownList</code> を使用します。</p>
+<p>薬品コードが空でない薬品については編集・削除不可としますので
+<code>Edit</code>、<code>Delete</code> のリンクを表示しないようにします。</p>
+<p>Createへのリンクを追加する</p>
 <p><br><br></p>
-<h4 id="-">新規登録リンク</h4>
-<p><code>ActionLink</code></p>
-<p><br><br></p>
-<h4 id="-">検索フォームの表示</h4>
-<pre><code class="lang-cs"><span class="hljs-annotation">@Html</span>.DropDownList(<span class="hljs-string">"ClassificationId"</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">htmlAttributes:</span> <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
-</code></pre>
-<p><br><br></p>
-<h4 id="-">検索結果の表示</h4>
+<h2 id="drugs-index-">Drugs/Indexの変更</h2>
 <p>薬品コードが空でない薬品については編集・削除不可としますので
 <code>Edit</code>、<code>Delete</code> のリンクを表示しないように修正します。</p>
 <p><br><br></p>
-<h2 id="details-">Detailsの変更</h2>
+<h2 id="drugs-details-">Drugs/Detailsの変更</h2>
 <p>薬品コードが空でない薬品については編集・削除不可としますので
 <code>Edit</code>、<code>Delete</code> のリンクを表示しないように修正します。</p>
 <p><br><br></p>
-<h2 id="create-">Createの変更</h2>
+<h2 id="drugs-create-">Drugs/Createの変更</h2>
+<p>薬品コードは入力できないように、該当箇所を削除します。</p>
 <p><br><br></p>
-<h2 id="edit-">Editの変更</h2>
+<h2 id="drugs-edit-">Drugs/Editの変更</h2>
 <p>薬品コードが空でない薬品については変更不可とします。
 URLを直接叩いて変更しようとするユーザーが存在するかもしれませんので、その対応を行います。</p>
 <p><br><br></p>
 <h3 id="controller-">Controllerの変更</h3>
+<p>薬品コードが空でない薬品が選択された場合、BadRequestとして処理します。</p>
 <p><br><br></p>
 <h3 id="view-">Viewの変更</h3>
+<p>薬品コードは入力できないように、該当箇所を削除します。</p>
 <p><br><br></p>
 <h2 id="delete-">Deleteの変更</h2>
 <p>薬品コードが空でない薬品については削除不可とします。
 URLを直接叩いて削除しようとするユーザーが存在するかもしれませんので、その対応を行います。</p>
-<h3 id="view-">Viewの変更</h3>
+<h3 id="controller-">Controllerの変更</h3>
+<p>薬品コードが空でない薬品が選択された場合、BadRequestとして処理します。</p>
+<p><br><br></p>
+<h2 id="-">ルーティングの変更</h2>
+<p><code>/Home/Index</code> がデフォルトとなるようにルーティングを変更します。</p>
+<p>ナビゲーション部分のタイトルをクリックしたら <code>/Home/Index</code> に遷移するように修正します。</p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
