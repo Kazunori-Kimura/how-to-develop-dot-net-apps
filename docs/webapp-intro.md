@@ -159,3 +159,12 @@ Webページは以下のような要素で構成されています。
 今後、この勉強会で *Webアプリケーション* と言った場合は、後者の *動的サイト* を意味していると考えてください。
 
 <br><br>
+
+
+### 補足解説: HTML, CSS, JavaScriptについて
+
+* [HTMLの基本](http://www.htmq.com/htmlkihon/001.shtml)
+* [CSSの基本](http://www.htmq.com/csskihon/001.shtml)
+* [いまさら聞けないJavaScript入門](http://www.atmarkit.co.jp/ait/articles/0707/17/news114.html)
+
+<br><br>
