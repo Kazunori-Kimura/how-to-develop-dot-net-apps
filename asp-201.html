@@ -190,6 +190,8 @@
     &lt;/div&gt;
 }
 
+<span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Create New"</span>, <span class="hljs-string">"Create"</span>, <span class="hljs-keyword">new</span> { id = item.<span class="hljs-type">DrugId</span>, <span class="hljs-type">Controller</span> = <span class="hljs-string">"Drugs"</span> })
+
 @{
     <span class="hljs-comment">// ヘッダーの描画で使用</span>
     <span class="hljs-keyword">var</span> drug = <span class="hljs-keyword">new</span> <span class="hljs-type">WebApplication1</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">Drugs</span>();
@@ -238,7 +240,6 @@
                     <span class="hljs-annotation">@Html</span>.<span class="hljs-type">Raw</span>(<span class="hljs-string">"|"</span>)
                     <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Delete"</span>, <span class="hljs-string">"Delete"</span>, <span class="hljs-keyword">new</span> { id = item.<span class="hljs-type">DrugId</span>, <span class="hljs-type">Controller</span> = <span class="hljs-string">"Drugs"</span> })
                 }
-
             &lt;/td&gt;
         &lt;/tr&gt;
     }
@@ -249,21 +250,35 @@
     &lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.min.js"</span>&gt;&lt;/script&gt;
     &lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.unobtrusive.min.js"</span>&gt;&lt;/script&gt;
 </code></pre>
+<p><br></p>
 <p>検索項目の薬効分類はコンボボックスとしたいので、 <code>@Html.DropDownList</code> を使用します。</p>
+<p>Createへのリンクを追加します。
+異なるコントローラーのアクションメソッドに遷移するリンクを作成する場合、以下のように記述します。</p>
+<pre><code class="lang-cs">@Html.<span class="hljs-function"><span class="hljs-title">ActionLink</span><span class="hljs-params">(<span class="hljs-string">"Create New"</span>, <span class="hljs-string">"Create"</span>, new { id = item.DrugId, Controller = <span class="hljs-string">"Drugs"</span> })</span></span>
+</code></pre>
+<p><br></p>
 <p>薬品コードが空でない薬品については編集・削除不可としますので
 <code>Edit</code>、<code>Delete</code> のリンクを表示しないようにします。</p>
-<p>Createへのリンクを追加する</p>
 <p><br><br></p>
 <h2 id="drugs-index-">Drugs/Indexの変更</h2>
 <p>薬品コードが空でない薬品については編集・削除不可としますので
 <code>Edit</code>、<code>Delete</code> のリンクを表示しないように修正します。</p>
+<p><code>Views/Drugs/Index.cshtml</code></p>
+<pre><code class="lang-html">
+</code></pre>
 <p><br><br></p>
 <h2 id="drugs-details-">Drugs/Detailsの変更</h2>
 <p>薬品コードが空でない薬品については編集・削除不可としますので
 <code>Edit</code>、<code>Delete</code> のリンクを表示しないように修正します。</p>
+<p><code>Views/Drugs/Details.cshtml</code></p>
+<pre><code class="lang-html">
+</code></pre>
 <p><br><br></p>
 <h2 id="drugs-create-">Drugs/Createの変更</h2>
-<p>薬品コードは入力できないように、該当箇所を削除します。</p>
+<p>薬品コードは入力できないように、該当箇所を削除し、hiddenタグに置き換えます。</p>
+<p><code>Views/Drugs/Create.cshtml</code></p>
+<pre><code class="lang-html">
+</code></pre>
 <p><br><br></p>
 <h2 id="drugs-edit-">Drugs/Editの変更</h2>
 <p>薬品コードが空でない薬品については変更不可とします。
@@ -271,19 +286,101 @@ URLを直接叩いて変更しようとするユーザーが存在するかも�
 <p><br><br></p>
 <h3 id="controller-">Controllerの変更</h3>
 <p>薬品コードが空でない薬品が選択された場合、BadRequestとして処理します。</p>
+<p><code>Controllers/DrugsController.cs</code></p>
+<pre><code class="lang-cs">
+</code></pre>
 <p><br><br></p>
 <h3 id="view-">Viewの変更</h3>
-<p>薬品コードは入力できないように、該当箇所を削除します。</p>
+<p>薬品コードは入力できないように、該当箇所を削除し、hiddenタグに置き換えます。</p>
+<p><code>Views/Drugs/Edit.cshtml</code></p>
+<pre><code class="lang-html">
+</code></pre>
 <p><br><br></p>
 <h2 id="delete-">Deleteの変更</h2>
 <p>薬品コードが空でない薬品については削除不可とします。
 URLを直接叩いて削除しようとするユーザーが存在するかもしれませんので、その対応を行います。</p>
-<h3 id="controller-">Controllerの変更</h3>
 <p>薬品コードが空でない薬品が選択された場合、BadRequestとして処理します。</p>
+<p><code>Controllers/DrugsController.cs</code></p>
+<pre><code class="lang-cs">
+</code></pre>
 <p><br><br></p>
 <h2 id="-">ルーティングの変更</h2>
 <p><code>/Home/Index</code> がデフォルトとなるようにルーティングを変更します。</p>
+<p><code>App_Start/RouteConfig.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> System.Web.Routing;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">RouteConfig</span>
+    {
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">RegisterRoutes</span>(<span class="hljs-params">RouteCollection routes</span>)
+        </span>{
+            routes.IgnoreRoute(<span class="hljs-string">"{resource}.axd/{*pathInfo}"</span>);
+
+            routes.MapRoute(
+                name: <span class="hljs-string">"Default"</span>,
+                url: <span class="hljs-string">"{controller}/{action}/{id}"</span>,
+                defaults: <span class="hljs-keyword">new</span> { controller = <span class="hljs-string">"Home"</span>, action = <span class="hljs-string">"Index"</span>, id = UrlParameter.Optional }
+            );
+        }
+    }
+}
+</code></pre>
+<p><br></p>
 <p>ナビゲーション部分のタイトルをクリックしたら <code>/Home/Index</code> に遷移するように修正します。</p>
+<p><code>/Views/Shared/_Layout.cshtml</code></p>
+<pre><code class="lang-html"><span class="xml">@</span><span class="hljs-expression">{
+    <span class="hljs-variable">ViewBag.ApplicationName</span> = <span class="hljs-string">"薬品情報検索"</span>;
+}</span><span class="xml">
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">"utf-8"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>@ViewBag.Title - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/Site.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/bootstrap.min.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/modernizr-2.6.2.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar navbar-inverse navbar-fixed-top"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-header"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"button"</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-toggle"</span> <span class="hljs-attribute">data-toggle</span>=<span class="hljs-value">"collapse"</span> <span class="hljs-attribute">data-target</span>=<span class="hljs-value">".navbar-collapse"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+                @Html.ActionLink((string)ViewBag.ApplicationName, "Index", "Home", new </span><span class="hljs-expression">{ <span class="hljs-variable">area</span> = <span class="hljs-string">""</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-brand"</span> }</span><span class="xml">)
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-collapse collapse"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">ul</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"nav navbar-nav"</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container body-content"</span>&gt;</span>
+        @RenderBody()
+        <span class="hljs-tag">&lt;<span class="hljs-title">hr</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">footer</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>&amp;copy; @DateTime.Now.Year - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">footer</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/bootstrap.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
+</code></pre>
+<p><br><br></p>
+<hr>
+<p><a href="./asp-202.html">次へ</a></p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">

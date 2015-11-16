@@ -54,11 +54,49 @@
 <code>ClassificationsController</code> と各ビューを自動生成します。</p>
 <p><br><br></p>
 <h3 id="-">コントローラー、ビューの自動生成</h3>
+<p><em>ソリューション エクスプローラー</em> で <em>Controllers</em> を右クリック -&gt; <em>追加</em> -&gt;
+<em>新規スキャフォールディングアイテム</em> を選択します。</p>
+<p><img src="./images/a2-12.JPG" alt="image">
+<br></p>
+<p><em>Entity Framework を使用した、ビューがあるMVC5 コントローラー</em> を選択し、<em>追加</em> をクリックします。</p>
+<p><img src="./images/a2-13.JPG" alt="image">
+<br></p>
+<p><em>モデル クラス</em> に <code>Classifications</code> 、 <em>データ コンテキスト クラス</em> に <code>DrugInfoContext</code> を選択し、<em>追加</em> をクリックします。</p>
+<p><img src="./images/a2-14.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="classifications-">Classifications の メタデータクラスを確認</h3>
+<p><code>Models/ClassificationsMetadata.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.ComponentModel.DataAnnotations;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Models</span>
+{
+    [MetadataType(<span class="hljs-keyword">typeof</span>(ClassificationsMetadata))]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Classifications</span>
+    {
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">ClassificationsMetadata</span>
+    {
+        [DisplayName(<span class="hljs-string">"薬効分類ID"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> ClassificationId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬効分類コード"</span>)]
+        [Required(ErrorMessage = <span class="hljs-string">"薬効分類コードは必須項目です。"</span>)]
+        [StringLength(<span class="hljs-number">3</span>, ErrorMessage = <span class="hljs-string">"薬効分類コードは3桁で入力してください。"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> ClassificationCode { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [DisplayName(<span class="hljs-string">"薬効分類"</span>)]
+        [Required(ErrorMessage = <span class="hljs-string">"薬効分類名称は必須項目です。"</span>)]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Name { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
 <p><br><br></p>
 <h3 id="-">ナビゲーションバーの変更</h3>
 <p>ナビゲーションバーに薬効分類の一覧へ遷移するリンクを追加します。</p>
+<pre><code class="lang-html">
+</code></pre>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
