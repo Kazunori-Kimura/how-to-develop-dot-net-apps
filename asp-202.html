@@ -48,6 +48,101 @@
 検索結果が失われていました。</p>
 <p>前回の検索結果を復元するように機能を追加します。</p>
 <p><br><br></p>
+<h3 id="-">用語解説: セッション</h3>
+<p><em>HTTP</em> には、画面遷移間で一連の処理であることを識別する仕様はありません。<br>このことを <em>HTTPはステートレスなプロトコルである</em> 、と言います。</p>
+<p>ログイン情報などをWebアプリケーションで保持するために、<em>セッション</em> という仕組みがあります。</p>
+<p><img src="./images/diagram.svg" alt="image"></p>
+<p><br><br></p>
+<h3 id="-">検索条件を保持する</h3>
+<p><em>Home/Index</em> で <em>POST</em> されてきた際に、
+検索条件を <em>Session</em> に格納するように機能を追加します。</p>
+<p><code>Controllers/HomeController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-comment">// POST: Home</span>
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult <span class="hljs-literal">Index</span>([Bind(<span class="hljs-keyword">Include</span> = <span class="hljs-string">"DrugName,ClassificationId"</span>)] SearchViewModel model)
+{
+    <span class="hljs-keyword">if</span> (ModelState.IsValid)
+    {
+        <span class="hljs-comment">// 検索処理</span>
+        <span class="hljs-keyword">var</span> <span class="hljs-keyword">list</span> = <span class="hljs-keyword">db</span>.Drugs.Where(item =&gt;
+            (string.IsNullOrEmpty(model.DrugName) || item.Name.Contains(model.DrugName))
+            &amp;&amp; (model.ClassificationId == 0 || item.ClassificationId == model.ClassificationId)).ToList();
+        model.Drugs = <span class="hljs-keyword">list</span>;
+
+        <span class="hljs-comment">// 検索条件を復元するためにSessionに保持</span>
+        Session[<span class="hljs-string">"DrugName"</span>] = model.DrugName;
+        Session[<span class="hljs-string">"ClassificationId"</span>] = model.ClassificationId;
+    }
+    this.SetClassificationItems();
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">View</span>(model);
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-">検索条件を復元する</h3>
+<p><em>Home/Index</em> に <em>GET</em> された際に
+<em>Session</em> に検索条件が格納されている場合は、それを復元します。</p>
+<p><code>Controllers/HomeController.cs</code></p>
+<p><em>ViewBag</em> にコンボボックスの項目をセットするメソッドを修正し、初期選択値を指定できるようにします。</p>
+<pre><code class="lang-cs"><span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ViewBagにコンボボックスの項目をセット</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetClassificationItems</span>(<span class="hljs-params"></span>)
+</span>{
+    <span class="hljs-keyword">this</span>.SetClassificationItems(<span class="hljs-number">0</span>);
+}
+
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ViewBagにコンボボックスの項目をセット</span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+<span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="selectedId"&gt;</span>初期選択<span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+<span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetClassificationItems</span>(<span class="hljs-params"><span class="hljs-keyword">int</span> selectedId</span>)
+</span>{
+    <span class="hljs-keyword">var</span> list = db.Classifications.Select(item =&gt; <span class="hljs-keyword">new</span> SelectListItem
+    {
+        Text = item.ClassificationCode + <span class="hljs-string">":"</span> + item.Name,
+        Value = item.ClassificationId.ToString(),
+        Selected = item.ClassificationId == selectedId
+    }).ToList();
+
+    <span class="hljs-comment">// 先頭にブランクを挿入</span>
+    list.Insert(<span class="hljs-number">0</span>, <span class="hljs-keyword">new</span> SelectListItem {
+        Text = <span class="hljs-keyword">string</span>.Empty,
+        Value = <span class="hljs-string">"0"</span>,
+        Selected = selectedId == <span class="hljs-number">0</span>
+    });
+
+    ViewBag.ClassificationId = list;
+}
+</code></pre>
+<p><br></p>
+<p>つづいて、<em>Session</em> に検索条件がセットされている場合はそれを取り出し
+検索結果を表示するように修正します。</p>
+<pre><code class="lang-cs"><span class="hljs-comment">// GET: Home</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span><span class="hljs-params">()</span>
+</span>{
+    var model = <span class="hljs-keyword">new</span> SearchViewModel();
+    model.ClassificationId = <span class="hljs-number">0</span>; <span class="hljs-comment">// コンボボックスの初期選択</span>
+
+    <span class="hljs-keyword">if</span> (Session[<span class="hljs-string">"DrugName"</span>] != null || Session[<span class="hljs-string">"ClassificationId"</span>] != null)
+    {
+        model.DrugName = (<span class="hljs-built_in">string</span>)Session[<span class="hljs-string">"DrugName"</span>];
+        model.ClassificationId = (<span class="hljs-keyword">int</span>)Session[<span class="hljs-string">"ClassificationId"</span>];
+
+        <span class="hljs-comment">// 検索処理</span>
+        var <span class="hljs-built_in">list</span> = db.Drugs.Where(item =&gt;
+            (<span class="hljs-built_in">string</span>.IsNullOrEmpty(model.DrugName) || item.Name.Contains(model.DrugName))
+            &amp;&amp; (model.ClassificationId == <span class="hljs-number">0</span> || item.ClassificationId == model.ClassificationId)).ToList();
+        model.Drugs = <span class="hljs-built_in">list</span>;
+    }
+
+    <span class="hljs-comment">// コンボボックスの項目を設定</span>
+    <span class="hljs-keyword">this</span>.SetClassificationItems(model.ClassificationId);
+
+    <span class="hljs-keyword">return</span> View(model);
+}
+</code></pre>
+<p><br><br></p>
 <h2 id="-">薬効分類のメンテナンス画面を追加</h2>
 <p>薬効分類のメンテナンス機能を追加します。</p>
 <p><em>EntityFrameworkのデータベースファースト開発</em> によって
@@ -95,8 +190,57 @@
 <p><br><br></p>
 <h3 id="-">ナビゲーションバーの変更</h3>
 <p>ナビゲーションバーに薬効分類の一覧へ遷移するリンクを追加します。</p>
-<pre><code class="lang-html">
+<pre><code class="lang-html"><span class="xml">@</span><span class="hljs-expression">{
+    <span class="hljs-variable">ViewBag.ApplicationName</span> = <span class="hljs-string">"薬品情報検索"</span>;
+}</span><span class="xml">
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">"utf-8"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>@ViewBag.Title - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/Site.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/bootstrap.min.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/modernizr-2.6.2.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar navbar-inverse navbar-fixed-top"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-header"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"button"</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-toggle"</span> <span class="hljs-attribute">data-toggle</span>=<span class="hljs-value">"collapse"</span> <span class="hljs-attribute">data-target</span>=<span class="hljs-value">".navbar-collapse"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+                @Html.ActionLink((string)ViewBag.ApplicationName, "Index", "Home", new </span><span class="hljs-expression">{ <span class="hljs-variable">area</span> = <span class="hljs-string">""</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-brand"</span> }</span><span class="xml">)
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-collapse collapse"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">ul</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"nav navbar-nav"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span>
+                        @Html.ActionLink("薬効分類", "Index", new </span><span class="hljs-expression">{ <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Classifications"</span> }</span><span class="xml">)
+                    <span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container body-content"</span>&gt;</span>
+        @RenderBody()
+        <span class="hljs-tag">&lt;<span class="hljs-title">hr</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">footer</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>&amp;copy; @DateTime.Now.Year - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">footer</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/bootstrap.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
 </code></pre>
+<p><br><br></p>
+<hr>
+<p>検索機能と薬効分類のメンテナンス機能の追加を行いました。</p>
+<p>次回は認証機能を追加し、アプリケーションを完成させます。</p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
