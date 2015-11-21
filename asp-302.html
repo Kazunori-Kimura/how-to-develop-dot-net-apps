@@ -42,70 +42,49 @@
       <div class="col-md-2"></div>
       <div class="col-md-7">
         <!-- contents -->
-        <h1 id="asp-net-mvc-">ASP.NET MVC開発入門</h1>
-<p><em>ASP.NET</em> は、Microsoftが開発・提供しているWebアプリケーションフレームワークです。</p>
-<p><br></p>
-<hr>
-<p><br></p>
-<h2 id="0-web-">0. Webアプリケーションの定義</h2>
-<p><em>ASP.NET</em> の解説に入るまえに、大前提となるWebの仕組みと
-この勉強会で扱う Webアプリケーション の定義について解説します。</p>
-<p><br></p>
-<h2 id="1-asp-net-mvc-">1. ASP.NET MVC の概要</h2>
-<p>ASP.NET および ASP.NET MVC の概要について解説します。</p>
-<ul>
-<li>ASP.NET の概要</li>
-<li>ASP.NET MVC の概要</li>
-</ul>
-<p><br></p>
-<h2 id="2-asp-net-mvc-">2. ASP.NET MVC の基礎</h2>
-<p>非常に簡単な ASP.NET MVC のサンプルを作成を通して Model,View,Controllerの役割について解説します。</p>
-<ul>
-<li>「ASP.NET Webアプリケーション」プロジェクトの作成</li>
-<li>Modelクラスの作成</li>
-<li>Controllerクラスの作成<ul>
-<li>アクション メソッド</li>
-<li>ActionResultクラス</li>
-</ul>
-</li>
-<li>Viewの作成<ul>
-<li>Razor</li>
-<li>コードナゲット と コメントの書き方</li>
-<li>HTMLヘルパー</li>
-</ul>
-</li>
-<li>動作確認</li>
-</ul>
-<p><br></p>
-<h2 id="3-entityframework-">3. EntityFramework によるデータベースファースト開発</h2>
-<p>先にデータベースにテーブルを作成し、それを元に <em>EntityFramework</em> でソースコードを自動生成する
-<em>データベース・ファースト</em> について解説します。</p>
-<p><br></p>
-<h2 id="4-">4. 薬品情報検索システムの開発</h2>
-<p><em>3.</em> で作成したアプリに機能追加を行って「薬品情報検索システム」を完成させます。
-実践的なWebアプリケーションの開発について解説します。</p>
-<p><br></p>
-<h2 id="5-">5. メンバーシップ フレームワークによる認証機能の実装</h2>
-<p><em>メンバーシップ フレームワーク</em> はASP.NET 2.0 以降から採用された認証ライブラリです。
-比較的シンプルに実装できるため、広く利用されています。</p>
-<p>今回は <em>4.</em> で作成したアプリケーションに認証・認可機能を実装していきます。</p>
-<ul>
-<li>Providerクラスの実装<ul>
-<li>MembershipProviderの実装</li>
-<li>RoleProviderの実装</li>
-</ul>
-</li>
-<li>ログイン画面の作成<ul>
-<li>ViewModelの作成</li>
-<li>LoginControllerの作成</li>
-<li>Viewの作成</li>
-</ul>
-</li>
-<li>フォーム認証の設定</li>
-<li>動作確認</li>
-</ul>
-<p><br>
-<br></p>
+        <h1 id="5-">5. メンバーシップ フレームワークによる認証機能の実装 (後編)</h1>
+<h2 id="-1-">(1) ユーザーとロールの情報をデータベースで管理する</h2>
+<h3 id="users-roles-">Users, Rolesテーブルの追加</h3>
+<p><em>User</em> と <em>Role</em> は n:m</p>
+<p>!ER図</p>
+<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[<span class="hljs-keyword">Users</span>] (
+  [UserId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [<span class="hljs-keyword">Password</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([UserId] <span class="hljs-keyword">ASC</span>)
+);</span>
+
+<span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[<span class="hljs-keyword">Roles</span>] (
+  [RoleId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([RoleId] <span class="hljs-keyword">ASC</span>)
+);</span>
+
+<span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[UserRole] (
+  [UserID] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [RoleID] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  <span class="hljs-keyword">CONSTRAINT</span> [FK_dbo.UserRole_dbo.User_UserID] FOREIGN <span class="hljs-keyword">KEY</span> ([UserID])
+    <span class="hljs-keyword">REFERENCES</span> [dbo].[<span class="hljs-keyword">Users</span>] ([UserID]) <span class="hljs-keyword">ON</span> <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">CASCADE</span>,
+  <span class="hljs-keyword">CONSTRAINT</span> [FK_dbo.UserRole_dbo.Role_RoleID] FOREIGN <span class="hljs-keyword">KEY</span> ([RoleID])
+    <span class="hljs-keyword">REFERENCES</span> [dbo].[<span class="hljs-keyword">Roles</span>] ([RoleID]) <span class="hljs-keyword">ON</span> <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">CASCADE</span>
+);</span>
+</code></pre>
+<p><br><br></p>
+<h3 id="edm-">EDMファイルの更新</h3>
+<h3 id="-membershipprovider-"><em>MembershipProvider</em> の更新</h3>
+<h3 id="-roleprovider-"><em>RoleProvider</em> の更新</h3>
+<h3 id="-">動作確認</h3>
+<p><br><br></p>
+<h2 id="-2-">(2) ユーザー, ロールの管理画面の追加</h2>
+<h3 id="controller-view-">ControllerとViewの追加</h3>
+<h3 id="-">ナビゲーションバーにリンクを追加</h3>
+<h3 id="-">動作確認</h3>
+<p><br><br></p>
+<h2 id="-3-">(3) ロールによって画面表示を切り替える</h2>
+<h3 id="-session-">認証情報をSessionに格納する</h3>
+<h3 id="view-">Viewの修正</h3>
+<h3 id="-">動作確認</h3>
+<p><br><br></p>
       </div>
       <div class="col-md-3">
         <div class="list-group">
