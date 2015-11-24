@@ -69,19 +69,26 @@
 <p><br></p>
 <h3 id="-1-membershipprovider-">(1) <em>MembershipProvider</em> の実装</h3>
 <p><em>MembershipProvider</em> クラスを継承したクラスを実装します。</p>
-<p>幾つか <em>override</em> しないといけないメソッドがありますが、
-今回使用するのは <code>ValidateUser</code> メソッドだけなので、
-このメソッドのみ実装します。</p>
+<p><br></p>
 <ul>
-<li><code>ValidateUser</code> は <code>username</code> と <code>password</code> を受け取って認証の成否を返します。</li>
+<li><em>Models</em> を右クリックし、<em>追加</em> -&gt; <em>クラス</em> を選択します。</li>
+<li>クラス名を <em>CustomMembershipProvider.cs</em> とします。</li>
+<li><code>MembershipProvider</code> を継承します。<ul>
+<li><code>using System.Web.Security;</code> を追記します。</li>
 </ul>
-<p>認証の動作を確認するため、ひとまず <code>username</code> 、 <code>password</code> は固定としています。</p>
+</li>
+<li><code>CustomMembershipProvider</code> に赤線が表示されますので、右クリック -&gt; <em>抽象クラスの実装</em> を選択します。</li>
+</ul>
 <p><br></p>
 <p><code>Models/CustomMembershipProvider.cs</code></p>
-<pre><code class="lang-cs"><span class="hljs-keyword">namespace</span> <span class="hljs-title">TodoApp.Models</span>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Web.Security;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">TodoApp.Models</span>
 {
     <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">CustomMembershipProvider</span> : <span class="hljs-title">MembershipProvider</span>
     {
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
         <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">ValidateUser</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username, <span class="hljs-keyword">string</span> password</span>)
         </span>{
             <span class="hljs-comment">// とりあえず固定で認証</span>
@@ -95,15 +102,29 @@
             }
             <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
         }
+    }
+}
 </code></pre>
 <p><br></p>
+<p>幾つか <em>override</em> しないといけないメソッドがありますが
+今回使用するのは <code>ValidateUser</code> メソッドだけなので、
+このメソッドのみ実装します。</p>
+<ul>
+<li><code>ValidateUser</code> は <code>username</code> と <code>password</code> を受け取って認証の成否を返します。</li>
+</ul>
+<p>認証の動作を確認するため、ひとまず <code>username</code> 、 <code>password</code> は固定としています。</p>
+<p><br><br></p>
 <h3 id="-2-roleprovider-">(2) <em>RoleProvider</em> の実装</h3>
 <p>つづいて、 <em>RoleProvider</em> クラスを継承したクラスを実装します。</p>
-<p><em>MembershipProvider</em> と同様、今回使用するメソッドのみ
-中身を実装します。</p>
+<p><br></p>
 <ul>
-<li><code>IsUserInRole</code> メソッドは 指定されたユーザーが、該当するロールに所属しているかどうかを返します。</li>
-<li><code>GetRolesForUser</code> メソッドは 指定されたユーザーが所属するロールの配列を返します。</li>
+<li><em>Models</em> を右クリックし、<em>追加</em> -&gt; <em>クラス</em> を選択します。</li>
+<li>クラス名を <em>CustomRoleProvider.cs</em> とします。</li>
+<li><code>RoleProvider</code> を継承します。<ul>
+<li><code>using System.Web.Security;</code> を追記します。</li>
+</ul>
+</li>
+<li><code>CustomRoleProvider</code> に赤線が表示されますので、右クリック -&gt; <em>抽象クラスの実装</em> を選択します。</li>
 </ul>
 <p><br></p>
 <p><code>Models/CustomRoleProvider.cs</code></p>
@@ -111,6 +132,19 @@
 {
     <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">CustomRoleProvider</span> : <span class="hljs-title">RoleProvider</span>
     {
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span>[] GetRolesForUser(<span class="hljs-keyword">string</span> username)
+        {
+            <span class="hljs-keyword">if</span> (<span class="hljs-string">"administrator"</span>.Equals(username))
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] { <span class="hljs-string">"Administrators"</span> };
+            }
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] { <span class="hljs-string">"Users"</span> };
+        }
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
         <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">IsUserInRole</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username, <span class="hljs-keyword">string</span> roleName</span>)
         </span>{
             <span class="hljs-keyword">if</span> (<span class="hljs-string">"administrator"</span>.Equals(username) &amp;&amp; <span class="hljs-string">"Administrators"</span>.Equals(roleName))
@@ -124,19 +158,25 @@
             <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
         }
 
-        <span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span>[] GetRolesForUser(<span class="hljs-keyword">string</span> username)
-        {
-            <span class="hljs-keyword">if</span> (<span class="hljs-string">"administrator"</span>.Equals(username))
-            {
-                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] { <span class="hljs-string">"Administrators"</span> };
-            }
-            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] { <span class="hljs-string">"Users"</span> };
-        }
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+    }
+}
 </code></pre>
+<p><br></p>
+<p><em>MembershipProvider</em> と同様、今回使用するメソッドのみ
+中身を実装します。</p>
+<ul>
+<li><code>GetRolesForUser</code> メソッドは 指定されたユーザーが所属するロールの配列を返します。</li>
+<li><code>IsUserInRole</code> メソッドは 指定されたユーザーが、該当するロールに所属しているかどうかを返します。</li>
+</ul>
 <p><br><br></p>
 <h3 id="2-loginviewmodel-">2. <em>LoginViewModel</em> の実装</h3>
-<p>ログイン画面の入力項目を <em>LoginViewModel</em> として
-定義します。</p>
+<p>ログイン画面の入力項目を <em>LoginViewModel</em> として定義します。</p>
+<p><br></p>
+<ul>
+<li><em>Models</em> を右クリックし、<em>追加</em> -&gt; <em>クラス</em> を選択します。</li>
+<li>クラス名を <em>LoginViewModel.cs</em> とします。</li>
+</ul>
 <p><br></p>
 <p><code>Models/LoginViewModel.cs</code></p>
 <pre><code class="lang-cs"><span class="hljs-keyword">namespace</span> <span class="hljs-title">TodoApp.Models</span>
@@ -153,11 +193,22 @@
     }
 }
 </code></pre>
-<p><br></p>
+<p><br><br></p>
 <h3 id="3-controller-">3. Controllerの実装</h3>
 <h3 id="-1-logincontroller-">(1) <em>LoginController</em> の実装</h3>
+<p><br></p>
+<ul>
+<li><em>Controllers</em> を右クリックし、<em>追加</em> -&gt; <em>コントローラー</em> を選択します。</li>
+<li><em>MVC5 コントローラー - 空</em> を選択します。</li>
+<li>名前を <em>LoginController</em> とします。</li>
+</ul>
+<p><br></p>
 <p><code>Controllers/LoginController.cs</code></p>
-<pre><code class="lang-cs"><span class="hljs-keyword">namespace</span> <span class="hljs-title">TodoApp.Controllers</span>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> System.Web.Security;
+<span class="hljs-keyword">using</span> TodoApp.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">TodoApp.Controllers</span>
 {
     [AllowAnonymous]
     <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">LoginController</span> : <span class="hljs-title">Controller</span>
@@ -209,7 +260,7 @@
 <li><code>SignOut</code> メソッドで認証クッキーが削除され、
 ログアウトした状態となります。</li>
 </ul>
-<p><br></p>
+<p><br><br></p>
 <h3 id="-2-controller-">(2) 認証が必要なControllerの実装</h3>
 <p><code>HomeController</code> と <code>DrugsController</code> にはすべてのユーザーがアクセス可能、
 <code>ClassificationsController</code> には
@@ -225,6 +276,10 @@
         <span class="hljs-comment">// GET: Home</span>
         <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
         </span>{
+            <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+        }
+    }
+}
 </code></pre>
 <p><code>[Authorize]</code> は <code>HomeController</code> にアクセスするために認証が必要であることを示します。</p>
 <p>認証されていない状態でアクセスすると、ログイン画面にリダイレクトされます。</p>
@@ -241,6 +296,10 @@
         <span class="hljs-comment">// GET: Admin</span>
         <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
         </span>{
+            <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+        }
+    }
+}
 </code></pre>
 <p><code>[Authorize(Roles=&quot;Administrators&quot;)]</code> は <code>ClassificationsController</code> に <code>Administrators</code> ロールに属するユーザーのみアクセス可能であることを示します。</p>
 <p>それ以外のユーザーが該当画面にアクセスした場合、
@@ -253,11 +312,10 @@
 <h3 id="3-">3. ログイン画面の作成</h3>
 <h3 id="-login-index-cshtml-"><em>Login/Index.cshtml</em> の作成</h3>
 <ul>
-<li><code>LoginController</code>を右クリック -&gt; <code>Add View</code> を選択</li>
+<li><code>LoginController</code> の <code>Index</code> アクションメソッドを右クリック -&gt; <em>ビューを追加</em> を選択</li>
 <li><code>LoginViewModel</code> の <code>Create</code> として <code>Index.cshtml</code> を作成</li>
-<li>不要な項目の削除 (フォームのタイトル部分)</li>
-<li>ボタンのラベルを <code>SignIn</code> に変更</li>
 </ul>
+<p><img src="./images/a3-6.JPG" alt="image"></p>
 <p><br></p>
 <p><code>Views/Login/Index.cshtml</code></p>
 <pre><code class="lang-html"><span class="hljs-annotation">@model</span> <span class="hljs-type">TodoApp</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">LoginViewModel</span>
@@ -285,7 +343,7 @@
         &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
             <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
             &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
-                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">PasswordFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
                 <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
             &lt;/div&gt;
         &lt;/div&gt;
@@ -298,22 +356,82 @@
     &lt;/div&gt;
 }
 
+<span class="hljs-annotation">@if</span> (!string.<span class="hljs-type">IsNullOrEmpty</span>(<span class="hljs-type">ViewBag</span>.<span class="hljs-type">Message</span>))
+{
+    &lt;p <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"text-danger"</span>&gt;<span class="hljs-annotation">@ViewBag</span>.<span class="hljs-type">Message</span>&lt;/p&gt;
+}
+
 &lt;script src=<span class="hljs-string">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;&lt;/script&gt;
 &lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.min.js"</span>&gt;&lt;/script&gt;
 &lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.unobtrusive.min.js"</span>&gt;&lt;/script&gt;
 </code></pre>
+<p><br></p>
+<ul>
+<li><code>Password</code> の入力欄を <code>PasswordFor</code> に変更</li>
+<li>ボタンのラベルを <code>SignIn</code> に変更</li>
+<li><code>Back to List</code> のリンクを削除</li>
+<li>エラーメッセージを表示するよう追記</li>
+</ul>
 <p><br><br></p>
 <h3 id="-2-_layout-cs-">(2) <em>_Layout.cs</em> の修正</h3>
-<p>ナビゲーションバーに <em>ログアウト</em> のリンクを追加します。</p>
+<p>ナビゲーションバーに <em>ログアウト (/Login/SignOut)</em> のリンクを追加します。</p>
 <p><code>Views/Shared/_Layout.cshtml</code></p>
-<pre><code class="lang-html">
+<pre><code class="lang-html"><span class="xml">@</span><span class="hljs-expression">{
+    <span class="hljs-variable">ViewBag.ApplicationName</span> = <span class="hljs-string">"薬品情報検索"</span>;
+}</span><span class="xml">
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">"utf-8"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>@ViewBag.Title - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/Site.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/bootstrap.min.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/modernizr-2.6.2.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar navbar-inverse navbar-fixed-top"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-header"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"button"</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-toggle"</span> <span class="hljs-attribute">data-toggle</span>=<span class="hljs-value">"collapse"</span> <span class="hljs-attribute">data-target</span>=<span class="hljs-value">".navbar-collapse"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+                @Html.ActionLink((string)ViewBag.ApplicationName, "Index", "Home", new </span><span class="hljs-expression">{ <span class="hljs-variable">area</span> = <span class="hljs-string">""</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-brand"</span> }</span><span class="xml">)
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-collapse collapse"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">ul</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"nav navbar-nav"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span>
+                        @Html.ActionLink("薬効分類", "Index", new </span><span class="hljs-expression">{ <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Classifications"</span> }</span><span class="xml">)
+                    <span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">p</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-text navbar-right"</span>&gt;</span>
+                    @Html.ActionLink("ログアウト", "SignOut", new </span><span class="hljs-expression">{ <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Login"</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span>=<span class="hljs-string">"navbar-link"</span> }</span><span class="xml">)
+                <span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container body-content"</span>&gt;</span>
+        @RenderBody()
+        <span class="hljs-tag">&lt;<span class="hljs-title">hr</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">footer</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>&amp;copy; @DateTime.Now.Year - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">footer</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/bootstrap.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
 </code></pre>
-<p><code>/Login/SignOut</code> へのリンクをナビゲーションバーに
-追加しています。</p>
 <p><br><br></p>
 <h3 id="4-web-config-">4. web.configの設定</h3>
-<p>最後に、フォーム認証を行うように <code>web.config</code> に設定を追加します。</p>
-<pre><code class="lang-xml"><span class="hljs-tag">&lt;<span class="hljs-title">system.web</span>&gt;</span>
+<p>最後に、フォーム認証を行うように <code>Web.config</code> に設定を追加します。</p>
+<p>(ファイル名の先頭が大文字のファイルです。 <em>Views/web.config</em> と間違えないように。)</p>
+<pre><code class="lang-xml">:
+<span class="hljs-tag">&lt;<span class="hljs-title">system.web</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-title">compilation</span> <span class="hljs-attribute">debug</span>=<span class="hljs-value">"true"</span> <span class="hljs-attribute">targetFramework</span>=<span class="hljs-value">"4.5.1"</span>/&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-title">httpRuntime</span> <span class="hljs-attribute">targetFramework</span>=<span class="hljs-value">"4.5.1"</span>/&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-title">authentication</span> <span class="hljs-attribute">mode</span>=<span class="hljs-value">"Forms"</span>&gt;</span>
@@ -322,16 +440,17 @@
   <span class="hljs-tag">&lt;<span class="hljs-title">membership</span> <span class="hljs-attribute">defaultProvider</span>=<span class="hljs-value">"CustomMembershipProvider"</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-title">providers</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-title">clear</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-title">add</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"CustomMembershipProvider"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"TodoApp.Models.CustomMembershipProvider"</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">add</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"CustomMembershipProvider"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"WebApplication1.Models.CustomMembershipProvider"</span>/&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-title">providers</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-title">membership</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-title">roleManager</span> <span class="hljs-attribute">enabled</span>=<span class="hljs-value">"true"</span> <span class="hljs-attribute">defaultProvider</span>=<span class="hljs-value">"CustomRoleProvider"</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-title">providers</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-title">clear</span>/&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-title">add</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"CustomRoleProvider"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"TodoApp.Models.CustomRoleProvider"</span>/&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">add</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"CustomRoleProvider"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"WebApplication1.Models.CustomRoleProvider"</span>/&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-title">providers</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-title">roleManager</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-title">system.web</span>&gt;</span>
+:
 </code></pre>
 <ul>
 <li><code>authentication</code> タグの追加<ul>
@@ -365,6 +484,7 @@
 <li>ユーザー・ロールの管理画面の追加</li>
 <li>ロールによって画面表示を切り替える</li>
 </ul>
+<p><a href="./asp-302.html">次へ</a></p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
