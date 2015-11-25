@@ -50,12 +50,13 @@
 <p><hr>
 <br></p>
 <h3 id="-asp-net-identity">【用語解説】ASP.NET Identity</h3>
-<p>ASP.NET Identity は Visual Studio 2013 から新たに搭載された認証ライブラリです。</p>
+<p><em>ASP.NET Identity</em> は Visual Studio 2013 から新たに搭載された認証ライブラリです。</p>
 <p>以下の様な特徴があります。</p>
 <ul>
 <li>Entity Framework を基板としているため、アカウント情報の管理に関する実装が容易である</li>
 <li>ActiveDirectoryによる認証に対応</li>
 <li>Twitter, Facebook, Googleなどのソーシャルアカウントによる認証に対応</li>
+<li>2要素認証に対応</li>
 </ul>
 <p>Visual Studio 2013 で ASP.NETプロジェクトを作成するときに生成されるソースコードには、ASP.NET Identityによる認証機能が予め実装されています。</p>
 <p><br></p>
@@ -163,8 +164,7 @@
 }
 </code></pre>
 <p><br></p>
-<p><em>MembershipProvider</em> と同様、今回使用するメソッドのみ
-中身を実装します。</p>
+<p><em>MembershipProvider</em> と同様、今回使用するメソッドのみ中身を実装します。</p>
 <ul>
 <li><code>GetRolesForUser</code> メソッドは 指定されたユーザーが所属するロールの配列を返します。</li>
 <li><code>IsUserInRole</code> メソッドは 指定されたユーザーが、該当するロールに所属しているかどうかを返します。</li>

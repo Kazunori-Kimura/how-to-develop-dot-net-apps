@@ -45,18 +45,20 @@
         <h1 id="5-">5. メンバーシップ フレームワークによる認証機能の実装 (後編)</h1>
 <h2 id="-1-">(1) ユーザーとロールの情報をデータベースで管理する</h2>
 <h3 id="users-roles-">Users, Rolesテーブルの追加</h3>
-<p><em>User</em> と <em>Role</em> は n:m</p>
-<p>!ER図</p>
+<p>ユーザーとロールを管理するテーブルを作成します。</p>
+<p><em>User</em> と <em>Role</em> は 多対多の関係となるので
+関連付けを管理する <em>UserRole</em> テーブルを作成します。</p>
+<p><img src="./images/a3-ER.png" alt="ER図"></p>
 <pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[<span class="hljs-keyword">Users</span>] (
   [UserId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
-  [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [UserName] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
   [<span class="hljs-keyword">Password</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
   PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([UserId] <span class="hljs-keyword">ASC</span>)
 );</span>
 
 <span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[<span class="hljs-keyword">Roles</span>] (
   [RoleId] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
-  [<span class="hljs-keyword">Name</span>] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  [RoleName] <span class="hljs-keyword">NVARCHAR</span> (<span class="hljs-number">200</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
   PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([RoleId] <span class="hljs-keyword">ASC</span>)
 );</span>
 
@@ -70,19 +72,129 @@
 );</span>
 </code></pre>
 <p><br><br></p>
+<h3 id="-">初期データの登録</h3>
+<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> (UserName, <span class="hljs-keyword">Password</span>) <span class="hljs-keyword">values</span> (<span class="hljs-string">"administrator"</span>, <span class="hljs-string">"password"</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> (UserName, <span class="hljs-keyword">Password</span>) <span class="hljs-keyword">values</span> (<span class="hljs-string">"user"</span>, <span class="hljs-string">"password"</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> (RoleName) <span class="hljs-keyword">values</span> (<span class="hljs-string">"Administrators"</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> (RoleName) <span class="hljs-keyword">values</span> (<span class="hljs-string">"Users"</span>);</span>
+</code></pre>
+<p><br><br></p>
 <h3 id="edm-">EDMファイルの更新</h3>
 <h3 id="-membershipprovider-"><em>MembershipProvider</em> の更新</h3>
+<p><code>Models/CustomMembershipProvider.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">ValidateUser</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username, <span class="hljs-keyword">string</span> password</span>)
+</span>{
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">var</span> user = db.Users
+            .Where(u =&gt; u.UserName == username &amp;&amp; u.Password == password)
+            .FirstOrDefault();
+
+        <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>)
+        {
+            <span class="hljs-comment">// 認証OK</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+        }
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+}
+</code></pre>
+<p>username, passwordを元にユーザーを取得します。</p>
+<p><br><br></p>
 <h3 id="-roleprovider-"><em>RoleProvider</em> の更新</h3>
+<p><code>Models/CustomRoleProvider.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">IsUserInRole</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> UserId, <span class="hljs-keyword">string</span> roleName</span>)
+</span>{
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(UserId);
+        <span class="hljs-keyword">var</span> user = db.Users
+            .Where(u =&gt; u.Id == id)
+            .FirstOrDefault();
+
+        <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">string</span>[] roles = user.Roles.Select(r =&gt; r.RoleName).ToArray();
+
+            <span class="hljs-keyword">if</span> (roles.Contains(roleName))
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+            }
+        }
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+}
+</code></pre>
+<p><br></p>
+<p><code>IsUserInRole</code> は、指定されたユーザーが該当のロールに所属しているかを判定するメソッドです。</p>
+<p>ユーザーIDを元にユーザーを検索し、ユーザーが所属するロールをチェックしています。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span>[] GetRolesForUser(<span class="hljs-keyword">string</span> UserId)
+{
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(UserId);
+        <span class="hljs-keyword">var</span> user = db.Users
+            .Where(u =&gt; u.Id == id)
+            .FirstOrDefault();
+
+        <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">string</span>[] roles = user.Roles.Select(r =&gt; r.RoleName).ToArray();
+            <span class="hljs-keyword">return</span> roles;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] {};
+    }
+}
+</code></pre>
+<p><br></p>
+<p><code>GetRolesForUser</code> は、指定されたユーザーの所属するロールを配列で返します。</p>
+<p><br><br></p>
 <h3 id="-">動作確認</h3>
 <p><br><br></p>
 <h2 id="-2-">(2) ユーザー, ロールの管理画面の追加</h2>
 <h3 id="controller-view-">ControllerとViewの追加</h3>
+<p>それぞれ、Administratorsロールに所属しているユーザーのみ表示できるようにします。</p>
+<ul>
+<li>ユーザー</li>
+<li>ロール</li>
+</ul>
+<p><br><br></p>
 <h3 id="-">ナビゲーションバーにリンクを追加</h3>
+<p><br><br></p>
 <h3 id="-">動作確認</h3>
 <p><br><br></p>
 <h2 id="-3-">(3) ロールによって画面表示を切り替える</h2>
-<h3 id="-session-">認証情報をSessionに格納する</h3>
+<h3 id="razor-">Razorで認証情報を参照する</h3>
+<pre><code class="lang-html">@<span class="hljs-keyword">if</span> (Request.IsAuthenticated &amp;&amp; User.IsInRole(<span class="hljs-string">"Administrators"</span>))
+{
+     &lt;<span class="hljs-keyword">div</span> <span class="hljs-property">id</span>=<span class="hljs-string">"sidebar"</span>&gt;
+        &lt;<span class="hljs-keyword">div</span> <span class="hljs-type">class</span>=<span class="hljs-string">"module"</span>&gt;
+           &lt;ul <span class="hljs-type">class</span>=<span class="hljs-string">"menu"</span>&gt;
+              &lt;li&gt;@Html.ActionLink(<span class="hljs-string">"Home"</span>, <span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>)&lt;/li&gt;
+              &lt;li&gt;@Html.ActionLink(<span class="hljs-string">"About"</span>, <span class="hljs-string">"About"</span>, <span class="hljs-string">"Home"</span>)&lt;/li&gt;
+              &lt;li&gt;@Html.ActionLink(<span class="hljs-string">"Contact"</span>, <span class="hljs-string">"Contact"</span>, <span class="hljs-string">"Home"</span>)&lt;/li&gt;
+            &lt;/ul&gt;
+         &lt;/<span class="hljs-keyword">div</span>&gt;
+         &lt;<span class="hljs-keyword">div</span> <span class="hljs-type">class</span>=<span class="hljs-string">"mainContent"</span>&gt;
+             Hello, @User.Identity.Name !
+         &lt;/<span class="hljs-keyword">div</span>&gt;
+     &lt;/<span class="hljs-keyword">div</span>&gt;
+}
+</code></pre>
 <h3 id="view-">Viewの修正</h3>
+<p><code>_Layout.cshtml</code></p>
+<ul>
+<li>認証されていれば、以下のリンクを表示する<ul>
+<li>ログアウト</li>
+</ul>
+</li>
+<li>Administratorsであれば、以下のリンクを表示する<ul>
+<li>薬効分類</li>
+<li>ユーザー管理</li>
+<li>ロール管理</li>
+</ul>
+</li>
+</ul>
 <h3 id="-">動作確認</h3>
 <p><br><br></p>
       </div>
