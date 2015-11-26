@@ -73,13 +73,21 @@
 </code></pre>
 <p><br><br></p>
 <h3 id="-">初期データの登録</h3>
-<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> (UserName, <span class="hljs-keyword">Password</span>) <span class="hljs-keyword">values</span> (<span class="hljs-string">"administrator"</span>, <span class="hljs-string">"password"</span>);</span>
-<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> (UserName, <span class="hljs-keyword">Password</span>) <span class="hljs-keyword">values</span> (<span class="hljs-string">"user"</span>, <span class="hljs-string">"password"</span>);</span>
-<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> (RoleName) <span class="hljs-keyword">values</span> (<span class="hljs-string">"Administrators"</span>);</span>
-<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> (RoleName) <span class="hljs-keyword">values</span> (<span class="hljs-string">"Users"</span>);</span>
+<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> ([UserName], [<span class="hljs-keyword">Password</span>]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'administrator'</span>, <span class="hljs-string">'password'</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> ([UserName], [<span class="hljs-keyword">Password</span>]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'user'</span>, <span class="hljs-string">'password'</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> ([RoleName]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'Administrators'</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> ([RoleName]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'Users'</span>);</span>
+
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.UserRole ([UserId], [RoleId]) <span class="hljs-keyword">values</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);</span>
+<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.UserRole ([UserId], [RoleId]) <span class="hljs-keyword">values</span> (<span class="hljs-number">2</span>, <span class="hljs-number">2</span>);</span>
 </code></pre>
 <p><br><br></p>
 <h3 id="edm-">EDMファイルの更新</h3>
+<p><code>Models/DrugInfoContext.edmx</code> を開きます。
+右クリックし <em>データベースからモデルを更新</em> を選択します。
+<em>追加</em> タブで、 <em>テーブル</em> にチェックを入れ、 <em>完了</em> をクリックします。
+デザイナーで、<em>Users</em> と <em>Roles</em> が表示されることを確認します。</p>
+<p><br><br></p>
 <h3 id="-membershipprovider-"><em>MembershipProvider</em> の更新</h3>
 <p><code>Models/CustomMembershipProvider.cs</code></p>
 <pre><code class="lang-cs"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">ValidateUser</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username, <span class="hljs-keyword">string</span> password</span>)
@@ -87,7 +95,7 @@
     <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
     {
         <span class="hljs-keyword">var</span> user = db.Users
-            .Where(u =&gt; u.UserName == username &amp;&amp; u.Password == password)
+            .Where(u =&gt; u.UserName.Equals(username) &amp;&amp; u.Password.Equals(password))
             .FirstOrDefault();
 
         <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>)
@@ -103,11 +111,31 @@
 <p><br><br></p>
 <h3 id="-roleprovider-"><em>RoleProvider</em> の更新</h3>
 <p><code>Models/CustomRoleProvider.cs</code></p>
-<pre><code class="lang-cs"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">IsUserInRole</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> UserId, <span class="hljs-keyword">string</span> roleName</span>)
+<pre><code class="lang-cs"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span>[] GetRolesForUser(<span class="hljs-keyword">string</span> userId)
+{
+    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+    {
+        <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(userId);
+        <span class="hljs-keyword">var</span> user = db.Users
+            .Where(u =&gt; u.UserId == id)
+            .FirstOrDefault();
+
+        <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
+            <span class="hljs-keyword">string</span>[] roles = user.Roles.Select(r =&gt; r.RoleName).ToArray();
+            <span class="hljs-keyword">return</span> roles;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] {};
+    }
+}
+</code></pre>
+<p><br></p>
+<p><code>GetRolesForUser</code> は、指定されたユーザーの所属するロールを配列で返します。</p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">IsUserInRole</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> userId, <span class="hljs-keyword">string</span> roleName</span>)
 </span>{
     <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
     {
-        <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(UserId);
+        <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(userId);
         <span class="hljs-keyword">var</span> user = db.Users
             .Where(u =&gt; u.Id == id)
             .FirstOrDefault();
@@ -128,59 +156,111 @@
 <p><br></p>
 <p><code>IsUserInRole</code> は、指定されたユーザーが該当のロールに所属しているかを判定するメソッドです。</p>
 <p>ユーザーIDを元にユーザーを検索し、ユーザーが所属するロールをチェックしています。</p>
-<p><br></p>
-<pre><code class="lang-cs"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">string</span>[] GetRolesForUser(<span class="hljs-keyword">string</span> UserId)
-{
-    <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
-    {
-        <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(UserId);
-        <span class="hljs-keyword">var</span> user = db.Users
-            .Where(u =&gt; u.Id == id)
-            .FirstOrDefault();
+<p><br><br></p>
+<h3 id="-">コントローラーの修正</h3>
+<p><code>Controllers/LoginController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> System.Web.Security;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
 
-        <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
-            <span class="hljs-keyword">string</span>[] roles = user.Roles.Select(r =&gt; r.RoleName).ToArray();
-            <span class="hljs-keyword">return</span> roles;
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    [AllowAnonymous]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">LoginController</span> : <span class="hljs-title">Controller</span>
+    {
+        <span class="hljs-keyword">readonly</span> CustomMembershipProvider membershipProvider = <span class="hljs-keyword">new</span> CustomMembershipProvider();
+        <span class="hljs-keyword">private</span> DrugInfoContext db = <span class="hljs-keyword">new</span> DrugInfoContext();
+
+        <span class="hljs-comment">// GET: Login</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">return</span> View();
         }
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] {};
+
+        <span class="hljs-comment">// POST: Login</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"UserName,Password"</span></span>)] LoginViewModel model)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.membershipProvider.ValidateUser(model.UserName, model.Password))
+                {
+                    <span class="hljs-keyword">var</span> user = db.Users.Where(u =&gt; u.UserName.Equals(model.UserName)
+                        &amp;&amp; u.Password.Equals(model.Password))
+                        .FirstOrDefault();
+                    FormsAuthentication.SetAuthCookie(user.UserId.ToString(), <span class="hljs-keyword">false</span>);
+                    <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>);
+                }
+            }
+            ViewBag.Message = <span class="hljs-string">"ログインに失敗しました。"</span>;
+            <span class="hljs-keyword">return</span> View(model);
+        }
+
+        <span class="hljs-comment">// GET: Login/SignOut</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">SignOut</span>(<span class="hljs-params"></span>)
+        </span>{
+            FormsAuthentication.SignOut();
+            <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+        }
     }
 }
 </code></pre>
-<p><br></p>
-<p><code>GetRolesForUser</code> は、指定されたユーザーの所属するロールを配列で返します。</p>
+<p><code>FormsAuthentication.SetAuthCookie</code> で登録された値が
+<em>RoleProvider</em> の <code>GetRolesForUser</code> や <code>IsUserInRole</code> で使用されますので
+ユーザーを一意に特定できる <code>UserId</code> を保持するように修正します。</p>
 <p><br><br></p>
 <h3 id="-">動作確認</h3>
+<ul>
+<li><em>administrator</em> でログイン<ul>
+<li>薬効分類のリンクにアクセスできることを確認</li>
+</ul>
+</li>
+<li><em>user</em> でログイン<ul>
+<li>薬効分類のリンクにアクセスするとログイン画面に戻ることを確認</li>
+</ul>
+</li>
+</ul>
 <p><br><br></p>
 <h2 id="-2-">(2) ユーザー, ロールの管理画面の追加</h2>
 <h3 id="controller-view-">ControllerとViewの追加</h3>
-<p>それぞれ、Administratorsロールに所属しているユーザーのみ表示できるようにします。</p>
-<ul>
-<li>ユーザー</li>
-<li>ロール</li>
-</ul>
+<p><em>Users</em> と <em>Roles</em> を元に <em>Controller</em> と <em>View</em> を自動生成します。</p>
+<p>また、それぞれAdministratorsロールに所属しているユーザーのみ表示できるようにします。</p>
+<p><br></p>
+<p><code>Controllers/UsersController.cs</code></p>
+<p><br></p>
+<p><code>Controllers/RolesController.cs</code></p>
+<p><br><br></p>
+<h3 id="-">コンボボックスの表示</h3>
+<p>ユーザー登録時に <em>Role</em> を選択できるようにコンボボックスを追加します。</p>
+<p><code>Controllers/UsersController.cs</code></p>
+<p><code>Views/Users/Create.cshtml</code></p>
+<p><code>Views/Users/Edit.cshtml</code></p>
 <p><br><br></p>
 <h3 id="-">ナビゲーションバーにリンクを追加</h3>
+<p><code>/Users/Index</code> と <code>/Roles/Index</code> に遷移するリンクをナビゲーションバーに追加します。</p>
+<p><code>Views/Shared/_Layout.cshtml</code></p>
+<pre><code class="lang-html">&lt;<span class="hljs-tag">ul</span> class=<span class="hljs-string">"nav navbar-nav"</span>&gt;
+    &lt;li&gt;
+        @Html.<span class="hljs-function"><span class="hljs-title">ActionLink</span><span class="hljs-params">(<span class="hljs-string">"薬効分類"</span>, <span class="hljs-string">"Index"</span>, new { Controller = <span class="hljs-string">"Classifications"</span> })</span></span>
+    &lt;/li&gt;
+    &lt;li&gt;
+        @Html.<span class="hljs-function"><span class="hljs-title">ActionLink</span><span class="hljs-params">(<span class="hljs-string">"ユーザー管理"</span>, <span class="hljs-string">"Index"</span>, new { Controller = <span class="hljs-string">"Users"</span> })</span></span>
+    &lt;/li&gt;
+    &lt;li&gt;
+        @Html.<span class="hljs-function"><span class="hljs-title">ActionLink</span><span class="hljs-params">(<span class="hljs-string">"ロール管理"</span>, <span class="hljs-string">"Index"</span>, new { Controller = <span class="hljs-string">"Roles"</span> })</span></span>
+    &lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
 <p><br><br></p>
 <h3 id="-">動作確認</h3>
+<p>新しいユーザーを追加して、作成したユーザーでログインしてみます。</p>
 <p><br><br></p>
 <h2 id="-3-">(3) ロールによって画面表示を切り替える</h2>
-<h3 id="razor-">Razorで認証情報を参照する</h3>
-<pre><code class="lang-html">@<span class="hljs-keyword">if</span> (Request.IsAuthenticated &amp;&amp; User.IsInRole(<span class="hljs-string">"Administrators"</span>))
-{
-     &lt;<span class="hljs-keyword">div</span> <span class="hljs-property">id</span>=<span class="hljs-string">"sidebar"</span>&gt;
-        &lt;<span class="hljs-keyword">div</span> <span class="hljs-type">class</span>=<span class="hljs-string">"module"</span>&gt;
-           &lt;ul <span class="hljs-type">class</span>=<span class="hljs-string">"menu"</span>&gt;
-              &lt;li&gt;@Html.ActionLink(<span class="hljs-string">"Home"</span>, <span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>)&lt;/li&gt;
-              &lt;li&gt;@Html.ActionLink(<span class="hljs-string">"About"</span>, <span class="hljs-string">"About"</span>, <span class="hljs-string">"Home"</span>)&lt;/li&gt;
-              &lt;li&gt;@Html.ActionLink(<span class="hljs-string">"Contact"</span>, <span class="hljs-string">"Contact"</span>, <span class="hljs-string">"Home"</span>)&lt;/li&gt;
-            &lt;/ul&gt;
-         &lt;/<span class="hljs-keyword">div</span>&gt;
-         &lt;<span class="hljs-keyword">div</span> <span class="hljs-type">class</span>=<span class="hljs-string">"mainContent"</span>&gt;
-             Hello, @User.Identity.Name !
-         &lt;/<span class="hljs-keyword">div</span>&gt;
-     &lt;/<span class="hljs-keyword">div</span>&gt;
-}
-</code></pre>
 <h3 id="view-">Viewの修正</h3>
 <p><code>_Layout.cshtml</code></p>
 <ul>
@@ -195,7 +275,79 @@
 </ul>
 </li>
 </ul>
+<pre><code class="lang-html"><span class="xml">@</span><span class="hljs-expression">{
+    <span class="hljs-variable">ViewBag.ApplicationName</span> = <span class="hljs-string">"薬品情報検索"</span>;
+}</span><span class="xml">
+<span class="hljs-doctype">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">charset</span>=<span class="hljs-value">"utf-8"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">meta</span> <span class="hljs-attribute">name</span>=<span class="hljs-value">"viewport"</span> <span class="hljs-attribute">content</span>=<span class="hljs-value">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">title</span>&gt;</span>@ViewBag.Title - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/Site.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">link</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"~/Content/bootstrap.min.css"</span> <span class="hljs-attribute">rel</span>=<span class="hljs-value">"stylesheet"</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"text/css"</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/modernizr-2.6.2.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar navbar-inverse navbar-fixed-top"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-header"</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">button</span> <span class="hljs-attribute">type</span>=<span class="hljs-value">"button"</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-toggle"</span> <span class="hljs-attribute">data-toggle</span>=<span class="hljs-value">"collapse"</span> <span class="hljs-attribute">data-target</span>=<span class="hljs-value">".navbar-collapse"</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"icon-bar"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">button</span>&gt;</span>
+                @Html.ActionLink((string)ViewBag.ApplicationName, "Index", "Home", new </span><span class="hljs-expression">{ <span class="hljs-variable">area</span> = <span class="hljs-string">""</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-brand"</span> }</span><span class="xml">)
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            @if (Request.IsAuthenticated)
+            </span><span class="hljs-expression">{
+            &lt;<span class="hljs-variable">div</span> <span class="hljs-variable">class</span>=<span class="hljs-string">"navbar-collapse collapse"</span>&gt;
+                @<span class="hljs-variable"><span class="hljs-keyword">if</span></span> (<span class="hljs-variable">User.IsInRole</span>(<span class="hljs-string">"Administrators"</span>))
+                {
+                &lt;<span class="hljs-variable">ul</span> <span class="hljs-variable">class</span>=<span class="hljs-string">"nav navbar-nav"</span>&gt;
+                    &lt;<span class="hljs-variable">li</span>&gt;
+                        @<span class="hljs-variable">Html.ActionLink</span>(<span class="hljs-string">"薬効分類"</span>, <span class="hljs-string">"Index"</span>, <span class="hljs-variable">new</span> { <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Classifications"</span> }</span><span class="xml">)
+                    <span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span>
+                        @Html.ActionLink("ユーザー管理", "Index", new </span><span class="hljs-expression">{ <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Users"</span> }</span><span class="xml">)
+                    <span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">li</span>&gt;</span>
+                        @Html.ActionLink("ロール管理", "Index", new </span><span class="hljs-expression">{ <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Roles"</span> }</span><span class="xml">)
+                    <span class="hljs-tag">&lt;/<span class="hljs-title">li</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">ul</span>&gt;</span>
+                }
+                <span class="hljs-tag">&lt;<span class="hljs-title">p</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"navbar-text navbar-right"</span>&gt;</span>
+                    @Html.ActionLink("ログアウト", "SignOut", new </span><span class="hljs-expression">{ <span class="hljs-variable">Controller</span> = <span class="hljs-string">"Login"</span> }</span><span class="xml">, new </span><span class="hljs-expression">{ @<span class="hljs-variable">class</span> = <span class="hljs-string">"navbar-link"</span> }</span><span class="xml">)
+                <span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+            }
+        <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"container body-content"</span>&gt;</span>
+        @RenderBody()
+        <span class="hljs-tag">&lt;<span class="hljs-title">hr</span> /&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">footer</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">p</span>&gt;</span>&amp;copy; @DateTime.Now.Year - @ViewBag.ApplicationName<span class="hljs-tag">&lt;/<span class="hljs-title">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">footer</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">script</span> <span class="hljs-attribute">src</span>=<span class="hljs-value">"~/Scripts/bootstrap.min.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-title">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">html</span>&gt;</span></span>
+</code></pre>
+<p>Razorで認証情報を参照することができます。</p>
+<p>認証しているかどうかは <code>Request.IsAuthenticated</code> で判定できます。</p>
+<p>認証情報は <code>User</code> に格納されています。
+<code>IsInRole</code> メソッドでログインしたユーザーが該当ロールに所属しているかどうかを判定できます。</p>
+<p><br><br></p>
 <h3 id="-">動作確認</h3>
+<p>ログインするユーザーのロールによって、ナビゲーションバーのリンクが変わることを確認します。</p>
+<p><br><br></p>
+<hr>
+<p><br></p>
+<p>メンバーシップフレームワークによるユーザー認証とロールによる権限制御について解説しました。</p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">
