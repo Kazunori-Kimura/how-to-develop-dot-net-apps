@@ -73,20 +73,29 @@
 </code></pre>
 <p><br><br></p>
 <h3 id="-">初期データの登録</h3>
+<p><em>administrator</em> と <em>user</em> というユーザーを作成します。</p>
 <pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> ([UserName], [<span class="hljs-keyword">Password</span>]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'administrator'</span>, <span class="hljs-string">'password'</span>);</span>
 <span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Users</span> ([UserName], [<span class="hljs-keyword">Password</span>]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'user'</span>, <span class="hljs-string">'password'</span>);</span>
-<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> ([RoleName]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'Administrators'</span>);</span>
+</code></pre>
+<p><br></p>
+<p><em>Administrators</em> と <em>Users</em> というロールを作成します。</p>
+<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> ([RoleName]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'Administrators'</span>);</span>
 <span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.<span class="hljs-keyword">Roles</span> ([RoleName]) <span class="hljs-keyword">values</span> (<span class="hljs-string">'Users'</span>);</span>
-
-<span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.UserRole ([UserId], [RoleId]) <span class="hljs-keyword">values</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);</span>
+</code></pre>
+<p><em>administrator</em> と <em>Administrators</em> を、
+<em>user</em> と <em>Users</em> を紐付けます。</p>
+<pre><code class="lang-sql"><span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.UserRole ([UserId], [RoleId]) <span class="hljs-keyword">values</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);</span>
 <span class="hljs-operator"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> dbo.UserRole ([UserId], [RoleId]) <span class="hljs-keyword">values</span> (<span class="hljs-number">2</span>, <span class="hljs-number">2</span>);</span>
 </code></pre>
 <p><br><br></p>
 <h3 id="edm-">EDMファイルの更新</h3>
-<p><code>Models/DrugInfoContext.edmx</code> を開きます。
-右クリックし <em>データベースからモデルを更新</em> を選択します。
-<em>追加</em> タブで、 <em>テーブル</em> にチェックを入れ、 <em>完了</em> をクリックします。
-デザイナーで、<em>Users</em> と <em>Roles</em> が表示されることを確認します。</p>
+<p><code>Models/DrugInfoContext.edmx</code> を開きます。</p>
+<p>右クリックし <em>データベースからモデルを更新</em> を選択します。</p>
+<p><img src="./images/a5-1.JPG" alt="image"></p>
+<p><em>追加</em> タブで、 <em>テーブル</em> にチェックを入れ、 <em>完了</em> をクリックします。</p>
+<p><img src="./images/a5-2.JPG" alt="image"></p>
+<p>デザイナーで、<em>Users</em> と <em>Roles</em> が表示されることを確認します。</p>
+<p><img src="./images/a5-3.JPG" alt="image"></p>
 <p><br><br></p>
 <h3 id="-membershipprovider-"><em>MembershipProvider</em> の更新</h3>
 <p><code>Models/CustomMembershipProvider.cs</code></p>
@@ -193,8 +202,11 @@
                     <span class="hljs-keyword">var</span> user = db.Users.Where(u =&gt; u.UserName.Equals(model.UserName)
                         &amp;&amp; u.Password.Equals(model.Password))
                         .FirstOrDefault();
-                    FormsAuthentication.SetAuthCookie(user.UserId.ToString(), <span class="hljs-keyword">false</span>);
-                    <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>);
+
+                    <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
+                        FormsAuthentication.SetAuthCookie(user.UserId.ToString(), <span class="hljs-keyword">false</span>);
+                        <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>);
+                    }
                 }
             }
             ViewBag.Message = <span class="hljs-string">"ログインに失敗しました。"</span>;
@@ -229,14 +241,14 @@
 <h2 id="-2-">(2) ユーザー, ロールの管理画面の追加</h2>
 <h3 id="controller-view-">ControllerとViewの追加</h3>
 <p><em>Users</em> と <em>Roles</em> を元に <em>Controller</em> と <em>View</em> を自動生成します。</p>
-<p>また、それぞれAdministratorsロールに所属しているユーザーのみ表示できるようにします。</p>
+<p>それぞれAdministratorsロールに所属しているユーザーのみ表示できるようにします。</p>
 <p><br></p>
 <p><code>Controllers/UsersController.cs</code></p>
 <p><br></p>
 <p><code>Controllers/RolesController.cs</code></p>
 <p><br><br></p>
-<h3 id="-">コンボボックスの表示</h3>
-<p>ユーザー登録時に <em>Role</em> を選択できるようにコンボボックスを追加します。</p>
+<h3 id="-">リストボックスの表示</h3>
+<p>ユーザー登録時に <em>Role</em> を選択できるようにリストボックスを追加します。</p>
 <p><code>Controllers/UsersController.cs</code></p>
 <p><code>Views/Users/Create.cshtml</code></p>
 <p><code>Views/Users/Edit.cshtml</code></p>
@@ -344,6 +356,17 @@
 <p><br><br></p>
 <h3 id="-">動作確認</h3>
 <p>ログインするユーザーのロールによって、ナビゲーションバーのリンクが変わることを確認します。</p>
+<p><br><br></p>
+<h2 id="-">おまけ: 安全なパスワードの保存方法</h2>
+<ul>
+<li><a href="http://www.websec-room.com/2013/02/27/237">安全なパスワードの保存方法</a></li>
+<li><a href="http://www.websec-room.com/2013/02/27/239">安全なパスワードの保存方法(ASP.NET,C#,VB.NET編)</a></li>
+<li><a href="http://dobon.net/vb/dotnet/string/md5.html">MD5やSHA1などでハッシュ値を計算する</a></li>
+<li><a href="http://www.codeproject.com/Articles/844722/Hashing-Passwords-using-ASP-NETs-Crypto-Class">Hashing Passwords using ASP.NET&#39;s Crypto Class</a></li>
+</ul>
+<h3 id="-">パスワードのハッシュ化</h3>
+<h3 id="salt-">salt (ソルト)</h3>
+<h3 id="-">ストレッチング</h3>
 <p><br><br></p>
 <hr>
 <p><br></p>
