@@ -63,8 +63,10 @@
 );</span>
 
 <span class="hljs-operator"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> [dbo].[UserRole] (
+  [<span class="hljs-keyword">Id</span>] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">IDENTITY</span> (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
   [UserID] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
   [RoleID] <span class="hljs-built_in">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-literal">NULL</span>,
+  PRIMARY <span class="hljs-keyword">KEY</span> CLUSTERED ([<span class="hljs-keyword">Id</span>] <span class="hljs-keyword">ASC</span>),
   <span class="hljs-keyword">CONSTRAINT</span> [FK_dbo.UserRole_dbo.User_UserID] FOREIGN <span class="hljs-keyword">KEY</span> ([UserID])
     <span class="hljs-keyword">REFERENCES</span> [dbo].[<span class="hljs-keyword">Users</span>] ([UserID]) <span class="hljs-keyword">ON</span> <span class="hljs-keyword">DELETE</span> <span class="hljs-keyword">CASCADE</span>,
   <span class="hljs-keyword">CONSTRAINT</span> [FK_dbo.UserRole_dbo.Role_RoleID] FOREIGN <span class="hljs-keyword">KEY</span> ([RoleID])
@@ -96,6 +98,23 @@
 <p><img src="./images/a5-2.JPG" alt="image"></p>
 <p>デザイナーで、<em>Users</em> と <em>Roles</em> が表示されることを確認します。</p>
 <p><img src="./images/a5-3.JPG" alt="image"></p>
+<p><br><br></p>
+<h3 id="-edm-">補足説明: EDMファイルの削除と再作成</h3>
+<p>何らかの理由で EDMファイルをイチから再作成したい場合は、以下の手順で行います。</p>
+<ul>
+<li><em>Models</em> から該当のedmxファイルを削除します。</li>
+<li><em>Web.config</em> を開き、一番下にある <code>&lt;connectionStrings&gt;</code> を削除します。<ul>
+<li><code>&lt;add&gt;</code> が複数ある場合は、<code>name</code> を元に削除対象のデータのみを削除します。</li>
+</ul>
+</li>
+<li>edmxファイルを作成します。<ul>
+<li><em>Models</em> を右クリック -&gt; <em>追加</em> -&gt; <em>新しい項目</em> を選択</li>
+<li><em>ADO.NET Entity Data Model</em> を選択</li>
+<li>名前を入力し、<em>追加</em> をクリック</li>
+<li>ウィザードが起動するので、対象となるテーブルを選択して完了します。</li>
+</ul>
+</li>
+</ul>
 <p><br><br></p>
 <h3 id="-membershipprovider-"><em>MembershipProvider</em> の更新</h3>
 <p><code>Models/CustomMembershipProvider.cs</code></p>
@@ -130,7 +149,7 @@
             .FirstOrDefault();
 
         <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
-            <span class="hljs-keyword">string</span>[] roles = user.Roles.Select(r =&gt; r.RoleName).ToArray();
+            <span class="hljs-keyword">string</span>[] roles = user.UserRole.Select(item =&gt; item.Roles.RoleName).ToArray();
             <span class="hljs-keyword">return</span> roles;
         }
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-keyword">string</span>[] {};
@@ -150,7 +169,7 @@
             .FirstOrDefault();
 
         <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
-            <span class="hljs-keyword">string</span>[] roles = user.Roles.Select(r =&gt; r.RoleName).ToArray();
+            <span class="hljs-keyword">string</span>[] roles = user.UserRole.Select(item =&gt; item.Roles.RoleName).ToArray();
 
             <span class="hljs-keyword">if</span> (roles.Contains(roleName))
             {
@@ -241,17 +260,360 @@
 <h2 id="-2-">(2) ユーザー, ロールの管理画面の追加</h2>
 <h3 id="controller-view-">ControllerとViewの追加</h3>
 <p><em>Users</em> と <em>Roles</em> を元に <em>Controller</em> と <em>View</em> を自動生成します。</p>
+<ul>
+<li><em>ソリューション エクスプローラー</em> で <em>Controllers</em> を右クリック</li>
+<li><em>追加</em> -&gt; <em>新しいスキャフォールディングアイテム</em> を選択</li>
+<li><em>Entity Framework を使用した、ビューがある MVC 5 コントローラー</em> を選択して <em>追加</em> をクリック</li>
+<li><em>モデルクラス</em>、 <em>データコンテキストクラス</em> を選択して <em>追加</em> をクリック</li>
+</ul>
+<p><br></p>
 <p>それぞれAdministratorsロールに所属しているユーザーのみ表示できるようにします。</p>
 <p><br></p>
 <p><code>Controllers/UsersController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Data.Entity;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Net;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    [Authorize(Roles = <span class="hljs-string">"Administrators"</span>)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">UsersController</span> : <span class="hljs-title">Controller</span>
+    {
+      <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+    }
+}
+</code></pre>
 <p><br></p>
 <p><code>Controllers/RolesController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Data.Entity;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Net;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    [Authorize(Roles = <span class="hljs-string">"Administrators"</span>)]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">RolesController</span> : <span class="hljs-title">Controller</span>
+    {
+      <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+    }
+}
+</code></pre>
 <p><br><br></p>
-<h3 id="-">リストボックスの表示</h3>
-<p>ユーザー登録時に <em>Role</em> を選択できるようにリストボックスを追加します。</p>
+<h3 id="users-">Usersモデルの修正</h3>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.ComponentModel;
+<span class="hljs-keyword">using</span> System.ComponentModel.DataAnnotations;
+<span class="hljs-keyword">using</span> System.ComponentModel.DataAnnotations.Schema;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Models</span>
+{
+    [MetadataType(<span class="hljs-keyword">typeof</span>(UsersMetadata))]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">partial</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Users</span>
+    {
+        [Required]
+        [NotMapped]
+        [DisplayName(<span class="hljs-string">"ロール"</span>)]
+        <span class="hljs-keyword">public</span> List&lt;<span class="hljs-keyword">int</span>&gt; RoleId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">UsersMetadata</span>
+    {
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> UserId { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [Required]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> UserName { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+
+        [Required]
+        <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> Password { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    }
+}
+</code></pre>
+<p><br><br></p>
+<h3 id="-">リストボックスの表示と更新処理の修正</h3>
+<p>以下の点について、追加・修正します。</p>
+<ul>
+<li>ユーザー登録・更新時に <em>Role</em> を選択できるようにリストボックスを追加します。</li>
+<li><code>Create</code>, <code>Update</code> について <em>POST</em> されてきた際に、選択された <em>Role</em> を反映するよう修正します。</li>
+</ul>
 <p><code>Controllers/UsersController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Data.Entity;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Net;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">UsersController</span> : <span class="hljs-title">Controller</span>
+    {
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-comment">// GET: Users/Create</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Create</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">this</span>.SetRoleItems();
+            <span class="hljs-keyword">return</span> View();
+        }
+
+        <span class="hljs-comment">// POST: Users/Create</span>
+        <span class="hljs-comment">// 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。</span>
+        <span class="hljs-comment">// 詳細については、http://go.microsoft.com/fwlink/?LinkId=317598 を参照してください。</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Create</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"UserId,UserName,Password,RoleId"</span></span>)] Users users)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-keyword">foreach</span>(<span class="hljs-keyword">int</span> roleId <span class="hljs-keyword">in</span> users.RoleId)
+                {
+                    <span class="hljs-keyword">var</span> userRole = <span class="hljs-keyword">new</span> UserRole
+                    {
+                        UserID = users.UserId,
+                        RoleID = roleId
+                    };
+                    users.UserRole.Add(userRole);
+                }
+
+                db.Users.Add(users);
+                db.SaveChanges();
+                <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+            }
+
+            <span class="hljs-keyword">this</span>.SetRoleItems();
+            <span class="hljs-keyword">return</span> View(users);
+        }
+
+        <span class="hljs-comment">// GET: Users/Edit/5</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Edit</span>(<span class="hljs-params"><span class="hljs-keyword">int</span>? id</span>)
+        </span>{
+            <span class="hljs-keyword">if</span> (id == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Users users = db.Users.Find(id);
+            <span class="hljs-keyword">if</span> (users == <span class="hljs-keyword">null</span>)
+            {
+                <span class="hljs-keyword">return</span> HttpNotFound();
+            }
+            <span class="hljs-keyword">var</span> roles = users.UserRole.Select(item =&gt; item.Roles).ToList();
+            <span class="hljs-keyword">this</span>.SetRoleItems(roles);
+            <span class="hljs-keyword">return</span> View(users);
+        }
+
+        <span class="hljs-comment">// POST: Users/Edit/5</span>
+        <span class="hljs-comment">// 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。</span>
+        <span class="hljs-comment">// 詳細については、http://go.microsoft.com/fwlink/?LinkId=317598 を参照してください。</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Edit</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"UserId,UserName,Password,RoleId"</span></span>)] Users users)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                db.Entry(users).State = EntityState.Modified;
+
+                <span class="hljs-keyword">var</span> roleIds = db.UserRole
+                    .Where(item =&gt; item.UserID == users.UserId)
+                    .Select(item =&gt; item.RoleID)
+                    .ToList();
+
+                <span class="hljs-keyword">foreach</span> (<span class="hljs-keyword">int</span> roleId <span class="hljs-keyword">in</span> users.RoleId)
+                {
+                    <span class="hljs-keyword">if</span> (db.UserRole
+                        .Where(item =&gt; item.UserID == users.UserId &amp;&amp; item.RoleID == roleId)
+                        .Count() &gt; <span class="hljs-number">0</span>)
+                    {
+                        <span class="hljs-comment">// 既に登録済み</span>
+                        roleIds.Remove(roleId);
+                    }
+                    <span class="hljs-keyword">else</span>
+                    {
+                        <span class="hljs-comment">// 追加</span>
+                        <span class="hljs-keyword">var</span> userRole = <span class="hljs-keyword">new</span> UserRole
+                        {
+                            UserID = users.UserId,
+                            RoleID = roleId
+                        };
+                        db.UserRole.Add(userRole);
+                    }
+                }
+
+                <span class="hljs-comment">// 削除されたロールをDBに反映</span>
+                <span class="hljs-keyword">foreach</span>(<span class="hljs-keyword">var</span> roleId <span class="hljs-keyword">in</span> roleIds)
+                {
+                    <span class="hljs-keyword">var</span> item = db.UserRole.Where(ur =&gt; ur.UserID == users.UserId &amp;&amp; ur.RoleID == roleId).FirstOrDefault();
+                    <span class="hljs-keyword">if</span> (item != <span class="hljs-keyword">null</span>)
+                    {
+                        db.UserRole.Remove(item);
+                    }
+                }
+
+                db.SaveChanges();
+                <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">return</span> View(users);
+        }
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ロールのリストをViewBagにセット</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetRoleItems</span>(<span class="hljs-params"></span>)
+        </span>{
+            SetRoleItems(<span class="hljs-keyword">new</span> List&lt;Roles&gt;());
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ロールのリストをViewBagにセット</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="roleId"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">SetRoleItems</span>(<span class="hljs-params">List&lt;Roles&gt; roles</span>)
+        </span>{
+            <span class="hljs-keyword">var</span> roleIds = roles.Select(item =&gt; item.RoleId).ToArray();
+
+            <span class="hljs-keyword">var</span> list = db.Roles.Select(item =&gt; <span class="hljs-keyword">new</span> SelectListItem
+            {
+                Text = item.RoleName,
+                Value = item.RoleId.ToString(),
+                Selected = roleIds.Contains(item.RoleId)
+            }).ToList();
+
+            ViewBag.RoleId = list;
+        }
+    }
+}
+</code></pre>
+<p><br></p>
 <p><code>Views/Users/Create.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-annotation">@model</span> <span class="hljs-type">WebApplication1</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">Users</span>
+
+@{
+    <span class="hljs-type">ViewBag</span>.<span class="hljs-type">Title</span> = <span class="hljs-string">"Create"</span>;
+}
+
+&lt;h2&gt;<span class="hljs-type">Create</span>&lt;/h2&gt;
+
+
+<span class="hljs-annotation">@using</span> (<span class="hljs-type">Html</span>.<span class="hljs-type">BeginForm</span>())
+{
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">AntiForgeryToken</span>()
+
+    &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-horizontal"</span>&gt;
+        &lt;h4&gt;<span class="hljs-type">Users</span>&lt;/h4&gt;
+        &lt;hr /&gt;
+        <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationSummary</span>(<span class="hljs-literal">true</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">UserName</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">UserName</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">UserName</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">PasswordFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">RoleId</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ListBox</span>(<span class="hljs-string">"RoleId"</span>, <span class="hljs-literal">null</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">RoleId</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-offset-2 col-md-10"</span>&gt;
+                &lt;input <span class="hljs-class"><span class="hljs-keyword">type</span>=</span><span class="hljs-string">"submit"</span> value=<span class="hljs-string">"Create"</span> <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"btn btn-default"</span> /&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+
+&lt;div&gt;
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Back to List"</span>, <span class="hljs-string">"Index"</span>)
+&lt;/div&gt;
+
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.unobtrusive.min.js"</span>&gt;&lt;/script&gt;
+</code></pre>
+<ul>
+<li>EditorFor -&gt; PasswordFor に変更</li>
+<li><a href="https://msdn.microsoft.com/ja-jp/library/system.web.mvc.html.selectextensions.listbox.aspx">ListBox</a></li>
+</ul>
+<p><br></p>
 <p><code>Views/Users/Edit.cshtml</code></p>
+<pre><code class="lang-html"><span class="hljs-annotation">@model</span> <span class="hljs-type">WebApplication1</span>.<span class="hljs-type">Models</span>.<span class="hljs-type">Users</span>
+
+@{
+    <span class="hljs-type">ViewBag</span>.<span class="hljs-type">Title</span> = <span class="hljs-string">"Edit"</span>;
+}
+
+&lt;h2&gt;<span class="hljs-type">Edit</span>&lt;/h2&gt;
+
+
+<span class="hljs-annotation">@using</span> (<span class="hljs-type">Html</span>.<span class="hljs-type">BeginForm</span>())
+{
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">AntiForgeryToken</span>()
+
+    &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-horizontal"</span>&gt;
+        &lt;h4&gt;<span class="hljs-type">Users</span>&lt;/h4&gt;
+        &lt;hr /&gt;
+        <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationSummary</span>(<span class="hljs-literal">true</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+        <span class="hljs-annotation">@Html</span>.<span class="hljs-type">HiddenFor</span>(model =&gt; model.<span class="hljs-type">UserId</span>)
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">UserName</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">UserName</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">UserName</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">EditorFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-keyword">new</span> { htmlAttributes = <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> } })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">Password</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            <span class="hljs-annotation">@Html</span>.<span class="hljs-type">LabelFor</span>(model =&gt; model.<span class="hljs-type">RoleId</span>, htmlAttributes: <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"control-label col-md-2"</span> })
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-10"</span>&gt;
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ListBox</span>(<span class="hljs-string">"RoleId"</span>, <span class="hljs-literal">null</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"form-control"</span> })
+                <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ValidationMessageFor</span>(model =&gt; model.<span class="hljs-type">RoleId</span>, <span class="hljs-string">""</span>, <span class="hljs-keyword">new</span> { <span class="hljs-annotation">@class</span> = <span class="hljs-string">"text-danger"</span> })
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"form-group"</span>&gt;
+            &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"col-md-offset-2 col-md-10"</span>&gt;
+                &lt;input <span class="hljs-class"><span class="hljs-keyword">type</span>=</span><span class="hljs-string">"submit"</span> value=<span class="hljs-string">"Save"</span> <span class="hljs-class"><span class="hljs-keyword">class</span>=</span><span class="hljs-string">"btn btn-default"</span> /&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+
+&lt;div&gt;
+    <span class="hljs-annotation">@Html</span>.<span class="hljs-type">ActionLink</span>(<span class="hljs-string">"Back to List"</span>, <span class="hljs-string">"Index"</span>)
+&lt;/div&gt;
+
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery-1.10.2.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="hljs-string">"~/Scripts/jquery.validate.unobtrusive.min.js"</span>&gt;&lt;/script&gt;
+</code></pre>
 <p><br><br></p>
 <h3 id="-">ナビゲーションバーにリンクを追加</h3>
 <p><code>/Users/Index</code> と <code>/Roles/Index</code> に遷移するリンクをナビゲーションバーに追加します。</p>
@@ -357,20 +719,10 @@
 <h3 id="-">動作確認</h3>
 <p>ログインするユーザーのロールによって、ナビゲーションバーのリンクが変わることを確認します。</p>
 <p><br><br></p>
-<h2 id="-">おまけ: 安全なパスワードの保存方法</h2>
-<ul>
-<li><a href="http://www.websec-room.com/2013/02/27/237">安全なパスワードの保存方法</a></li>
-<li><a href="http://www.websec-room.com/2013/02/27/239">安全なパスワードの保存方法(ASP.NET,C#,VB.NET編)</a></li>
-<li><a href="http://dobon.net/vb/dotnet/string/md5.html">MD5やSHA1などでハッシュ値を計算する</a></li>
-<li><a href="http://www.codeproject.com/Articles/844722/Hashing-Passwords-using-ASP-NETs-Crypto-Class">Hashing Passwords using ASP.NET&#39;s Crypto Class</a></li>
-</ul>
-<h3 id="-">パスワードのハッシュ化</h3>
-<h3 id="salt-">salt (ソルト)</h3>
-<h3 id="-">ストレッチング</h3>
-<p><br><br></p>
 <hr>
 <p><br></p>
 <p>メンバーシップフレームワークによるユーザー認証とロールによる権限制御について解説しました。</p>
+<p><a href="./asp-303.html">次へ</a></p>
 <p><br><br></p>
       </div>
       <div class="col-md-3">

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>.NET アプリケーション開発入門</title>
+  <!-- Bootstrap -->
+  <link href="./lib/css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/base.css" rel="stylesheet">
+  <!-- highlightjs -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  <!-- font-awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://kazunori-kimura.github.io/how-to-develop-dot-net-apps/"><i class="fa fa-code"></i> .NET アプリケーション開発入門</a>
+      </div>
+      <p class="navbar-text navbar-right">
+        <a href="https://github.com/Kazunori-Kimura/introduction-to-asp-dot-net" class="navbar-link" target="_blank">
+          <i class="fa fa-github"></i>
+          View on GitHub
+        </a>
+        &nbsp;
+      </p>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-7">
+        <!-- contents -->
+        <h1 id="-">おまけ: 安全なパスワードの保存方法</h1>
+<h2 id="-">パスワードのハッシュ化</h2>
+<p>パスワードをそのままデータベースに保存するのは、セキュリティ的に問題があります。</p>
+<p>例えば、<em>SQLインジェクション</em> などの攻撃により、データベースの内容が盗み見られたり
+内部の人間がデータを持ち出し、インターネットに（意図的かどうかは別として）公開してしまう、
+といったシチュエーションを考えてみましょう。</p>
+<p>ユーザー名とパスワードがそのまま保存されている場合
+全ユーザーのパスワードを一度リセットしたり
+アカウントを無効化するなどの対応が必要になってしまいます。</p>
+<p>また、利用者が別のシステムのアカウントとパスワードを使いまわしている場合など
+それらのシステムに不正アクセスされるなど、二次被害が予想されます。</p>
+<p>そのような事にならないように、ユーザーのパスワードをそのまま保存するのではなく
+別の形に変換して保存するようにし、万が一データベースを盗み見られても
+パスワードがわからないようにします。</p>
+<p><br></p>
+<p>Webアプリケーションにてよく使用される
+<em>パスワードをハッシュ化する</em> 手法について解説します。</p>
+<p><br></p>
+<h3 id="-">補足説明: ハッシュ関数</h3>
+<p>ハッシュ関数とは、文字列の内容を一定長の文字列に変換する関数です。</p>
+<p>ハッシュ化された値をハッシュ値と呼びます。<br>ハッシュ値から元の文字列を計算できないという一方向性が特徴です（不可逆的な一方向の関数）。</p>
+<p>代表的なハッシュ関数として、以下の様なものがあります。</p>
+<ul>
+<li>MD5</li>
+<li>SHA1</li>
+<li>SHA256</li>
+</ul>
+<p><br><br></p>
+<h3 id="-c-">参考: C# で文字列をハッシュ化する</h3>
+<p>C#で文字列を ハッシュ関数 <em>MD5</em> でハッシュ化する場合、以下のようにコーディングします。</p>
+<pre><code class="lang-cs">// <span class="hljs-type">MD5</span>ハッシュ値を計算する文字列
+<span class="hljs-type">string</span> s = <span class="hljs-string">"password"</span>;
+// 文字列をbyte型配列に変換する
+byte[] data = <span class="hljs-type">System</span>.<span class="hljs-type">Text</span>.<span class="hljs-type">Encoding</span>.<span class="hljs-type">UTF8</span>.<span class="hljs-type">GetBytes</span>(s);
+
+// <span class="hljs-type">MD5CryptoServiceProvider</span>オブジェクトを作成
+<span class="hljs-keyword">var</span> md5 = new <span class="hljs-type">System</span>.<span class="hljs-type">Security</span>.<span class="hljs-type">Cryptography</span>.<span class="hljs-type">MD5CryptoServiceProvider</span>();
+//または、次のようにもできる
+// <span class="hljs-keyword">var</span> md5 = <span class="hljs-type">System</span>.<span class="hljs-type">Security</span>.<span class="hljs-type">Cryptography</span>.<span class="hljs-type">MD5</span>.<span class="hljs-type">Create</span>();
+
+// ハッシュ値を計算する
+byte[] bs = md5.<span class="hljs-type">ComputeHash</span>(data);
+
+// リソースを解放する
+md5.<span class="hljs-type">Clear</span>();
+
+// byte型配列を<span class="hljs-number">16</span>進数の文字列に変換
+<span class="hljs-type">System</span>.<span class="hljs-type">Text</span>.<span class="hljs-type">StringBuilder</span> <span class="hljs-literal">result</span> = new <span class="hljs-type">System</span>.<span class="hljs-type">Text</span>.<span class="hljs-type">StringBuilder</span>();
+foreach (byte b <span class="hljs-keyword">in</span> bs)
+{
+    <span class="hljs-literal">result</span>.<span class="hljs-type">Append</span>(b.<span class="hljs-type">ToString</span>(<span class="hljs-string">"x2"</span>));
+}
+//ここの部分は次のようにもできる
+// <span class="hljs-type">string</span> <span class="hljs-literal">result</span> = <span class="hljs-type">BitConverter</span>.<span class="hljs-type">ToString</span>(bs).<span class="hljs-type">ToLower</span>().<span class="hljs-type">Replace</span>(<span class="hljs-string">"-"</span>,<span class="hljs-string">""</span>);
+
+// 結果を表示
+<span class="hljs-type">Console</span>.<span class="hljs-type">WriteLine</span>(<span class="hljs-literal">result</span>);
+</code></pre>
+<ul>
+<li>参考: <a href="http://dobon.net/vb/dotnet/string/md5.html">MD5やSHA1などでハッシュ値を計算する</a></li>
+</ul>
+<p><br><br></p>
+<h3 id="-salt-">補足説明: salt (ソルト)</h3>
+<p>ハッシュ関数は不可逆的な一方向の関数であり、ハッシュ値から元の文字列を割り出すには
+膨大な計算が必要になります。</p>
+<p>しかしながら、<a href="https://ja.wikipedia.org/wiki/%E3%83%AC%E3%82%A4%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB">レインボーテーブル</a> という攻撃手段によって
+元の文字列が短ければ、現実的な計算時間で元の文字列を割り出せてしまいます。</p>
+<p><em>レインボーテーブル</em> の対策としては <em>salt (ソルト)</em> を利用するのが効果的です。</p>
+<p><em>salt</em> とは以下の要件を満たす文字列です。</p>
+<ul>
+<li>ユーザー毎に違うこと</li>
+<li>ある程度の長さがあること(20桁以上が目安)</li>
+</ul>
+<p>簡単な <em>salt</em> の生成方法としては、ユーザーIDをハッシュ関数でハッシュ化した値を
+<em>salt</em> として利用する方法があります。</p>
+<p><em>salt</em> は具体的には、以下のように処理します。</p>
+<pre><code><span class="hljs-attribute">ハッシュ化パスワード </span>=<span class="hljs-string"> ハッシュ関数(salt + パスワード)</span>
+</code></pre><ul>
+<li>参考書籍:
+<a rel="nofollow" href="http://www.amazon.co.jp/gp/product/4797361190/ref=as_li_ss_tl?ie=UTF8&camp=247&creative=7399&creativeASIN=4797361190&linkCode=as2&tag=nicecomics-22">体系的に学ぶ 安全なWebアプリケーションの作り方　脆弱性が生まれる原理と対策の実践</a><img src="http://ir-jp.amazon-adsystem.com/e/ir?t=nicecomics-22&l=as2&o=9&a=4797361190" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></li>
+</ul>
+<p><br><br></p>
+<h3 id="-">補足説明: ストレッチング</h3>
+<p>ストレッチングとは、以下のような処理を複数回繰り返してパスワードをより強力に保護する方法です。</p>
+<pre><code><span class="hljs-attribute">ハッシュ値 </span>=<span class="hljs-string"> ハッシュ関数(計算後のハッシュ値 + salt + パスワード)</span>
+</code></pre><p>セキュリティ企業のソフォスがストレッチングを 10,000 回以上行うことを最低条件としているそうです。  </p>
+<ul>
+<li><a href="https://www.sophos.com/ja-jp/press-office/press-releases/2013/11/ns-serious-security-how-to-store-your-users-passwords-safely.aspx">セキュリティの重要課題：ユーザーのパスワードを安全に保管する方法について</a></li>
+</ul>
+<p><br><br></p>
+<h3 id="-pbkdf2-password-based-key-derivation-function-2-">補足説明: PBKDF2 (Password-Based Key Derivation Function 2)</h3>
+<blockquote>
+<p>PBKDF2 (Password-Based Key Derivation Function 2) is a key derivation function that is part of RSA Laboratories&#39; Public-Key Cryptography Standards (PKCS) series, specifically PKCS #5 v2.0, also published as Internet Engineering Task Force&#39;s RFC 2898. It replaces an earlier standard, PBKDF1, which could only produce derived keys up to 160 bits long.<br><a href="https://en.wikipedia.org/wiki/PBKDF2">PBKDF2</a></p>
+</blockquote>
+<p>RSA研究所の公開鍵暗号化標準仕様 (PKCS) の一部で、 <em>RFC 2898</em> として提案されている方法です。</p>
+<p>ハッシュ化、salt、ストレッチングを組み合わせてパスワードを保護する方法について定義しています。</p>
+<p><br><br></p>
+<h3 id="-pbkdf2-c-">参考: PBKDF2 の C#での実装例</h3>
+<p><a href="https://msdn.microsoft.com/ja-jp/library/system.security.cryptography.rfc2898derivebytes.aspx">Rfc2898DeriveBytes クラス</a>
+を使用すると、<em>PBKDF2</em> に基づいたハッシュ値を取得できます。</p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> <span class="hljs-type">System</span>;
+<span class="hljs-keyword">using</span> <span class="hljs-type">System</span>.<span class="hljs-type">Diagnostics</span>;
+<span class="hljs-keyword">using</span> <span class="hljs-type">System</span>.<span class="hljs-type">Security</span>.<span class="hljs-type">Cryptography</span>;
+<span class="hljs-keyword">using</span> <span class="hljs-type">System</span>.<span class="hljs-type">Text</span>;
+
+namespace <span class="hljs-type">Keicode</span>.<span class="hljs-type">Security</span>
+{
+  class <span class="hljs-type">HashUtil</span>
+  {
+    <span class="hljs-keyword">const</span> <span class="hljs-type">int</span> <span class="hljs-type">PBKDF2_ITERATION</span> = <span class="hljs-number">10000</span>;
+
+    public <span class="hljs-keyword">static</span> <span class="hljs-type">string</span> <span class="hljs-type">GeneratePasswordHashPBKDF2</span>( <span class="hljs-type">string</span> pwd, <span class="hljs-type">string</span> salt )
+    {
+      <span class="hljs-keyword">var</span> <span class="hljs-literal">result</span> = <span class="hljs-string">""</span>;
+      <span class="hljs-keyword">var</span> encoder = new <span class="hljs-type">UTF8Encoding</span>();
+
+      <span class="hljs-keyword">var</span> b = new <span class="hljs-type">Rfc2898DeriveBytes</span>( pwd, encoder.<span class="hljs-type">GetBytes</span>( salt ), <span class="hljs-type">PBKDF2_ITERATION</span> );
+      <span class="hljs-keyword">var</span> k = b.<span class="hljs-type">GetBytes</span>( <span class="hljs-number">32</span> );
+      <span class="hljs-literal">result</span> = <span class="hljs-type">Convert</span>.<span class="hljs-type">ToBase64String</span>( k );
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">result</span>;
+    }
+  }
+}
+</code></pre>
+<p>パスワード、salt、ストレッチングの回数を指定します。
+上記の例では Byte で結果を受け取り、base64の形式で文字列に変換しています。</p>
+<ul>
+<li>参考: <a href="http://csharp.keicode.com/topics/salt-and-hash-1.php">RNGCryptoServiceProvider によるソルトの生成と SHA256 によるハッシュの計算</a></li>
+</ul>
+<p><br><br></p>
+<h3 id="-base64">補足説明: Base64</h3>
+<blockquote>
+<p>Base64は、データを64種類の印字可能な英数字のみを用いて、それ以外の文字を扱うことの出来ない通信環境にてマルチバイト文字やバイナリデータを扱うためのエンコード方式である。<br>MIMEによって規定されていて、7ビットのデータしか扱うことの出来ない電子メールにて広く利用されている。具体的には、A–Z, a–z, 0–9 までの62文字と、記号2つ (+, /)、さらにパディング（余った部分を詰める）のための記号として = が用いられる。<br>この変換によって、データ量は4/3（約133%）になる。また、MIMEの基準では76文字ごとに改行コードが入るため、この分の2バイトを計算に入れるとデータ量は約137%となる。<br><a href="https://ja.wikipedia.org/wiki/Base64">Base64</a></p>
+</blockquote>
+<p><br><br></p>
+<h3 id="-mime">補足説明: MIME</h3>
+<blockquote>
+<p>Multipurpose Internet Mail Extension（多目的インターネットメール拡張）は、規格上US-ASCIIのテキストしか使用できないインターネットの電子メールでさまざまなフォーマット（書式）を扱えるようにする規格である。通常はMIME（マイム）と略される。<br>RFC 2045、RFC 2046、RFC 2047、RFC 4288、RFC 4289、RFC 2049 で規定されている。<br><a href="https://ja.wikipedia.org/wiki/Multipurpose_Internet_Mail_Extensions">Multipurpose Internet Mail Extensions</a></p>
+</blockquote>
+<p><br><br></p>
+<h2 id="-">薬品検索システムへの組み込み</h2>
+<h3 id="pbkdf2-">PBKDF2でパスワードを保護する</h3>
+<p>認証処理を修正します。</p>
+<p><code>Models/CustomMembershipProvider.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Security.Cryptography;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Security;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Models</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">CustomMembershipProvider</span> : <span class="hljs-title">MembershipProvider</span>
+    {
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ストレッチング回数</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> STRETCHING_TIMES = <span class="hljs-number">10000</span>;
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">override</span> <span class="hljs-keyword">bool</span> <span class="hljs-title">ValidateUser</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username, <span class="hljs-keyword">string</span> password</span>)
+        </span>{
+            <span class="hljs-keyword">using</span> (<span class="hljs-keyword">var</span> db = <span class="hljs-keyword">new</span> DrugInfoContext())
+            {
+                <span class="hljs-comment">// ユーザー名とパスワードからパスワードハッシュを取得</span>
+                <span class="hljs-keyword">string</span> passhash = <span class="hljs-keyword">this</span>.GeneratePasswordHash(username, password);
+
+                <span class="hljs-keyword">var</span> user = db.Users.Where(u =&gt; u.UserName.Equals(username) &amp;&amp; u.Password.Equals(passhash)).FirstOrDefault();
+                <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>)
+                {
+                    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+                }
+            }
+
+            <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 後で削除する</span>
+            <span class="hljs-keyword">if</span> (<span class="hljs-string">"administrator"</span>.Equals(username) &amp;&amp; <span class="hljs-string">"password"</span>.Equals(password))
+            {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+            }
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> UserNameからsaltを取得</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="username"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">string</span> <span class="hljs-title">GenerateSalt</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username</span>)
+        </span>{
+            <span class="hljs-comment">// 文字列をbyte配列に変換</span>
+            <span class="hljs-keyword">var</span> data = System.Text.Encoding.UTF8.GetBytes(username);
+            <span class="hljs-comment">// SHA256CryptoServiceProvider</span>
+            <span class="hljs-keyword">var</span> sha256 = <span class="hljs-keyword">new</span> SHA256CryptoServiceProvider();
+            <span class="hljs-comment">// ハッシュ値を計算する</span>
+            <span class="hljs-keyword">var</span> hash = sha256.ComputeHash(data);
+            <span class="hljs-comment">// 文字列に変換</span>
+            <span class="hljs-keyword">string</span> result = BitConverter.ToString(hash).ToLower().Replace(<span class="hljs-string">"-"</span>, <span class="hljs-string">""</span>);
+
+            <span class="hljs-keyword">return</span> result;
+        }
+
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> ユーザー名とパスワードからパスワードハッシュを取得</span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;/summary&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="username"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;param name="password"&gt;</span><span class="hljs-xmlDocTag">&lt;/param&gt;</span></span>
+        <span class="hljs-comment"><span class="hljs-xmlDocTag">///</span> <span class="hljs-xmlDocTag">&lt;returns&gt;</span><span class="hljs-xmlDocTag">&lt;/returns&gt;</span></span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> <span class="hljs-title">GeneratePasswordHash</span>(<span class="hljs-params"><span class="hljs-keyword">string</span> username, <span class="hljs-keyword">string</span> password</span>)
+        </span>{
+            <span class="hljs-comment">// saltを取得</span>
+            <span class="hljs-keyword">string</span> salt = <span class="hljs-keyword">this</span>.GenerateSalt(username);
+
+            <span class="hljs-comment">// PBKDF2でパスワードをハッシュ化</span>
+            <span class="hljs-keyword">var</span> pbkdf2 = <span class="hljs-keyword">new</span> Rfc2898DeriveBytes(password,
+                System.Text.Encoding.UTF8.GetBytes(salt),
+                STRETCHING_TIMES);
+
+            <span class="hljs-comment">// パスワードハッシュ(byte)をbase64形式の文字列に変換</span>
+            <span class="hljs-keyword">string</span> result = Convert.ToBase64String(pbkdf2.GetBytes(<span class="hljs-number">32</span>));
+
+            <span class="hljs-keyword">return</span> result;
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p><code>Controllers/LoginController.cs</code></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System;
+<span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Web;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> System.Web.Security;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    [AllowAnonymous]
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">LoginController</span> : <span class="hljs-title">Controller</span>
+    {
+        <span class="hljs-keyword">readonly</span> CustomMembershipProvider membershipProvider = <span class="hljs-keyword">new</span> CustomMembershipProvider();
+        <span class="hljs-keyword">private</span> DrugInfoContext db = <span class="hljs-keyword">new</span> DrugInfoContext();
+
+        <span class="hljs-comment">// GET: Login</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params"></span>)
+        </span>{
+            <span class="hljs-keyword">return</span> View();
+        }
+
+        <span class="hljs-comment">// POST: Login</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Index</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"UserName,Password"</span></span>)] LoginViewModel model)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.membershipProvider.ValidateUser(model.UserName, model.Password))
+                {
+                    <span class="hljs-keyword">string</span> passhash = membershipProvider.GeneratePasswordHash(model.UserName, model.Password);
+
+                    <span class="hljs-keyword">var</span> user = db.Users.Where(u =&gt; u.UserName.Equals(model.UserName)
+                        &amp;&amp; u.Password.Equals(passhash))
+                        .FirstOrDefault();
+
+                    <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>)
+                    {
+                        FormsAuthentication.SetAuthCookie(user.UserId.ToString(), <span class="hljs-keyword">false</span>);
+                        <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>);
+                    }
+
+                    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 後で削除する</span>
+                    <span class="hljs-keyword">if</span> (<span class="hljs-string">"administrator"</span>.Equals(model.UserName) &amp;&amp; <span class="hljs-string">"password"</span>.Equals(model.Password))
+                    {
+                        FormsAuthentication.SetAuthCookie(<span class="hljs-string">"1"</span>, <span class="hljs-keyword">false</span>);
+                        <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>, <span class="hljs-string">"Home"</span>);
+                    }
+                }
+            }
+            ViewBag.Message = <span class="hljs-string">"ログインに失敗しました。"</span>;
+            <span class="hljs-keyword">return</span> View(model);
+        }
+
+        <span class="hljs-comment">// GET: Login/SignOut</span>
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">SignOut</span>(<span class="hljs-params"></span>)
+        </span>{
+            FormsAuthentication.SignOut();
+            <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+        }
+    }
+}
+</code></pre>
+<p><br></p>
+<p><code>Controllers/UsersController.cs</code></p>
+<p><br></p>
+<pre><code class="lang-cs"><span class="hljs-keyword">using</span> System.Collections.Generic;
+<span class="hljs-keyword">using</span> System.Data;
+<span class="hljs-keyword">using</span> System.Data.Entity;
+<span class="hljs-keyword">using</span> System.Linq;
+<span class="hljs-keyword">using</span> System.Net;
+<span class="hljs-keyword">using</span> System.Web.Mvc;
+<span class="hljs-keyword">using</span> WebApplication1.Models;
+
+<span class="hljs-keyword">namespace</span> <span class="hljs-title">WebApplication1.Controllers</span>
+{
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">UsersController</span> : <span class="hljs-title">Controller</span>
+    {
+        <span class="hljs-keyword">private</span> DrugInfoContext db = <span class="hljs-keyword">new</span> DrugInfoContext();
+        <span class="hljs-keyword">readonly</span> CustomMembershipProvider membershipProvider = <span class="hljs-keyword">new</span> CustomMembershipProvider();
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-comment">// POST: Users/Create</span>
+        <span class="hljs-comment">// 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。</span>
+        <span class="hljs-comment">// 詳細については、http://go.microsoft.com/fwlink/?LinkId=317598 を参照してください。</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Create</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"UserId,UserName,Password,RoleId"</span></span>)] Users users)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-keyword">foreach</span>(<span class="hljs-keyword">int</span> roleId <span class="hljs-keyword">in</span> users.RoleId)
+                {
+                    <span class="hljs-keyword">var</span> userRole = <span class="hljs-keyword">new</span> UserRole
+                    {
+                        UserID = users.UserId,
+                        RoleID = roleId
+                    };
+                    users.UserRole.Add(userRole);
+                }
+
+                <span class="hljs-comment">// パスワードをハッシュ化</span>
+                <span class="hljs-keyword">string</span> hash = membershipProvider.GeneratePasswordHash(users.UserName, users.Password);
+                users.Password = hash;
+
+                db.Users.Add(users);
+                db.SaveChanges();
+                <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+            }
+
+            <span class="hljs-keyword">this</span>.SetRoleItems();
+            <span class="hljs-keyword">return</span> View(users);
+        }
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+        <span class="hljs-comment">// POST: Users/Edit/5</span>
+        <span class="hljs-comment">// 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。</span>
+        <span class="hljs-comment">// 詳細については、http://go.microsoft.com/fwlink/?LinkId=317598 を参照してください。</span>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        <span class="hljs-function"><span class="hljs-keyword">public</span> ActionResult <span class="hljs-title">Edit</span>(<span class="hljs-params">[Bind(Include = <span class="hljs-string">"UserId,UserName,Password,RoleId"</span></span>)] Users users)
+        </span>{
+            <span class="hljs-keyword">if</span> (ModelState.IsValid)
+            {
+                <span class="hljs-comment">// パスワードをハッシュ化</span>
+                <span class="hljs-keyword">string</span> hash = membershipProvider.GeneratePasswordHash(users.UserName, users.Password);
+                users.Password = hash;
+
+                db.Entry(users).State = EntityState.Modified;
+
+                <span class="hljs-keyword">var</span> roleIds = db.UserRole
+                    .Where(item =&gt; item.UserID == users.UserId)
+                    .Select(item =&gt; item.RoleID)
+                    .ToList();
+
+                <span class="hljs-keyword">foreach</span> (<span class="hljs-keyword">int</span> roleId <span class="hljs-keyword">in</span> users.RoleId)
+                {
+                    <span class="hljs-keyword">if</span> (db.UserRole
+                        .Where(item =&gt; item.UserID == users.UserId &amp;&amp; item.RoleID == roleId)
+                        .Count() &gt; <span class="hljs-number">0</span>)
+                    {
+                        <span class="hljs-comment">// 既に登録済み</span>
+                        roleIds.Remove(roleId);
+                    }
+                    <span class="hljs-keyword">else</span>
+                    {
+                        <span class="hljs-comment">// 追加</span>
+                        <span class="hljs-keyword">var</span> userRole = <span class="hljs-keyword">new</span> UserRole
+                        {
+                            UserID = users.UserId,
+                            RoleID = roleId
+                        };
+                        db.UserRole.Add(userRole);
+                    }
+                }
+
+                <span class="hljs-comment">// 削除されたロールをDBに反映</span>
+                <span class="hljs-keyword">foreach</span>(<span class="hljs-keyword">var</span> roleId <span class="hljs-keyword">in</span> roleIds)
+                {
+                    <span class="hljs-keyword">var</span> item = db.UserRole.Where(ur =&gt; ur.UserID == users.UserId &amp;&amp; ur.RoleID == roleId).FirstOrDefault();
+                    <span class="hljs-keyword">if</span> (item != <span class="hljs-keyword">null</span>)
+                    {
+                        db.UserRole.Remove(item);
+                    }
+                }
+
+                db.SaveChanges();
+                <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">return</span> View(users);
+        }
+
+        <span class="hljs-comment">/* ~~ 省略 ~~ */</span>
+
+}
+</code></pre>
+<p><br><br></p>
+      </div>
+      <div class="col-md-3">
+        <div class="list-group">
+  <a href="./index.html" class="list-group-item active">TOP</a>
+  <a href="./about-001.html" class="list-group-item list-group-item-info">.NET Framework 概要</a>
+  <a href="./classic-index.html" class="list-group-item list-group-item-info">.NET Framework アプリケーション開発入門</a>
+  <a href="./classic-001.html" class="list-group-item">1. 簡単なコンソールアプリケーションの開発</a>
+  <a href="./classic-002.html" class="list-group-item">2. Windowsフォームアプリケーションの開発</a>
+  <a href="./classic-301.html" class="list-group-item">3. 非同期処理</a>
+  <a href="./asp-index.html" class="list-group-item list-group-item-info">ASP.NET MVC開発入門</a>
+  <a href="./webapp-intro.html" class="list-group-item">0. Webアプリケーションの定義</a>
+  <a href="./asp-001.html" class="list-group-item">1. ASP.NET MVC の概要</a>
+  <a href="./asp-002.html" class="list-group-item">2. ASP.NET MVC の基礎</a>
+  <a href="./asp-101.html" class="list-group-item">3. EntityFramework によるデータベースファースト開発</a>
+  <a href="./asp-201.html" class="list-group-item">4. 薬品情報検索システムの開発</a>
+  <a href="./asp-301.html" class="list-group-item">5. メンバーシップ フレームワークによる認証機能の実装</a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="container">
+
+    <div class="center-block ad-block">
+      <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <!-- aaa-768x90 -->
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:728px;height:90px"
+           data-ad-client="ca-pub-5886049398949171"
+           data-ad-slot="8568248344"></ins>
+      <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">.NET アプリケーション開発入門 , &copy; 2015 Kazunori Kimura</p>
+    </div>
+  </footer>
+
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  <script>
+  $(function(){
+    $(".contents table").addClass("table");
+  });
+  </script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-29149079-3', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>
