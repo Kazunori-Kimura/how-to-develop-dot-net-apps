@@ -164,7 +164,7 @@
     {
         <span class="hljs-keyword">int</span> id = <span class="hljs-keyword">int</span>.Parse(userId);
         <span class="hljs-keyword">var</span> user = db.Users
-            .Where(u =&gt; u.Id == id)
+            .Where(u =&gt; u.UserId == id)
             .FirstOrDefault();
 
         <span class="hljs-keyword">if</span> (user != <span class="hljs-keyword">null</span>) {
