@@ -456,6 +456,8 @@
                 db.SaveChanges();
                 <span class="hljs-keyword">return</span> RedirectToAction(<span class="hljs-string">"Index"</span>);
             }
+            <span class="hljs-keyword">var</span> roles = users.UserRole.Select(item =&gt; item.Roles).ToList();
+            <span class="hljs-keyword">this</span>.SetRoleItems(roles);
             <span class="hljs-keyword">return</span> View(users);
         }
 
